@@ -1,0 +1,21 @@
+{
+    "name": "tequilla/mongodb",
+    "description": "MongoDB Abstraction Layer (driver library)",
+    "type": "library",
+    "require": {
+        "php": ">=5.6",
+        "ext-mongodb": "^1.1.0",
+        "symfony/options-resolver": "^3.1"
+    },
+    "autoload": {
+        "psr-4": { "Tequilla\\": "src/" }
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Petr Buchyn",
+            "email": "petrbuchyn@gmail.com"
+        }
+    ],
+    "minimum-stability": "dev"
+}
