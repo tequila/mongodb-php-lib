@@ -9,30 +9,15 @@ namespace Tequilla\MongoDB;
 interface ClientInterface
 {
     /**
-     * @param string $databaseName
      * @param array $options
-     * @return mixed
+     * @return string[]
      */
-    public function dropDatabase($databaseName, array $options);
-
-    /**
-     * @param array $options
-     * @return mixed
-     */
-    public function listDatabase(array $options);
-
-    /**
-     * @param string $databaseName
-     * @param string $collectionName
-     * @param array $options
-     * @return CollectionInterface
-     */
-    public function selectCollection($databaseName, $collectionName, array $options);
+    public function listDatabases(array $options);
 
     /**
      * @param string $databaseName
      * @param array $options
      * @return DatabaseInterface
      */
-    public function selectDatabase($databaseName, array $options);
+    public function selectDatabase($databaseName, array $options = []);
 }

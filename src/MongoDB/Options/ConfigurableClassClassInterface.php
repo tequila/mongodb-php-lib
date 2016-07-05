@@ -1,10 +1,10 @@
 <?php
 
-namespace Tequilla\MongoDB;
+namespace Tequilla\MongoDB\Options;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-interface ConfigurableInterface
+interface ConfigurableClassInterface
 {
     public static function configureOptions(OptionsResolver $resolver);
 }
