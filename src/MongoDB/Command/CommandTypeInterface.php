@@ -3,13 +3,13 @@
 namespace Tequilla\MongoDB\Command;
 
 use MongoDB\Driver\ReadPreference;
-use Tequilla\MongoDB\Options\ConfigurableClassInterface;
+use Tequilla\MongoDB\Options\ConfigurableInterface;
 
 /**
  * Interface CommandInterface
  * @package Tequilla\MongoDB\Command
  */
-interface CommandTypeInterface extends ConfigurableClassInterface
+interface CommandTypeInterface extends ConfigurableInterface
 {
     /**
      * @return \MongoDB\Driver\ReadPreference
@@ -21,4 +21,9 @@ interface CommandTypeInterface extends ConfigurableClassInterface
      * @return bool
      */
     public static function supportsReadPreference(ReadPreference $readPreference);
+
+    /**
+     * @return string
+     */
+    public static function getCommandName();
 }

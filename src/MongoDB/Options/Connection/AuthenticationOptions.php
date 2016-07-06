@@ -3,9 +3,9 @@
 namespace Tequilla\MongoDB\Options\Connection;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Tequilla\MongoDB\Options\ConfigurableClassInterface;
+use Tequilla\MongoDB\Options\ConfigurableInterface;
 
-class AuthenticationOptions implements  ConfigurableClassInterface
+class AuthenticationOptions implements  ConfigurableInterface
 {
     const AUTH_SOURCE = 'authSource';
     const AUTH_MECHANISM = 'authMechanism';

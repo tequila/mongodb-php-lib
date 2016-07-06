@@ -12,7 +12,7 @@ interface ClientInterface
      * @param array $options
      * @return string[]
      */
-    public function listDatabases(array $options);
+    public function listDatabases(array $options = []);
 
     /**
      * @param string $databaseName

@@ -4,7 +4,7 @@ namespace Tequilla\MongoDB;
 
 interface DatabaseInterface
 {
-    public function createCollection(array $options = []);
+    public function createCollection($name, array $options = []);
     
     public function getName();
     

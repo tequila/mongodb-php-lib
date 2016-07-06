@@ -17,7 +17,7 @@ class ListCollectionsType implements CommandTypeInterface
     public static function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefault('listCollections', 1);
-        $resolver->setAllowedValues('listCollections', [1]);
+        $resolver->setAllowedValues('listCollections', 1);
         $resolver->setDefined(['filter']);
         $resolver->setAllowedTypes('filter', ['array', 'object']);
         $resolver->setNormalizer('filter', function(Options $options, $value) {
@@ -37,5 +37,10 @@ class ListCollectionsType implements CommandTypeInterface
 
             return (object) $value;
         });
+    }
+    
+    public static function getCommandName()
+    {
+        return 'listCollections';
     }
 }

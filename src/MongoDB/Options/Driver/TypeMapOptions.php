@@ -4,9 +4,9 @@ namespace Tequilla\MongoDB\Options\Driver;
 
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Tequilla\MongoDB\Options\ConfigurableClassInterface;
+use Tequilla\MongoDB\Options\ConfigurableInterface;
 
-class TypeMapOptions implements ConfigurableClassInterface
+class TypeMapOptions implements ConfigurableInterface
 {
     const TYPE_MAP = 'typeMap';
 

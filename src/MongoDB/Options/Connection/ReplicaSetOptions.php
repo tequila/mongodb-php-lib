@@ -3,9 +3,9 @@
 namespace Tequilla\MongoDB\Options\Connection;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Tequilla\MongoDB\Options\ConfigurableClassInterface;
+use Tequilla\MongoDB\Options\ConfigurableInterface;
 
-final class ReplicaSetOptions implements ConfigurableClassInterface
+final class ReplicaSetOptions implements ConfigurableInterface
 {
     const REPLICA_SET = 'replicaSet';
     

@@ -3,9 +3,9 @@
 namespace Tequilla\MongoDB\Options\Connection;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Tequilla\MongoDB\Options\ConfigurableClassInterface;
+use Tequilla\MongoDB\Options\ConfigurableInterface;
 
-final class ConnectionOptions implements ConfigurableClassInterface
+final class ConnectionOptions implements ConfigurableInterface
 {
     const SSL = 'ssl';
     const CONNECT_TIMEOUT_MS = 'connectTimeoutMS';

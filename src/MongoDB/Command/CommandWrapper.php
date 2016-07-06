@@ -61,7 +61,11 @@ class CommandWrapper
         $resolver = new OptionsResolver();
         $commandClass = $this->commandClass;
         $commandClass::configureOptions($resolver);
+        $commandName = $commandClass::getCommandName();
+        $resolver->setRequired($commandName);
         $options = $resolver->resolve($options);
+        $commandValue = $options[$commandName];
+        $options = [$commandName => $commandValue] + $options;
         
         $command = new Command($options);
 

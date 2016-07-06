@@ -2,6 +2,7 @@
 
 namespace Tequilla\MongoDB\Command\Type;
 
+use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tequilla\MongoDB\Command\CommandTypeInterface;
 
@@ -42,5 +43,17 @@ class CreateCollectionType implements CommandTypeInterface
             'warn',
         ]);
         $resolver->setAllowedTypes('indexOptionDefaults', ['array', 'object']);
+        $resolver->setNormalizer('capped', function(Options $options, $value) {
+            if ($value && !isset($options['size'])) {
+                throw new \InvalidArgumentException(
+                    'The option "size" is required for capped collections'
+                );
+            }
+        });
+    }
+    
+    public static function getCommandName()
+    {
+        return 'create';
     }
 }

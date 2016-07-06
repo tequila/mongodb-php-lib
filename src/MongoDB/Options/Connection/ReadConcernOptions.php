@@ -3,9 +3,9 @@
 namespace Tequilla\MongoDB\Options\Connection;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Tequilla\MongoDB\Options\ConfigurableClassInterface;
+use Tequilla\MongoDB\Options\ConfigurableInterface;
 
-class ReadConcernOptions implements ConfigurableClassInterface
+class ReadConcernOptions implements ConfigurableInterface
 {
     const READ_CONCERN_LEVEL = 'readconcernlevel';
     

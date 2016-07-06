@@ -3,9 +3,9 @@
 namespace Tequilla\MongoDB\Options\Connection;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Tequilla\MongoDB\Options\ConfigurableClassInterface;
+use Tequilla\MongoDB\Options\ConfigurableInterface;
 
-class WriteConcernOptions implements ConfigurableClassInterface
+class WriteConcernOptions implements ConfigurableInterface
 {
     const WRITE_CONCERN = 'w';
     const WRITE_CONCERN_TIMEOUT_MS = 'wtimeoutms';

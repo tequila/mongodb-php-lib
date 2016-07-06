@@ -3,13 +3,13 @@
 namespace Tequilla\MongoDB\Options\Driver;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Tequilla\MongoDB\Options\ConfigurableClassInterface;
+use Tequilla\MongoDB\Options\ConfigurableInterface;
 
 /**
  * Class DriverOptions
  * @package Tequilla\MongoDB\Options
  */
-class DriverOptions implements ConfigurableClassInterface
+class DriverOptions implements ConfigurableInterface
 {
     public static function getAll()
     {

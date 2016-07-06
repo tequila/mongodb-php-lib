@@ -3,9 +3,9 @@
 namespace Tequilla\MongoDB\Options\Connection;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Tequilla\MongoDB\Options\ConfigurableClassInterface;
+use Tequilla\MongoDB\Options\ConfigurableInterface;
 
-final class ReadPreferenceOptions implements ConfigurableClassInterface
+final class ReadPreferenceOptions implements ConfigurableInterface
 {
     const READ_PREFERENCE = 'readPreference';
     const READ_PREFERENCE_TAGS = 'readPreferenceTags';

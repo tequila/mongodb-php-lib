@@ -5,6 +5,7 @@ namespace Tequilla\MongoDB;
 use MongoDB\Driver\Manager;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tequilla\MongoDB\Command\CommandBuilder;
+use Tequilla\MongoDB\Command\Type\ListDatabasesType;
 use Tequilla\MongoDB\Options\Connection\ConnectionOptions;
 use Tequilla\MongoDB\Options\Driver\DriverOptions;
 
@@ -30,7 +31,7 @@ class Client implements ClientInterface
      * @param array $options
      * @param array $driverOptions
      */
-    public function __construct($uri, array $options = [], array $driverOptions = [])
+    public function __construct($uri = 'mongodb://localhost:27017', array $options = [], array $driverOptions = [])
     {
         $resolver = new OptionsResolver();
         ConnectionOptions::configureOptions($resolver);
@@ -53,7 +54,7 @@ class Client implements ClientInterface
             $this->databaseFactory->setManager($this->manager);
         }
         
-        return $this->manager;
+        return $this->databaseFactory;
     }
 
     public function setDatabaseFactory(DatabaseFactoryInterface $factory)
@@ -72,9 +73,11 @@ class Client implements ClientInterface
         return $this->getDatabaseFactory()->createDatabaseInstance($name, $options);
     }
     
-    public function listDatabases(array $options)
+    public function listDatabases(array $options = [])
     {
-        // TODO: Implement listDatabases() method.
+        return $this->createCommandBuilder('admin')
+            ->buildCommand(ListDatabasesType::class)
+            ->execute($options);
     }
 
     public function createCommandBuilder($databaseName)
