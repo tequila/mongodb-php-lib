@@ -9,7 +9,10 @@
     },
     "autoload": {
         "psr-4": { "Tequilla\\": "src/" },
-        "files": ["src/functions.php"]
+        "files": ["src/MongoDB/functions.php"]
+    },
+    "autoload-dev": {
+        "psr-4": { "Tequilla\\MongoDB\\Tests\\": "tests/MongoDB/" }
     },
     "license": "MIT",
     "authors": [
@@ -18,5 +21,8 @@
             "email": "petrbuchyn@gmail.com"
         }
     ],
-    "minimum-stability": "dev"
+    "minimum-stability": "dev",
+    "require-dev": {
+        "phpunit/phpunit": "^5.4"
+    }
 }

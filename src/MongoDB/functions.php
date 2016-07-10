@@ -16,3 +16,11 @@ function is_list($value) {
 
     return array_keys($value) === range(0, count($value) - 1);
 }
+
+/**
+ * @param mixed $value
+ * @return string
+ */
+function get_type($value) {
+    return is_object($value) ? get_class($value) : \gettype($value);
+}

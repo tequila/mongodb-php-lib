@@ -15,9 +15,6 @@ trait PrimaryReadPreferenceTrait
      */
     private static $readPreference;
 
-    /**
-     * @inheritdoc
-     */
     public static function getDefaultReadPreference()
     {
         if (!self::$readPreference) {

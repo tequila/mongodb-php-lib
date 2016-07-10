@@ -6,6 +6,8 @@ use MongoDB\Driver\Command;
 use MongoDB\Driver\Manager;
 use MongoDB\Driver\ReadPreference;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Tequilla\MongoDB\Exception\InvalidArgumentException;
+use Symfony\Component\OptionsResolver\Exception\InvalidArgumentException as OptionsResolverException;
 
 /**
  * Class Command
@@ -45,7 +47,7 @@ class CommandWrapper
         $commandClass
     ) {
         $this->ensureValidCommandClass($commandClass);
-        
+
         $this->databaseName = (string) $databaseName;
         $this->manager = $manager;
         $this->commandClass = (string) $commandClass;
@@ -63,10 +65,16 @@ class CommandWrapper
         $commandClass::configureOptions($resolver);
         $commandName = $commandClass::getCommandName();
         $resolver->setRequired($commandName);
-        $options = $resolver->resolve($options);
+        
+        try {
+            $options = $resolver->resolve($options);
+        } catch(OptionsResolverException $e) {
+            throw new InvalidArgumentException($e->getMessage());
+        }
+
         $commandValue = $options[$commandName];
         $options = [$commandName => $commandValue] + $options;
-        
+
         $command = new Command($options);
 
         return $this->manager->executeCommand(
@@ -94,7 +102,7 @@ class CommandWrapper
         }
 
         $this->readPreference = $readPreference;
-        
+
         return $this;
     }
 

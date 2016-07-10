@@ -7,8 +7,8 @@ use Tequilla\MongoDB\Options\ConfigurableInterface;
 
 class ReadConcernOptions implements ConfigurableInterface
 {
-    const READ_CONCERN_LEVEL = 'readconcernlevel';
-    
+    const READ_CONCERN_LEVEL = 'readConcernLevel';
+
     public static function getAll()
     {
         return [ self::READ_CONCERN_LEVEL ];

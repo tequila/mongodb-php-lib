@@ -5,11 +5,15 @@ namespace Tequilla\MongoDB\Command\Type;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tequilla\MongoDB\Command\CommandTypeInterface;
+use Tequilla\MongoDB\Exception\InvalidArgumentException;
 
 class CreateCollectionType implements CommandTypeInterface
 {
     use PrimaryReadPreferenceTrait;
 
+    /**
+     * @param  OptionsResolver $resolver
+     */
     public static function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefined([
@@ -25,33 +29,49 @@ class CreateCollectionType implements CommandTypeInterface
             'indexOptionDefaults',
         ]);
 
-        $resolver->setAllowedTypes('create', 'string');
-        $resolver->setAllowedTypes('capped', 'bool');
-        $resolver->setDefault('capped', false);
-        $resolver->setAllowedTypes('size', 'integer');
-        $resolver->setAllowedTypes('max', 'integer');
-        $resolver->setAllowedTypes('flags', 'integer');
-        $resolver->setAllowedTypes('storageEngine', ['array', 'object']);
-        $resolver->setAllowedTypes('validator', ['array', 'object']);
-        $resolver->setAllowedValues('validationLevel', [
-            'off',
-            'strict',
-            'moderate',
-        ]);
-        $resolver->setAllowedValues('validationAction', [
-            'error',
-            'warn',
-        ]);
-        $resolver->setAllowedTypes('indexOptionDefaults', ['array', 'object']);
-        $resolver->setNormalizer('capped', function(Options $options, $value) {
-            if ($value && !isset($options['size'])) {
-                throw new \InvalidArgumentException(
+        $resolver
+            ->setAllowedTypes('create', 'string')
+            ->setAllowedTypes('capped', 'bool')
+            ->setAllowedTypes('size', 'integer')
+            ->setAllowedTypes('max', 'integer')
+            ->setAllowedTypes('flags', 'integer')
+            ->setAllowedTypes('storageEngine', ['array', 'object'])
+            ->setAllowedTypes('validator', ['array', 'object'])
+            ->setAllowedValues('validationLevel', [
+                'off',
+                'strict',
+                'moderate',
+            ])
+            ->setAllowedValues('validationAction', [
+                'error',
+                'warn',
+            ])
+            ->setAllowedTypes('indexOptionDefaults', ['array', 'object']);
+
+        $resolver->setDefault('size', function(Options $options) {
+            if (!empty($options['capped'])) {
+                throw new InvalidArgumentException(
                     'The option "size" is required for capped collections'
                 );
             }
+
+            return 0;
         });
+
+        $sizeAndMaxOptionsNormalizer = function(Options $options, $value) {
+            if ($value && empty($options['capped'])) {
+                throw new InvalidArgumentException(
+                    'The "size" and "max" options are meaningless until "capped" option has been set to true'
+                );
+            }
+
+            return $value;
+        };
+
+        $resolver->setNormalizer('size', $sizeAndMaxOptionsNormalizer);
+        $resolver->setNormalizer('max', $sizeAndMaxOptionsNormalizer);
     }
-    
+
     public static function getCommandName()
     {
         return 'create';
