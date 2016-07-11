@@ -133,10 +133,12 @@ class Database implements DatabaseInterface
      */
     public function drop(array $options = [])
     {
-        return $this
-            ->createCommandBuilder()
+        $cursor = $this
+            ->createCommandBuilder('admin')
             ->buildCommand(DropDatabaseType::class)
             ->execute($options);
+
+        return $this->setTypeMapOnCursor($cursor)->toArray();
     }
 
     /**
@@ -145,10 +147,12 @@ class Database implements DatabaseInterface
      */
     public function listCollections(array $options = [])
     {
-        return $this
+        $cursor =  $this
             ->createCommandBuilder()
             ->buildCommand(ListCollectionsType::class)
             ->execute($options);
+
+        return $this->setTypeMapOnCursor($cursor)->toArray();
     }
 
     public function selectCollection($collectionName, array $options = [])

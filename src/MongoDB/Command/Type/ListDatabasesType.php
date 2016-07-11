@@ -14,7 +14,7 @@ class ListDatabasesType implements CommandTypeInterface
         $resolver->setDefault('listDatabases', 1);
         $resolver->setAllowedValues('listDatabases', 1);
     }
-    
+
     public static function getCommandName()
     {
         return 'listDatabases';

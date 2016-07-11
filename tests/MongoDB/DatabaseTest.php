@@ -149,7 +149,7 @@ class DatabaseTest extends TestCase
     public function testCreateCollectionReturnsValidResponse()
     {
         $db = $this->getValidDatabaseInstance();
-        $result = $db->createCollection('tequilla_mongodb_create_collection_test');
+        $result = $db->createCollection('tequilla_mongodb_create_collection_test_' . uniqid());
 
         $this->assertEquals(1.0, $result[0]['ok']);
     }
@@ -162,7 +162,7 @@ class DatabaseTest extends TestCase
     {
         $manager = new Manager();
         $dbName = 'tequilla_mongodb_test_' . uniqid();
-        $collectionName = 'tequilla_mongodb_create_collection_test_capped';
+        $collectionName = 'tequilla_mongodb_create_collection_test_capped_' . uniqid();
         $db = new Database($manager, $dbName);
         $db->createCollection(
             $collectionName,
@@ -195,10 +195,73 @@ class DatabaseTest extends TestCase
     public function testGetNameReturnsNameSpecifiedInConstructor()
     {
         $manager = new Manager();
-        $dbName = 'tequilla_database_test_get_name';
+        $dbName = 'tequilla_database_test';
         $db = new Database($manager, $dbName);
 
         $this->assertEquals($dbName, $db->getName());
+    }
+
+    /**
+     * @covers \Tequilla\MongoDB\Database::listCollections()
+     * @uses Manager
+     */
+    public function testListCollectionsReturnsValidResponse()
+    {
+        $manager = new Manager();
+        $dbName = 'tequilla_database_test';
+        $collectionName = 'tequilla_mongodb_test_list_collections_' . uniqid();
+        $createCommand = new Command(['create' => $collectionName]);
+        $manager->executeCommand($dbName, $createCommand);
+
+        $db = new Database($manager, $dbName);
+        $result = $db->listCollections();
+
+        foreach ($result as $collectionInfo) {
+            if ($collectionInfo['name'] === $collectionName) {
+                return;
+            }
+        }
+
+        throw new \LogicException(
+            sprintf(
+                'Failed assert that %s::listCollections() returns all collection names in db. Method returned: "%s"',
+                Database::class,
+                var_export($result, true)
+            )
+        );
+    }
+
+    /**
+     * @covers \Tequilla\MongoDB\Database::listCollections()
+     * @uses Manager
+     */
+    public function testDatabaseDropMethodDropsDatabase()
+    {
+        $manager = new Manager();
+        $dbName = 'tequilla_database_test';
+        $collectionName = 'tequilla_mongodb_test_database_drop_' . uniqid();
+        $createCommand = new Command(['create' => $collectionName]);
+        $manager->executeCommand($dbName, $createCommand);
+
+        $database = new Database($manager, $dbName);
+        $database->drop();
+
+        $listDatabasesCommand = new Command(['listDatabases' => 1]);
+        $cursor = $manager->executeCommand('admin', $listDatabasesCommand);
+        $cursor->setTypeMap([
+            'root' => 'array',
+            'document' => 'array',
+            'array' => 'array',
+        ]);
+        $result = $cursor->toArray();
+
+        foreach ($result[0]['databases'] as $dbInfo) {
+            if ($dbInfo['name'] === $dbName) {
+                throw new \LogicException(
+                    sprintf('Failed assert that %s::drop() drops database', Database::class)
+                );
+            }
+        }
     }
 
     public function getInvalidCreateCollectionOptions()
@@ -257,6 +320,6 @@ class DatabaseTest extends TestCase
             $manager = new Manager();
         }
 
-        return new Database($manager, 'tequilla_mongodb_test_' . uniqid());
+        return new Database($manager, 'tequilla_mongodb_test');
     }
 }

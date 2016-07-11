@@ -9,7 +9,7 @@
     },
     "autoload": {
         "psr-4": { "Tequilla\\": "src/" },
-        "files": ["src/MongoDB/functions.php"]
+        "files": ["src/MongoDB/internal_functions.php"]
     },
     "autoload-dev": {
         "psr-4": { "Tequilla\\MongoDB\\Tests\\": "tests/MongoDB/" }
