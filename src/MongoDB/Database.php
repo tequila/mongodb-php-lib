@@ -157,7 +157,7 @@ class Database implements DatabaseInterface
 
     /**
      * @param array $options
-     * @return \MongoDB\Driver\Cursor
+     * @return array
      */
     public function listCollections(array $options = [])
     {
