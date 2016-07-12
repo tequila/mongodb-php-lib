@@ -8,6 +8,7 @@ use Tequilla\MongoDB\Command\CommandBuilder;
 use Tequilla\MongoDB\Command\Type\ListDatabasesType;
 use Tequilla\MongoDB\Options\Connection\ConnectionOptions;
 use Tequilla\MongoDB\Options\Driver\DriverOptions;
+use Tequilla\MongoDB\Options\Driver\TypeMapOptions;
 
 /**
  * Class Client
@@ -24,6 +25,11 @@ class Client implements ClientInterface
      * @var DatabaseFactoryInterface
      */
     private $databaseFactory;
+
+    /**
+     * @var CommandBuilder[]
+     */
+    private $commandBuilders = [];
 
     /**
      * Client constructor.
@@ -53,10 +59,13 @@ class Client implements ClientInterface
             $this->databaseFactory = new DatabaseFactory();
             $this->databaseFactory->setManager($this->manager);
         }
-        
+
         return $this->databaseFactory;
     }
 
+    /**
+     * @param DatabaseFactoryInterface $factory
+     */
     public function setDatabaseFactory(DatabaseFactoryInterface $factory)
     {
         $factory->setManager($this->manager);
@@ -69,19 +78,48 @@ class Client implements ClientInterface
      * @return DatabaseInterface
      */
     public function selectDatabase($name, array $options = [])
-    {        
+    {
         return $this->getDatabaseFactory()->createDatabaseInstance($name, $options);
     }
-    
+
+    /**
+     * @param array $options
+     * @return array
+     */
     public function listDatabases(array $options = [])
     {
-        return $this->createCommandBuilder('admin')
+        $cursor = $this->createCommandBuilder('admin')
             ->buildCommand(ListDatabasesType::class)
             ->execute($options);
+
+        return TypeMapOptions::setArrayTypeMapOnCursor($cursor)->toArray()[0]['databases'];
     }
 
+    /**
+     * @param string $databaseName
+     * @param array $options
+     * @return array
+     */
+    public function dropDatabase($databaseName, array $options = [])
+    {
+        $cursor = $this
+            ->createCommandBuilder($databaseName)
+            ->buildCommand(DropDatabaseType::class)
+            ->execute($options);
+
+        return TypeMapOptions::setArrayTypeMapOnCursor($cursor)->toArray();
+    }
+
+    /**
+     * @param $databaseName
+     * @return CommandBuilder
+     */
     public function createCommandBuilder($databaseName)
     {
-        return new CommandBuilder($this->manager, $databaseName);
+        if (!$this->commandBuilders[$databaseName]) {
+            $this->commandBuilders[$databaseName] = new CommandBuilder($this->manager, $databaseName);
+        }
+
+        return $this->commandBuilders[$databaseName];
     }
 }

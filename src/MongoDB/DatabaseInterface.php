@@ -4,10 +4,15 @@ namespace Tequilla\MongoDB;
 
 interface DatabaseInterface
 {
-    public function createCollection($name, array $options = []);
-    
+    /**
+     * @param  [type] $name
+     * @param  [type] $options
+     * @return [type]
+     */
+    public function createCollection($collectionName, array $options = []);
+
     public function getName();
-    
+
     public function selectCollection($collectionName, array $options = []);
 
     public function drop(array $options = []);

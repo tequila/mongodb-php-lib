@@ -232,7 +232,7 @@ class DatabaseTest extends TestCase
     }
 
     /**
-     * @covers \Tequilla\MongoDB\Database::listCollections()
+     * @covers \Tequilla\MongoDB\Database::drop()
      * @uses Manager
      */
     public function testDatabaseDropMethodDropsDatabase()
@@ -253,12 +253,46 @@ class DatabaseTest extends TestCase
             'document' => 'array',
             'array' => 'array',
         ]);
+
         $result = $cursor->toArray();
 
         foreach ($result[0]['databases'] as $dbInfo) {
             if ($dbInfo['name'] === $dbName) {
                 throw new \LogicException(
                     sprintf('Failed assert that %s::drop() drops database', Database::class)
+                );
+            }
+        }
+    }
+
+    /**
+     * @covers \Tequilla\MongoDB\Database::dropCollection()
+     * @uses Manager
+     */
+    public function testDatabaseDropCollectionMethodDropsCollection()
+    {
+        $manager = new Manager();
+        $dbName = 'tequilla_database_test';
+        $collectionName = 'tequilla_mongodb_test_database_drop_collection_' . uniqid();
+        $createCommand = new Command(['create' => $collectionName]);
+        $manager->executeCommand($dbName, $createCommand);
+
+        $database = new Database($manager, $dbName);
+        $database->dropCollection($collectionName);
+
+        $listCollectionsCommand = new Command(['listCollections' => 1]);
+        $cursor = $manager->executeCommand($dbName, $listCollectionsCommand);
+        $cursor->setTypeMap([
+            'root' => 'array',
+            'document' => 'array',
+            'array' => 'array',
+        ]);
+        $collections = $cursor->toArray();
+
+        foreach ($collections as $collectionInfo) {
+            if ($collectionInfo['name'] === $collectionName) {
+                throw new \LogicException(
+                    sprintf('Failed assert that %s::dropCollection() drops database', Database::class)
                 );
             }
         }

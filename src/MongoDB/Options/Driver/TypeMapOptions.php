@@ -5,6 +5,7 @@ namespace Tequilla\MongoDB\Options\Driver;
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tequilla\MongoDB\Options\ConfigurableInterface;
+use MongoDB\Driver\Cursor;
 
 class TypeMapOptions implements ConfigurableInterface
 {
@@ -18,7 +19,7 @@ class TypeMapOptions implements ConfigurableInterface
     public static function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefined(self::getAll());
-        $resolver->setAllowedTypes(self::TYPE_MAP, ['array']);
+        $resolver->setAllowedTypes(self::TYPE_MAP, 'array');
         $resolver->setDefault(self::TYPE_MAP, [
             'array' => 'array',
             'document' => 'array',
@@ -31,8 +32,19 @@ class TypeMapOptions implements ConfigurableInterface
                 'document',
                 'root',
             ]);
-            
+
             return $typeMapResolver->resolve($value);
         });
+    }
+
+    public static function setArrayTypeMapOnCursor(Cursor $cursor)
+    {
+        $cursor->setTypeMap([
+            'root' => 'array',
+            'document' => 'array',
+            'array' => 'array',
+        ]);
+
+        return $cursor;
     }
 }

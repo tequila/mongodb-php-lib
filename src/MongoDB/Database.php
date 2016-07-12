@@ -10,6 +10,7 @@ use MongoDB\Driver\WriteConcern;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tequilla\MongoDB\Command\CommandBuilder;
 use Tequilla\MongoDB\Command\Type\CreateCollectionType;
+use Tequilla\MongoDB\Command\Type\DropCollectionType;
 use Tequilla\MongoDB\Command\Type\DropDatabaseType;
 use Tequilla\MongoDB\Command\Type\ListCollectionsType;
 use Tequilla\MongoDB\Exception\InvalidArgumentException;
@@ -76,6 +77,14 @@ class Database implements DatabaseInterface
     }
 
     /**
+     * @inheritdoc
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
      * @return ReadConcern
      */
     public function getReadConcern()
@@ -84,47 +93,40 @@ class Database implements DatabaseInterface
     }
 
     /**
-     * @return [type] [description]
+     * @return ReadPreference
      */
     public function getReadPreference()
     {
         return $this->readPreference;
     }
 
+    /**
+     * @return WriteConcern
+     */
     public function getWriteConcern()
     {
         return $this->writeConcern;
     }
 
     /**
-     * @param string $name
+     * @param string $collectionName
      * @param array $options
      * @return array
      */
-    public function createCollection($name, array $options = [])
+    public function createCollection($collectionName, array $options = [])
     {
-        if (!is_string($name)) {
+        if (!is_string($collectionName)) {
             throw new InvalidArgumentException(
                 sprintf(
                     'Collection name must be a string, %s given',
-                    get_type($name)
+                    get_type($collectionName)
                 )
             );
         }
 
-        $options['create'] = $name;
+        $options['create'] = $collectionName;
 
-        $cursor = $this
-            ->createCommandBuilder()
-            ->buildCommand(CreateCollectionType::class)
-            ->execute($options);
-
-        return $this->setTypeMapOnCursor($cursor)->toArray();
-    }
-
-    public function getName()
-    {
-        return $this->name;
+        return $this->executeCommand(CreateCollectionType::class, $options);
     }
 
     /**
@@ -134,11 +136,23 @@ class Database implements DatabaseInterface
     public function drop(array $options = [])
     {
         $cursor = $this
-            ->createCommandBuilder('admin')
+            ->createCommandBuilder()
             ->buildCommand(DropDatabaseType::class)
             ->execute($options);
 
-        return $this->setTypeMapOnCursor($cursor)->toArray();
+        return TypeMapOptions::setArrayTypeMapOnCursor($cursor)->toArray();
+    }
+
+    /**
+     * @param string $collectionName
+     * @param array $options
+     * @return array
+     */
+    public function dropCollection($collectionName, array $options = [])
+    {
+        $options['drop'] = (string) $collectionName;
+
+        return $this->executeCommand(DropCollectionType::class, $options);
     }
 
     /**
@@ -147,12 +161,7 @@ class Database implements DatabaseInterface
      */
     public function listCollections(array $options = [])
     {
-        $cursor =  $this
-            ->createCommandBuilder()
-            ->buildCommand(ListCollectionsType::class)
-            ->execute($options);
-
-        return $this->setTypeMapOnCursor($cursor)->toArray();
+        return $this->executeCommand(ListCollectionsType::class, $options);
     }
 
     public function selectCollection($collectionName, array $options = [])
@@ -160,6 +169,10 @@ class Database implements DatabaseInterface
 
     }
 
+    /**
+     * @param array $options
+     * @return
+     */
     private function resolveOptions(array $options)
     {
         $resolver = new OptionsResolver();
@@ -183,6 +196,21 @@ class Database implements DatabaseInterface
     }
 
     /**
+     * @param $commandTypeClass
+     * @param array $options
+     * @return array
+     */
+    private function executeCommand($commandTypeClass, array $options)
+    {
+        $cursor =  $this
+            ->createCommandBuilder()
+            ->buildCommand((string) $commandTypeClass)
+            ->execute($options);
+
+        return TypeMapOptions::setArrayTypeMapOnCursor($cursor)->toArray();
+    }
+
+    /**
      * @return CommandBuilder
      */
     private function createCommandBuilder()
@@ -192,16 +220,5 @@ class Database implements DatabaseInterface
         }
 
         return $this->commandBuilder;
-    }
-
-    private function setTypeMapOnCursor(Cursor $cursor)
-    {
-        $cursor->setTypeMap([
-            'root' => 'array',
-            'document' => 'array',
-            'array' => 'array',
-        ]);
-
-        return $cursor;
     }
 }

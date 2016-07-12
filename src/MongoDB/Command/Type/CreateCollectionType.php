@@ -16,8 +16,9 @@ class CreateCollectionType implements CommandTypeInterface
      */
     public static function configureOptions(OptionsResolver $resolver)
     {
+        $resolver->setRequired('create');
+        
         $resolver->setDefined([
-            'create',
             'capped',
             'size',
             'max',
