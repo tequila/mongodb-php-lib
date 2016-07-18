@@ -186,7 +186,7 @@ class Connection
     {
         assertValidDatabaseName($databaseName);
         assertValidCollectionName($collectionName);
-        
+
         $options['create'] = $collectionName;
 
         return $this->buildAndExecuteCommand($databaseName, CreateCollectionType::class, $options);
@@ -200,6 +200,9 @@ class Connection
      */
     public function dropCollection($databaseName, $collectionName, array $options = [])
     {
+        assertValidDatabaseName($databaseName);
+        assertValidCollectionName($collectionName);
+
         $options['drop'] = (string) $collectionName;
 
         return $this->buildAndExecuteCommand($databaseName, DropCollectionType::class, $options);
@@ -291,9 +294,14 @@ class Connection
         return $database;
     }
 
-    public function selectCollection()
+    /**
+     * @param string $databaseName
+     * @param string $collectionName
+     */
+    public function selectCollection($databaseName, $collectionName)
     {
-
+        assertValidDatabaseName($databaseName);
+        assertValidCollectionName($collectionName);
     }
 
     /**
