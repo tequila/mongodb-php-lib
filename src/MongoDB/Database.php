@@ -2,21 +2,15 @@
 
 namespace Tequilla\MongoDB;
 
-use MongoDB\Driver\Cursor;
-use MongoDB\Driver\Manager;
 use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
 use MongoDB\Driver\WriteConcern;
-use Symfony\Component\OptionsResolver\OptionsResolver;
-use Tequilla\MongoDB\Command\CommandBuilder;
-use Tequilla\MongoDB\Command\Type\CreateCollectionType;
-use Tequilla\MongoDB\Command\Type\DropCollectionType;
-use Tequilla\MongoDB\Command\Type\DropDatabaseType;
-use Tequilla\MongoDB\Command\Type\ListCollectionsType;
 use Tequilla\MongoDB\Exception\InvalidArgumentException;
-use Tequilla\MongoDB\Options\Driver\TypeMapOptions;
-use Symfony\Component\OptionsResolver\Exception\InvalidArgumentException as OptionsResolverException;
 
+/**
+ * Class Database
+ * @package Tequilla\MongoDB
+ */
 class Database implements DatabaseInterface
 {
     /**
@@ -25,14 +19,9 @@ class Database implements DatabaseInterface
     private $name;
 
     /**
-     * @var Manager
+     * @var Connection
      */
-    private $manager;
-
-    /**
-     * @var CommandBuilder
-     */
-    private $commandBuilder;
+    private $connection;
 
     /**
      * @var ReadConcern
@@ -51,29 +40,14 @@ class Database implements DatabaseInterface
 
     /**
      * Database constructor.
-     * @param Manager $manager
-     * @param string $name
-     * @param array $options
+     * @param Connection $connection
+     * @param string $databaseName
      */
-    public function __construct(Manager $manager, $name, array $options = [])
+    public function __construct(Connection $connection, $databaseName)
     {
-        if (!is_string($name)) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    'Database name must be a string, "%s" is given',
-                    get_type($name)
-                )
-            );
-        }
 
-        $this->manager = $manager;
-
-        $options = $this->resolveOptions($options);
-
-        $this->name = $name;
-        $this->readConcern = $options['readConcern'];
-        $this->readPreference = $options['readPreference'];
-        $this->writeConcern = $options['writeConcern'];
+        $this->connection = $connection;
+        $this->name = $databaseName;
     }
 
     /**
@@ -115,32 +89,11 @@ class Database implements DatabaseInterface
      */
     public function createCollection($collectionName, array $options = [])
     {
-        if (!is_string($collectionName)) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    'Collection name must be a string, %s given',
-                    get_type($collectionName)
-                )
-            );
-        }
-
-        $options['create'] = $collectionName;
-
-        return $this->executeCommand(CreateCollectionType::class, $options);
-    }
-
-    /**
-     * @param array $options
-     * @return \MongoDB\Driver\Cursor
-     */
-    public function drop(array $options = [])
-    {
-        $cursor = $this
-            ->createCommandBuilder()
-            ->buildCommand(DropDatabaseType::class)
-            ->execute($options);
-
-        return TypeMapOptions::setArrayTypeMapOnCursor($cursor)->toArray();
+        return $this->connection->createCollection(
+            $this->name,
+            $collectionName,
+            $options
+        );
     }
 
     /**
@@ -150,9 +103,7 @@ class Database implements DatabaseInterface
      */
     public function dropCollection($collectionName, array $options = [])
     {
-        $options['drop'] = (string) $collectionName;
-
-        return $this->executeCommand(DropCollectionType::class, $options);
+        return $this->connection->dropCollection($this->name, $collectionName, $options);
     }
 
     /**
@@ -161,9 +112,14 @@ class Database implements DatabaseInterface
      */
     public function listCollections(array $options = [])
     {
-        return $this->executeCommand(ListCollectionsType::class, $options);
+        return $this->connection->listCollections($this->name);
     }
 
+    /**
+     * @param  string $collectionName
+     * @param  array $options
+     * @return CollectionInterface
+     */
     public function selectCollection($collectionName, array $options = [])
     {
 
@@ -171,54 +127,10 @@ class Database implements DatabaseInterface
 
     /**
      * @param array $options
-     * @return
+     * @return \MongoDB\Driver\Cursor
      */
-    private function resolveOptions(array $options)
+    public function drop(array $options = [])
     {
-        $resolver = new OptionsResolver();
-        $resolver->setDefaults([
-            'readConcern' => $this->manager->getReadConcern(),
-            'readPreference' => $this->manager->getReadPreference(),
-            'writeConcern' => $this->manager->getWriteConcern(),
-        ]);
-
-        $resolver->setAllowedTypes('readConcern', ReadConcern::class);
-        $resolver->setAllowedTypes('readPreference', ReadPreference::class);
-        $resolver->setAllowedTypes('writeConcern', WriteConcern::class);
-
-        TypeMapOptions::configureOptions($resolver);
-
-        try {
-            return $resolver->resolve($options);
-        } catch(OptionsResolverException $e) {
-            throw new InvalidArgumentException($e->getMessage());
-        }
-    }
-
-    /**
-     * @param $commandTypeClass
-     * @param array $options
-     * @return array
-     */
-    private function executeCommand($commandTypeClass, array $options)
-    {
-        $cursor =  $this
-            ->createCommandBuilder()
-            ->buildCommand((string) $commandTypeClass)
-            ->execute($options);
-
-        return TypeMapOptions::setArrayTypeMapOnCursor($cursor)->toArray();
-    }
-
-    /**
-     * @return CommandBuilder
-     */
-    private function createCommandBuilder()
-    {
-        if (!$this->commandBuilder) {
-            $this->commandBuilder = new CommandBuilder($this->manager, $this->name);
-        }
-
-        return $this->commandBuilder;
+        return $this->connection->dropDatabase($this->name, $options);
     }
 }

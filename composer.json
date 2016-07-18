@@ -5,7 +5,8 @@
     "require": {
         "php": ">=5.6",
         "ext-mongodb": "^1.1.0",
-        "symfony/options-resolver": "^3.1"
+        "symfony/options-resolver": "^3.1",
+        "symfony/event-dispatcher": "^3.1"
     },
     "autoload": {
         "psr-4": { "Tequilla\\": "src/" },

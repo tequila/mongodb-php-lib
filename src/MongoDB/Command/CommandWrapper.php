@@ -2,11 +2,11 @@
 
 namespace Tequilla\MongoDB\Command;
 
-use MongoDB\Driver\Command;
-use MongoDB\Driver\Manager;
 use MongoDB\Driver\ReadPreference;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Tequilla\MongoDB\Connection;
 use Tequilla\MongoDB\Exception\InvalidArgumentException;
+use Tequilla\MongoDB;
 use Symfony\Component\OptionsResolver\Exception\InvalidArgumentException as OptionsResolverException;
 
 /**
@@ -16,9 +16,9 @@ use Symfony\Component\OptionsResolver\Exception\InvalidArgumentException as Opti
 class CommandWrapper
 {
     /**
-     * @var Manager
+     * @var Connection
      */
-    private $manager;
+    private $connection;
 
     /**
      * @var string
@@ -37,26 +37,26 @@ class CommandWrapper
 
     /**
      * Command constructor.
-     * @param Manager $manager
+     * @param Connection $connection
      * @param string $databaseName
      * @param string $commandClass
      */
     public function __construct(
-        Manager $manager,
+        Connection $connection,
         $databaseName,
         $commandClass
     ) {
-        $this->ensureValidCommandClass($commandClass);
+        MongoDB\assertIsSubclassOf($commandClass, CommandTypeInterface::class);
 
         $this->databaseName = (string) $databaseName;
-        $this->manager = $manager;
+        $this->connection = $connection;
         $this->commandClass = (string) $commandClass;
         $this->readPreference = $commandClass::getDefaultReadPreference();
     }
 
     /**
      * @param array $options
-     * @return \MongoDB\Driver\Cursor
+     * @return array
      */
     public function execute(array $options = [])
     {
@@ -73,11 +73,9 @@ class CommandWrapper
         }
 
         $commandValue = $options[$commandName];
-        $options = [$commandName => $commandValue] + $options;
+        $command = [$commandName => $commandValue] + $options;
 
-        $command = new Command($options);
-
-        return $this->manager->executeCommand(
+        return $this->connection->executeCommand(
             $this->databaseName,
             $command,
             $this->readPreference
@@ -104,26 +102,5 @@ class CommandWrapper
         $this->readPreference = $readPreference;
 
         return $this;
-    }
-
-    /**
-     * @param string $commandClass
-     */
-    private function ensureValidCommandClass($commandClass)
-    {
-        if (!class_exists($commandClass)) {
-            throw new \InvalidArgumentException(
-                sprintf('Class "%s" is not found', $commandClass)
-            );
-        }
-
-        if (!is_subclass_of($commandClass, CommandTypeInterface::class)) {
-            throw new \InvalidArgumentException(
-                sprintf(
-                    '$commandClass must be a class, implementing "%s"',
-                    CommandTypeInterface::class
-                )
-            );
-        }
     }
 }

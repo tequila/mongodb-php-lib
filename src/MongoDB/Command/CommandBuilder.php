@@ -2,7 +2,7 @@
 
 namespace Tequilla\MongoDB\Command;
 
-use MongoDB\Driver\Manager;
+use Tequilla\MongoDB\Connection;
 
 /**
  * Class CommandBuilder
@@ -11,9 +11,9 @@ use MongoDB\Driver\Manager;
 class CommandBuilder
 {
     /**
-     * @var Manager
+     * @var Connection
      */
-    private $manager;
+    private $connection;
 
     /**
      * @var string
@@ -22,21 +22,21 @@ class CommandBuilder
 
     /**
      * CommandBuilder constructor.
-     * @param Manager $manager
-     * @param $databaseName
+     * @param Connection $connection
+     * @param string $databaseName
      */
-    public function __construct(Manager $manager, $databaseName)
+    public function __construct(Connection $connection, $databaseName)
     {
-        $this->databaseName = (string)$databaseName;
-        $this->manager = $manager;
+        $this->databaseName = (string) $databaseName;
+        $this->connection = $connection;
     }
 
     /**
-     * @param $commandClass
+     * @param string $commandClass
      * @return CommandWrapper
      */
     public function buildCommand($commandClass)
     {
-        return new CommandWrapper($this->manager, $this->databaseName, $commandClass);
+        return new CommandWrapper($this->connection, $this->databaseName, $commandClass);
     }
 }
