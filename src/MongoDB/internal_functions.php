@@ -11,7 +11,7 @@ use Tequilla\MongoDB\Exception\InvalidArgumentException;
  * @param $value
  * @return bool
  */
-function is_list($value) {
+function isList($value) {
     if (!is_array($value)) {
         return false;
     }
@@ -30,7 +30,7 @@ function getType($value) {
 /**
  * @param string $name
  */
-function assertValidDatabaseName($name) {
+function ensureValidDatabaseName($name) {
     if (!is_string($name)) {
         throw new InvalidArgumentException(
             sprintf('Database name must be a string, %s given', getType($name))
@@ -45,7 +45,7 @@ function assertValidDatabaseName($name) {
 /**
  * @param string $name
  */
-function assertValidCollectionName($name) {
+function ensureValidCollectionName($name) {
     if (!is_string($name)) {
         throw new InvalidArgumentException(
             sprintf('Collection name must be a string, %s given', getType($name))
@@ -58,9 +58,24 @@ function assertValidCollectionName($name) {
 }
 
 /**
+ * @param string $name
+ */
+function ensureValidDocumentFieldName($name) {
+    if (!is_string($name)) {
+        throw new InvalidArgumentException(
+            sprintf('Document\'s field name must be a string, %s given', getType($name))
+        );
+    }
+
+    if (empty($name)) {
+        throw new InvalidArgumentException('Document\'s field name cannot be empty.');
+    }
+}
+
+/**
  * @param string $namespace
  */
-function assertValidNamespace($namespace) {
+function ensureValidNamespace($namespace) {
     if (!is_string($namespace)) {
         throw new InvalidArgumentException(
             sprintf('Namespace must be a string, %s given', getType($namespace))
@@ -79,14 +94,14 @@ function assertValidNamespace($namespace) {
     }
 
     list ($databaseName, $collectionName) = $parts;
-    assertValidDatabaseName($databaseName);
-    assertValidCollectionName($collectionName);
+    ensureValidDatabaseName($databaseName);
+    ensureValidCollectionName($collectionName);
 }
 
 /**
  * @param string $className
  */
-function assertClassExists($className) {
+function ensureClassExists($className) {
     if (!is_string($className)) {
         throw new InvalidArgumentException(
             sprintf('Class name must be a string, %s given', getType($className))
@@ -104,11 +119,11 @@ function assertClassExists($className) {
  * @param string $className
  * @param string $parentName
  */
-function assertIsSubclassOf($className, $parentName) {
-    assertClassExists($className);
+function ensureIsSubclassOf($className, $parentName) {
+    ensureClassExists($className);
 
     if (!is_subclass_of($className, $parentName)) {
-        throw new \InvalidArgumentException(
+        throw new InvalidArgumentException(
             sprintf(
                 'Only classes, which implement "%s" are allowed, %s given',
                 $parentName,

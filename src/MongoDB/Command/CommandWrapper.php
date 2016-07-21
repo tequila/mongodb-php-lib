@@ -6,7 +6,7 @@ use MongoDB\Driver\ReadPreference;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tequilla\MongoDB\Connection;
 use Tequilla\MongoDB\Exception\InvalidArgumentException;
-use Tequilla\MongoDB;
+use function Tequilla\MongoDB\ensureIsSubclassOf;
 use Symfony\Component\OptionsResolver\Exception\InvalidArgumentException as OptionsResolverException;
 
 /**
@@ -46,7 +46,7 @@ class CommandWrapper
         $databaseName,
         $commandClass
     ) {
-        MongoDB\assertIsSubclassOf($commandClass, CommandTypeInterface::class);
+        ensureIsSubclassOf($commandClass, CommandTypeInterface::class);
 
         $this->databaseName = (string) $databaseName;
         $this->connection = $connection;
@@ -90,7 +90,7 @@ class CommandWrapper
     {
         $commandClass = $this->commandClass;
         if (!$commandClass::supportsReadPreference($readPreference)) {
-            throw new \InvalidArgumentException(
+            throw new InvalidArgumentException(
                 sprintf(
                     'Command "%s" does not support "%s" read preference',
                     $commandClass,

@@ -11,12 +11,14 @@ use MongoDB\Driver\ReadPreference;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tequilla\MongoDB\Command\CommandBuilder;
 use Tequilla\MongoDB\Command\Type\CreateCollectionType;
+use Tequilla\MongoDB\Command\Type\CreateIndexesType;
 use Tequilla\MongoDB\Command\Type\DropCollectionType;
 use Tequilla\MongoDB\Command\Type\DropDatabaseType;
 use Tequilla\MongoDB\Command\Type\ListCollectionsType;
 use Tequilla\MongoDB\Command\Type\ListDatabasesType;
 use Tequilla\MongoDB\Event\DatabaseCommandEvent;
 use Tequilla\MongoDB\Event\DatabaseDroppedEvent;
+use Tequilla\MongoDB\Event\IndexesEvent;
 use Tequilla\MongoDB\Exception\InvalidArgumentException;
 use Tequilla\MongoDB\Exception\UnexpectedResultException;
 use Tequilla\MongoDB\Options\Connection\ConnectionOptions;
@@ -25,9 +27,6 @@ use Tequilla\MongoDB\Options\Driver\TypeMapOptions;
 use Tequilla\MongoDB\Event\GetDatabaseEvent;
 use Tequilla\MongoDB\Event\DropDatabaseEvent;
 use Tequilla\MongoDB\Event\DatabaseEvent;
-use Tequilla\MongoDB\assertValidDatabaseName;
-use Tequilla\MongoDB\assertValidCollectionName;
-use Tequilla\MongoDB\assertValidNamespace;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -108,7 +107,7 @@ class Connection
      */
     public function executeBulkWrite($namespace, BulkWrite $bulk, WriteConcern $writeConcern = null)
     {
-        assertValidNamespace($namespace);
+        ensureValidNamespace($namespace);
 
         return $this->manager->executeBulkWrite($namespace, $bulk, $writeConcern);
     }
@@ -121,7 +120,7 @@ class Connection
      */
     public function executeCommand($databaseName, $command, ReadPreference $readPreference = null)
     {
-        assertValidDatabaseName($databaseName);
+        ensureValidDatabaseName($databaseName);
 
         if (!is_array($command) && !is_object($command)) {
             throw new InvalidArgumentException(
@@ -171,7 +170,7 @@ class Connection
      */
     public function executeQuery($namespace, Query $query, ReadPreference $readPreference = null)
     {
-        assertValidNamespace($namespace);
+        ensureValidNamespace($namespace);
 
         return $this->manager->executeQuery($namespace, $query, $readPreference);
     }
@@ -184,8 +183,8 @@ class Connection
      */
     public function createCollection($databaseName, $collectionName, array $options = [])
     {
-        assertValidDatabaseName($databaseName);
-        assertValidCollectionName($collectionName);
+        ensureValidDatabaseName($databaseName);
+        ensureValidCollectionName($collectionName);
 
         $options['create'] = $collectionName;
 
@@ -200,8 +199,8 @@ class Connection
      */
     public function dropCollection($databaseName, $collectionName, array $options = [])
     {
-        assertValidDatabaseName($databaseName);
-        assertValidCollectionName($collectionName);
+        ensureValidDatabaseName($databaseName);
+        ensureValidCollectionName($collectionName);
 
         $options['drop'] = (string) $collectionName;
 
@@ -218,6 +217,49 @@ class Connection
         return $this->buildAndExecuteCommand($databaseName, ListCollectionsType::class, $options);
     }
 
+    public function createIndexes($databaseName, $collectionName, array $indexes)
+    {
+        ensureValidDatabaseName($databaseName);
+        ensureValidCollectionName($collectionName);
+
+        if (empty($indexes)) {
+            throw new InvalidArgumentException('$indexes array cannot be empty');
+        }
+
+        $options = ['createIndexes' => $collectionName, 'indexes' => []];
+
+        foreach ($indexes as $i => $index) {
+            if (!$index instanceof Index) {
+                throw new InvalidArgumentException(sprintf(
+                    '$indexes[%d] must be an Index instance, %s given',
+                    $i,
+                    getType($index)
+                ));
+            }
+
+            $options['indexes'][] = ['key' => $index->getKeys()] + $index->getOptions();
+        }
+
+        $result = $this->buildAndExecuteCommand($databaseName, CreateIndexesType::class, $options);
+
+        if ($this->dispatcher) {
+            $event = new IndexesEvent($indexes);
+            $event->setCommandResult($result);
+            $this->dispatcher->dispatch(Events::INDEXES_CREATED, $event);
+        }
+
+        return array_map(function(Index $index) {
+            return $index->getName();
+        }, $indexes);
+    }
+
+    public function createIndex($databaseName, $collectionName, Index $index)
+    {
+        $result = $this->createIndexes($databaseName, $collectionName, [$index]);
+
+        return current($result);
+    }
+
     /**
      * @param string $databaseName
      * @param array $options
@@ -225,7 +267,7 @@ class Connection
      */
     public function dropDatabase($databaseName, array $options = [])
     {
-        assertValidDatabaseName($databaseName);
+        ensureValidDatabaseName($databaseName);
 
         if ($this->dispatcher) {
             $event = new DropDatabaseEvent($this, $databaseName, $options);
@@ -269,7 +311,7 @@ class Connection
      */
     public function selectDatabase($databaseName, array $options = [])
     {
-        assertValidDatabaseName($databaseName);
+        ensureValidDatabaseName($databaseName);
 
         $database = null;
 
@@ -283,7 +325,7 @@ class Connection
         }
 
         if (null === $database) {
-            $database = new Database($this->manager, $databaseName, $options);
+            $database = new Database($this, $databaseName, $options);
         }
 
         if ($this->dispatcher) {
@@ -300,8 +342,8 @@ class Connection
      */
     public function selectCollection($databaseName, $collectionName)
     {
-        assertValidDatabaseName($databaseName);
-        assertValidCollectionName($collectionName);
+        ensureValidDatabaseName($databaseName);
+        ensureValidCollectionName($collectionName);
     }
 
     /**
@@ -310,7 +352,7 @@ class Connection
      */
     public function createCommandBuilder($databaseName)
     {
-        assertValidDatabaseName($databaseName);
+        ensureValidDatabaseName($databaseName);
 
         if (!isset($this->commandBuilders[$databaseName])) {
             $this->commandBuilders[$databaseName] = new CommandBuilder($this, $databaseName);
