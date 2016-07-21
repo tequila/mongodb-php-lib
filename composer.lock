@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "018fb0fb4bd5cb71e067f8361d524745",
-    "content-hash": "cf3743e700f6b3026baa8f8473e1f3e0",
+    "hash": "9d2609376f0d8486bcd08e011c8e39e5",
+    "content-hash": "749fe7d3a75e2a3265eb4fe416047067",
     "packages": [
         {
             "name": "symfony/event-dispatcher",
@@ -13,12 +13,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/event-dispatcher.git",
-                "reference": "6d07e9b202576411d80e70ddc0fd8d6b4c975b78"
+                "reference": "5382f4c882e73c267c80b8edcd482a76ef62bbe2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/event-dispatcher/zipball/6d07e9b202576411d80e70ddc0fd8d6b4c975b78",
-                "reference": "6d07e9b202576411d80e70ddc0fd8d6b4c975b78",
+                "url": "https://api.github.com/repos/symfony/event-dispatcher/zipball/5382f4c882e73c267c80b8edcd482a76ef62bbe2",
+                "reference": "5382f4c882e73c267c80b8edcd482a76ef62bbe2",
                 "shasum": ""
             },
             "require": {
@@ -65,7 +65,7 @@
             ],
             "description": "Symfony EventDispatcher Component",
             "homepage": "https://symfony.com",
-            "time": "2016-06-29 05:43:10"
+            "time": "2016-07-19 10:47:02"
         },
         {
             "name": "symfony/options-resolver",
@@ -371,12 +371,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpspec/prophecy.git",
-                "reference": "58a8137754bc24b25740d4281399a4a3596058e0"
+                "reference": "d883566b83ae601a50b38b249e92450dc57cf875"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/58a8137754bc24b25740d4281399a4a3596058e0",
-                "reference": "58a8137754bc24b25740d4281399a4a3596058e0",
+                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/d883566b83ae601a50b38b249e92450dc57cf875",
+                "reference": "d883566b83ae601a50b38b249e92450dc57cf875",
                 "shasum": ""
             },
             "require": {
@@ -425,7 +425,7 @@
                 "spy",
                 "stub"
             ],
-            "time": "2016-06-07 08:13:47"
+            "time": "2016-07-19 16:08:43"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -677,12 +677,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "aace781dea5ca953e210ee21c2b568b7572055fc"
+                "reference": "e150756c40f0a1e63b4a26d8461bc9e8412408ba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/aace781dea5ca953e210ee21c2b568b7572055fc",
-                "reference": "aace781dea5ca953e210ee21c2b568b7572055fc",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/e150756c40f0a1e63b4a26d8461bc9e8412408ba",
+                "reference": "e150756c40f0a1e63b4a26d8461bc9e8412408ba",
                 "shasum": ""
             },
             "require": {
@@ -747,7 +747,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2016-07-13 17:40:26"
+            "time": "2016-07-21 06:56:32"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
@@ -1434,7 +1434,7 @@
     "prefer-lowest": false,
     "platform": {
         "php": ">=5.6",
-        "ext-mongodb": "^1.1.0"
+        "ext-mongodb": ">=1.1.0"
     },
     "platform-dev": []
 }

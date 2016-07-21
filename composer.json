@@ -1,24 +1,24 @@
 {
     "name": "tequilla/mongodb",
-    "description": "MongoDB Abstraction Layer (driver library)",
+    "description": "PHP MongoDB abstraction layer (driver library)",
     "type": "library",
     "require": {
         "php": ">=5.6",
-        "ext-mongodb": "^1.1.0",
-        "symfony/options-resolver": "^3.1",
-        "symfony/event-dispatcher": "^3.1"
+        "ext-mongodb": ">=1.1.0",
+        "symfony/options-resolver": ">=2.8",
+        "symfony/event-dispatcher": ">=2.8"
     },
     "autoload": {
-        "psr-4": { "Tequilla\\": "src/" },
-        "files": ["src/MongoDB/internal_functions.php"]
+        "psr-4": { "Tequilla\\MongoDB\\": "src/" },
+        "files": ["src/internal_functions.php"]
     },
     "autoload-dev": {
-        "psr-4": { "Tequilla\\MongoDB\\Tests\\": "tests/MongoDB/" }
+        "psr-4": { "Tequilla\\MongoDB\\Tests\\": "tests/" }
     },
     "license": "MIT",
     "authors": [
         {
-            "name": "Petr Buchyn",
+            "name": "Petr Buchin",
             "email": "petrbuchyn@gmail.com"
         }
     ],
