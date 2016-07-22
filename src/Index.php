@@ -1,6 +1,7 @@
 <?php
 
 namespace Tequilla\MongoDB;
+
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tequilla\MongoDB\Exception\InvalidArgumentException;
 use Tequilla\MongoDB\Options\Indexes\IndexOptions;
@@ -46,13 +47,7 @@ class Index
         $options = $resolver->resolve($options);
 
         if (empty($options['name'])) {
-            $nameParts = [];
-            foreach ($keys as $fieldName => $direction) {
-                $nameParts[] = $fieldName;
-                $nameParts[] = (string) $direction;
-            }
-
-            $options['name'] = implode('_', $nameParts);
+            $options['name'] = self::generateIndexName($options['key']);
         }
 
         $this->name = $options['name'];
@@ -82,6 +77,21 @@ class Index
     public function getName()
     {
         return $this->name;
+    }
+
+    /**
+     * @param array $keys
+     * @return string
+     */
+    public static function generateIndexName(array $keys)
+    {
+        $nameParts = [];
+        foreach ($keys as $fieldName => $direction) {
+            $nameParts[] = $fieldName;
+            $nameParts[] = (string) $direction;
+        }
+
+        return implode('_', $nameParts);
     }
 
     public function __toString()
