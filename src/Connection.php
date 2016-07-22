@@ -9,6 +9,7 @@ use MongoDB\Driver\Query;
 use MongoDB\Driver\WriteConcern;
 use MongoDB\Driver\ReadPreference;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Tequilla\Event\DropIndexesEvent;
 use Tequilla\MongoDB\Command\Type\DropIndexesType;
 use Tequilla\MongoDB\Command\Type\ListIndexesType;
 use Tequilla\MongoDB\Command\CommandBuilder;
@@ -327,11 +328,18 @@ class Connection
             );
         }
 
-        return $this->buildAndExecuteCommand(
+        $result = $this->buildAndExecuteCommand(
             $databaseName,
             DropIndexesType::class,
             [DropIndexesType::getCommandName() => $collectionName, 'index' => $indexName]
         );
+
+        if ($this->dispatcher) {
+            $event = new DropIndexesEvent($databaseName, $collectionName, $indexName);
+            $this->dispatcher->dispatch(Events::INDEXES_DROPPED, $event);
+        }
+
+        return $result;
     }
 
     /**
@@ -346,11 +354,18 @@ class Connection
         ensureValidDatabaseName($databaseName);
         ensureValidCollectionName($collectionName);
 
-        return $this->buildAndExecuteCommand(
+        $result = $this->buildAndExecuteCommand(
             $databaseName,
             DropIndexesType::class,
             [DropIndexesType::getCommandName() => $collectionName, 'index' => '*']
         );
+
+        if ($this->dispatcher) {
+            $event = new DropIndexesEvent($databaseName, $collectionName, '*');
+            $this->dispatcher->dispatch(Events::INDEXES_DROPPED, $event);
+        }
+
+        return $result;
     }
 
     /**
