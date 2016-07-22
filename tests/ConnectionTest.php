@@ -5,11 +5,10 @@ namespace Tequilla\MongoDB\Tests;
 use MongoDB\Driver\Manager;
 use MongoDB\Driver\Command;
 use MongoDB\Driver\ReadConcern;
-use MongoDB\Driver\WriteConcern;
-use MongoDB\Driver\ReadPreference;
 use Tequilla\MongoDB\Connection;
 use Tequilla\MongoDB\Database;
 use PHPUnit\Framework\TestCase;
+use Tequilla\MongoDB\Index;
 
 class ConnectionTest extends TestCase
 {
@@ -24,7 +23,7 @@ class ConnectionTest extends TestCase
     public function testCreateCollectionThrowsExceptionWhenNameIsNotString($collectionName)
     {
         $connection = new Connection();
-        $connection->createCollection('tequilla_mongodb_test', $collectionName);
+        $connection->createCollection('tequilla_connection_test', $collectionName);
     }
 
     /**
@@ -35,7 +34,7 @@ class ConnectionTest extends TestCase
     {
         $connection = new Connection();
         $connection->createCollection(
-            'tequilla_mongodb_test',
+            'tequilla_connection_test',
             'test_create_collection_' . uniqid(),
             [
                 'foo',
@@ -54,7 +53,7 @@ class ConnectionTest extends TestCase
     {
         $connection = new Connection();
         $connection->createCollection(
-            'tequilla_mongodb_test',
+            'tequilla_connection_test',
             'test_create_collection_' . uniqid(),
             $options
         );
@@ -67,7 +66,7 @@ class ConnectionTest extends TestCase
     {
         $connection = new Connection();
         $result = $connection->createCollection(
-            'tequilla_mongodb_test',
+            'tequilla_connection_test',
             'test_create_collection_' . uniqid()
         );
 
@@ -80,7 +79,7 @@ class ConnectionTest extends TestCase
      */
     public function testCreateCollectionCreatesCappedCollection()
     {
-        $dbName = 'tequilla_mongodb_test';
+        $dbName = 'tequilla_connection_test';
         $collectionName = 'test_create_capped_collection_' . uniqid();
         $connection = new Connection();
         $connection->createCollection(
@@ -121,7 +120,7 @@ class ConnectionTest extends TestCase
     public function testListCollectionsReturnsValidResponse()
     {
         $manager = new Manager();
-        $dbName = 'tequilla_database_test';
+        $dbName = 'tequilla_connection_test';
         $collectionName = 'test_list_collections_' . uniqid();
         $createCommand = new Command(['create' => $collectionName]);
         $manager->executeCommand($dbName, $createCommand);
@@ -151,7 +150,7 @@ class ConnectionTest extends TestCase
     public function testDropDatabaseMethodDropsDatabase()
     {
         $manager = new Manager();
-        $dbName = 'tequilla_database_test';
+        $dbName = 'tequilla_connection_test';
         $collectionName = 'test_drop_database_' . uniqid();
         $createCommand = new Command(['create' => $collectionName]);
         $manager->executeCommand($dbName, $createCommand);
@@ -185,7 +184,7 @@ class ConnectionTest extends TestCase
     public function testDropCollectionMethodDropsCollection()
     {
         $manager = new Manager();
-        $dbName = 'tequilla_database_test';
+        $dbName = 'tequilla_connection_test';
         $collectionName = 'test_drop_collection_' . uniqid();
         $createCommand = new Command(['create' => $collectionName]);
         $manager->executeCommand($dbName, $createCommand);
@@ -209,6 +208,189 @@ class ConnectionTest extends TestCase
                 );
             }
         }
+    }
+
+    /**
+     * @covers \Tequilla\MongoDB\Connection::createIndexes()
+     * @uses Manager
+     */
+    public function testCreateIndexesCreatesIndexes()
+    {
+        $dbName = 'tequilla_connection_test';
+        $collectionName = 'create_indexes_test_' . uniqid();
+        $connection = new Connection();
+        $index1 = new Index(['foo' => 1, 'bar' => -1]);
+        $index2 = new Index(['baz' => 1, 'bar' => 1]);
+        $connection->createIndexes(
+            $dbName,
+            $collectionName,
+            [$index1, $index2]
+        );
+
+        $manager = new Manager();
+        $listIndexesCommand = new Command(['listIndexes' => $collectionName]);
+        $cursor = $manager->executeCommand($dbName, $listIndexesCommand);
+        $cursor->setTypeMap(['root' => 'array', 'document' => 'array', 'array' => 'array']);
+        $result = $cursor->toArray();
+
+        $firstIndexMatched = false;
+        $secondIndexMatched = false;
+
+        foreach ($result as $indexInfo) {
+            if ($indexInfo['name'] === $index1->getName()) {
+                $firstIndexMatched = true;
+            }
+
+            if ($indexInfo['name'] === $index2->getName()) {
+                $secondIndexMatched = true;
+            }
+        }
+
+        if (!($firstIndexMatched && $secondIndexMatched)) {
+            throw new \LogicException('Failed assert that Connection::createIndexes() creates indexes.');
+        }
+    }
+
+    /**
+     * @covers \Tequilla\MongoDB\Connection::listIndexes()
+     * @uses Manager
+     */
+    public function testListIndexesListsIndexes()
+    {
+        $manager = new Manager();
+        $dbName = 'tequilla_connection_test';
+        $collectionName = 'test_list_indexes_' . uniqid();
+        $createIndexesCommand = new Command([
+            'createIndexes' => $collectionName,
+            'indexes' => [
+                [
+                    'key' => [
+                        'foo' => -1,
+                        'bar' => 1
+                    ],
+                    'name' => $firstIndexName = 'foo_-1_bar_1'
+                ],
+                [
+                    'key' => [
+                        'baz' => 1,
+                        'buzz' => -1
+                    ],
+                    'name' => $secondIndexName = 'baz_1_buzz_-1'
+                ]
+            ],
+        ]);
+
+        $manager->executeCommand($dbName, $createIndexesCommand);
+
+        $connection = new Connection();
+        $indexes = $connection->listIndexes($dbName, $collectionName);
+
+        $firstIndexMatched = false;
+        $secondIndexMatched = false;
+
+        foreach ($indexes as $indexInfo) {
+            if ($indexInfo['name'] === $firstIndexName) {
+                $firstIndexMatched = true;
+            }
+
+            if ($indexInfo['name'] === $secondIndexName) {
+                $secondIndexMatched = true;
+            }
+        }
+
+        if (!($firstIndexMatched && $secondIndexMatched)) {
+            throw new \LogicException('Failed assert that Connection::listIndexes() returns all indexes in collection');
+        }
+    }
+
+    /**
+     * @covers \Tequilla\MongoDB\Connection::dropIndex()
+     * @uses Manager
+     * @depends testListIndexesListsIndexes
+     */
+    public function testDropIndexDropsSingleIndex()
+    {
+        $manager = new Manager();
+        $dbName = 'tequilla_connection_test';
+        $collectionName = 'test_drop_index_' . uniqid();
+        $createIndexesCommand = new Command([
+            'createIndexes' => $collectionName,
+            'indexes' => [
+                [
+                    'key' => [
+                        'foo' => -1,
+                        'bar' => 1
+                    ],
+                    'name' => $firstIndexName = 'foo_-1_bar_1'
+                ],
+                [
+                    'key' => [
+                        'baz' => 1,
+                        'buzz' => -1
+                    ],
+                    'name' => $secondIndexName = 'baz_1_buzz_-1'
+                ]
+            ],
+        ]);
+
+        $manager->executeCommand($dbName, $createIndexesCommand);
+
+        $connection = new Connection();
+        $connection->dropIndex($dbName, $collectionName, $firstIndexName);
+
+        $indexes = $connection->listIndexes($dbName, $collectionName);
+        if (empty($indexes)) {
+            throw new \LogicException('Failed assert that Connection::dropIndex() drops only single index');
+        }
+
+        foreach ($indexes as $indexInfo) {
+            if ($indexInfo['name'] === $firstIndexName) {
+                throw new \LogicException('Failed assert that Connection::dropIndex() drops index');
+            }
+        }
+    }
+
+    /**
+     * @covers \Tequilla\MongoDB\Connection::dropIndexes()
+     * @uses Manager
+     * @depends testListIndexesListsIndexes
+     */
+    public function testDropIndexesDropsAllIndexesInCollection()
+    {
+        $manager = new Manager();
+        $dbName = 'tequilla_connection_test';
+        $collectionName = 'test_drop_indexes_' . uniqid();
+        $createIndexesCommand = new Command([
+            'createIndexes' => $collectionName,
+            'indexes' => [
+                [
+                    'key' => [
+                        'foo' => -1,
+                        'bar' => 1
+                    ],
+                    'name' => $firstIndexName = 'foo_-1_bar_1'
+                ],
+                [
+                    'key' => [
+                        'baz' => 1,
+                        'buzz' => -1
+                    ],
+                    'name' => $secondIndexName = 'baz_1_buzz_-1'
+                ]
+            ],
+        ]);
+
+        $manager->executeCommand($dbName, $createIndexesCommand);
+
+        $connection = new Connection();
+        $connection->dropIndexes($dbName, $collectionName);
+
+        $indexes = $connection->listIndexes($dbName, $collectionName);
+
+        $this->assertTrue(
+            count($indexes) === 1 && $indexes['0']['name'] === '_id_',
+            'Failed assert that Connection::dropIndexes() drops all indexes in collection'
+        );
     }
 
     public function getInvalidCreateCollectionOptions()

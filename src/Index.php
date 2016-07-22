@@ -48,7 +48,8 @@ class Index
         if (empty($options['name'])) {
             $nameParts = [];
             foreach ($keys as $fieldName => $direction) {
-                $nameParts += [$fieldName, $direction];
+                $nameParts[] = $fieldName;
+                $nameParts[] = (string) $direction;
             }
 
             $options['name'] = implode('_', $nameParts);

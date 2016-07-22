@@ -9,6 +9,8 @@ use MongoDB\Driver\Query;
 use MongoDB\Driver\WriteConcern;
 use MongoDB\Driver\ReadPreference;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Tequilla\MongoDB\Command\Type\DropIndexesType;
+use Tequilla\MongoDB\Command\Type\ListIndexesType;
 use Tequilla\MongoDB\Command\CommandBuilder;
 use Tequilla\MongoDB\Command\Type\CreateCollectionType;
 use Tequilla\MongoDB\Command\Type\CreateIndexesType;
@@ -71,7 +73,7 @@ class Connection
         DriverOptions::configureOptions($driverOptionsResolver);
         $driverOptions = $driverOptionsResolver->resolve($driverOptions);
 
-        $this->manager = new Manager((string) $uri, $options, $driverOptions);
+        $this->manager = new Manager((string)$uri, $options, $driverOptions);
         $this->dispatcher = $dispatcher;
     }
 
@@ -131,7 +133,7 @@ class Connection
             );
         }
 
-        $command = (array) $command;
+        $command = (array)$command;
 
         if (empty($command)) {
             throw new InvalidArgumentException('$command must not be empty.');
@@ -186,7 +188,7 @@ class Connection
         ensureValidDatabaseName($databaseName);
         ensureValidCollectionName($collectionName);
 
-        $options['create'] = $collectionName;
+        $options[CreateCollectionType::getCommandName()] = $collectionName;
 
         return $this->buildAndExecuteCommand($databaseName, CreateCollectionType::class, $options);
     }
@@ -202,7 +204,7 @@ class Connection
         ensureValidDatabaseName($databaseName);
         ensureValidCollectionName($collectionName);
 
-        $options['drop'] = (string) $collectionName;
+        $options[DropCollectionType::getCommandName()] = (string)$collectionName;
 
         return $this->buildAndExecuteCommand($databaseName, DropCollectionType::class, $options);
     }
@@ -217,6 +219,12 @@ class Connection
         return $this->buildAndExecuteCommand($databaseName, ListCollectionsType::class, $options);
     }
 
+    /**
+     * @param string $databaseName
+     * @param string $collectionName
+     * @param Index[] $indexes
+     * @return array
+     */
     public function createIndexes($databaseName, $collectionName, array $indexes)
     {
         ensureValidDatabaseName($databaseName);
@@ -226,15 +234,17 @@ class Connection
             throw new InvalidArgumentException('$indexes array cannot be empty');
         }
 
-        $options = ['createIndexes' => $collectionName, 'indexes' => []];
+        $options = [CreateIndexesType::getCommandName() => $collectionName, 'indexes' => []];
 
         foreach ($indexes as $i => $index) {
             if (!$index instanceof Index) {
-                throw new InvalidArgumentException(sprintf(
-                    '$indexes[%d] must be an Index instance, %s given',
-                    $i,
-                    getType($index)
-                ));
+                throw new InvalidArgumentException(
+                    sprintf(
+                        '$indexes[%d] must be an Index instance, %s given',
+                        $i,
+                        getType($index)
+                    )
+                );
             }
 
             $options['indexes'][] = ['key' => $index->getKeys()] + $index->getOptions();
@@ -248,16 +258,99 @@ class Connection
             $this->dispatcher->dispatch(Events::INDEXES_CREATED, $event);
         }
 
-        return array_map(function(Index $index) {
-            return $index->getName();
-        }, $indexes);
+        return array_map(
+            function (Index $index) {
+                return $index->getName();
+            },
+            $indexes
+        );
     }
 
+    /**
+     * @param string $databaseName
+     * @param string $collectionName
+     * @param Index $index
+     * @return mixed
+     */
     public function createIndex($databaseName, $collectionName, Index $index)
     {
+        ensureValidDatabaseName($databaseName);
+        ensureValidCollectionName($collectionName);
+
         $result = $this->createIndexes($databaseName, $collectionName, [$index]);
 
         return current($result);
+    }
+
+    /**
+     * @param string $databaseName
+     * @param string $collectionName
+     * @return array
+     */
+    public function listIndexes($databaseName, $collectionName)
+    {
+        ensureValidDatabaseName($databaseName);
+        ensureValidCollectionName($collectionName);
+
+        return $this->buildAndExecuteCommand(
+            $databaseName,
+            ListIndexesType::class,
+            [ListIndexesType::getCommandName() => $collectionName]
+        );
+    }
+
+    /**
+     * Drops a single index in the collection
+     *
+     * @param string $databaseName
+     * @param string $collectionName
+     * @param string|array|Index
+     * @return array
+     */
+    public function dropIndex($databaseName, $collectionName, $index)
+    {
+        ensureValidDatabaseName($databaseName);
+        ensureValidCollectionName($collectionName);
+
+        if (is_string($index)) {
+            $indexName = $index;
+        } else if ($index instanceof Index) {
+            $indexName = $index->getName();
+        } else if (is_array($index)) {
+            $indexName = (new Index($index))->getName();
+        } else {
+            throw new InvalidArgumentException(
+                sprintf(
+                    '$index must be a string, Index instance or array of index keys, %s given',
+                    getType($index)
+                )
+            );
+        }
+
+        return $this->buildAndExecuteCommand(
+            $databaseName,
+            DropIndexesType::class,
+            [DropIndexesType::getCommandName() => $collectionName, 'index' => $indexName]
+        );
+    }
+
+    /**
+     * Drops all indexes in the collection
+     *
+     * @param string $databaseName
+     * @param string $collectionName
+     * @return array
+     */
+    public function dropIndexes($databaseName, $collectionName)
+    {
+        ensureValidDatabaseName($databaseName);
+        ensureValidCollectionName($collectionName);
+
+        return $this->buildAndExecuteCommand(
+            $databaseName,
+            DropIndexesType::class,
+            [DropIndexesType::getCommandName() => $collectionName, 'index' => '*']
+        );
     }
 
     /**
@@ -371,7 +464,7 @@ class Connection
     {
         return $this
             ->createCommandBuilder($databaseName)
-            ->buildCommand((string) $commandTypeClass)
+            ->buildCommand((string)$commandTypeClass)
             ->execute($options);
     }
 }
