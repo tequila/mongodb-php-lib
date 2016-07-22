@@ -134,7 +134,16 @@ class Connection
             );
         }
 
-        $command = (array)$command;
+        if ($command instanceof Command) {
+            throw new InvalidArgumentException(
+                sprintf(
+                    '%s does not accept Command instances in order to have access to the command options',
+                    __METHOD__
+                )
+            );
+        }
+
+        $command = (array) $command;
 
         if (empty($command)) {
             throw new InvalidArgumentException('$command must not be empty.');
