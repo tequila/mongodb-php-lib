@@ -6,5 +6,5 @@ use MongoDB\Driver\BulkWrite;
 
 interface WriteModelInterface
 {
-    public function addToBulk(BulkWrite $bulk);
+    public function writeToBulk(BulkWrite $bulk);
 }

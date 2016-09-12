@@ -2,7 +2,9 @@
 
 namespace Tequilla\MongoDB\Event;
 
-class CommandEvent extends Event
+use Symfony\Component\EventDispatcher\Event;
+
+class CommandEvent extends Event 
 {
         
 }

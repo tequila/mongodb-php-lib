@@ -2,7 +2,7 @@
 
 namespace Tequilla\Event;
 
-use Tequilla\MongoDB\Event\Event;
+use Symfony\Component\EventDispatcher\Event;
 
 class DropIndexesEvent extends Event
 {

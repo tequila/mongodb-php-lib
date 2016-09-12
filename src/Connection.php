@@ -26,7 +26,6 @@ use Tequilla\MongoDB\Exception\InvalidArgumentException;
 use Tequilla\MongoDB\Exception\UnexpectedResultException;
 use Tequilla\MongoDB\Options\Connection\ConnectionOptions;
 use Tequilla\MongoDB\Options\Driver\DriverOptions;
-use Tequilla\MongoDB\Options\Driver\TypeMapOptions;
 use Tequilla\MongoDB\Event\GetDatabaseEvent;
 use Tequilla\MongoDB\Event\DropDatabaseEvent;
 use Tequilla\MongoDB\Event\DatabaseEvent;
@@ -117,11 +116,11 @@ class Connection
 
     /**
      * @param string $databaseName
-     * @param array|object $command
+     * @param array $command
      * @param ReadPreference|null $readPreference
-     * @return array
+     * @return CommandCursor
      */
-    public function executeCommand($databaseName, $command, ReadPreference $readPreference = null)
+    public function executeCommand($databaseName, array $command, ReadPreference $readPreference = null)
     {
         ensureValidDatabaseName($databaseName);
 
@@ -162,16 +161,16 @@ class Connection
 
         $driverCommand = new Command($command);
 
-        $cursor = $server->executeCommand($databaseName, $driverCommand);
-        $result = TypeMapOptions::setArrayTypeMapOnCursor($cursor)->toArray();
+        $mongoCursor = $server->executeCommand($databaseName, $driverCommand);
+        $cursor = new CommandCursor($mongoCursor);
 
         if ($this->dispatcher && isset($event)) {
             $event->refreshPropagation();
-            $event->setCommandResult($result);
+            $event->setCursor($cursor);
             $this->dispatcher->dispatch(Events::DATABASE_COMMAND_EXECUTED, $event);
         }
 
-        return $result;
+        return $cursor;
     }
 
     /**

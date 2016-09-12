@@ -1,6 +1,7 @@
 <?php
 
 namespace Tequilla\MongoDB\Event;
+use Symfony\Component\EventDispatcher\Event;
 
 /**
  * Class IndexesEvent

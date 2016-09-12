@@ -3,6 +3,7 @@
 namespace Tequilla\MongoDB\Event;
 
 use MongoDB\Driver\Server;
+use Tequilla\MongoDB\CommandCursor;
 use Tequilla\MongoDB\Exception\LogicException;
 
 /**
@@ -29,7 +30,7 @@ class DatabaseCommandEvent extends Event
     /**
      * @var array
      */
-    private $commandResult;
+    private $commandCursor;
 
     /**
      * DatabaseCommandEvent constructor.
@@ -63,27 +64,27 @@ class DatabaseCommandEvent extends Event
     /**
      * @return array
      */
-    public function getCommandResult()
+    public function getCursor()
     {
-        if (null === $this->commandResult) {
+        if (null === $this->commandCursor) {
             throw new LogicException(
                 sprintf(
-                    'Call on %s is prohibited before command result was set using %s::setCommandResult().',
+                    'Call on %s is denied before command result was set using %s::setCursor().',
                     __METHOD__,
                     __CLASS__
                 )
             );
         }
 
-        return $this->commandResult;
+        return $this->commandCursor;
     }
 
     /**
-     * @param array $result
+     * @param CommandCursor $cursor
      */
-    public function setCommandResult(array $result)
+    public function setCursor(CommandCursor $cursor)
     {
-        $this->commandResult = $result;
+        $this->commandCursor = $cursor;
     }
 
     /**
