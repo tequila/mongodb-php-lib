@@ -11,12 +11,12 @@ class UpdateMany implements WriteModelInterface
     use ValidateUpdateTrait;
 
     /**
-     * @var array
+     * @var array|object
      */
     private $filter;
 
     /**
-     * @var array
+     * @var array|object
      */
     private $update;
 
@@ -27,11 +27,11 @@ class UpdateMany implements WriteModelInterface
 
     /**
      * Update constructor.
-     * @param array $filter
-     * @param array $update
+     * @param array|object $filter
+     * @param array|object $update
      * @param array $options
      */
-    public function __construct(array $filter, array $update, array $options = [])
+    public function __construct($filter, $update, array $options = [])
     {
         self::validateFilter($filter);
         self::validateUpdate($update);

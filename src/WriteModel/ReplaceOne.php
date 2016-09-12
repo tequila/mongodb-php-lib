@@ -2,7 +2,6 @@
 
 namespace Tequilla\MongoDB\WriteModel;
 
-use MongoDB\BSON\Serializable;
 use MongoDB\Driver\BulkWrite;
 use Tequilla\MongoDB\Exception\InvalidArgumentException;
 use Tequilla\MongoDB\Options\Write\UpdateOneOptions;

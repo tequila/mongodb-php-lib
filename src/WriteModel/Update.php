@@ -10,12 +10,12 @@ class Update implements WriteModelInterface
     use ValidateFilterTrait;
 
     /**
-     * @var array
+     * @var array|object
      */
     private $filter;
 
     /**
-     * @var array
+     * @var array|object
      */
     private $update;
 
@@ -26,11 +26,11 @@ class Update implements WriteModelInterface
 
     /**
      * Update constructor.
-     * @param array $filter
-     * @param array $update
+     * @param array|object $filter
+     * @param array|object $update
      * @param array $options
      */
-    public function __construct(array $filter, array $update, array $options = [])
+    public function __construct($filter, $update, array $options = [])
     {
         self::validateFilter($filter);
         $this->filter = $filter;
