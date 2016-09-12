@@ -3,9 +3,9 @@
 namespace Tequilla\MongoDB\WriteModel;
 
 use MongoDB\Driver\BulkWrite;
-use Tequilla\MongoDB\Options\Write\UpdateOneOptions;
+use Tequilla\MongoDB\Options\Write\UpdateManyOptions;
 
-class UpdateOne implements WriteModelInterface
+class UpdateMany implements WriteModelInterface
 {
     use ValidateFilterTrait;
     use ValidateUpdateTrait;
@@ -38,7 +38,7 @@ class UpdateOne implements WriteModelInterface
 
         $this->filter = $filter;
         $this->update = $update;
-        $this->options = UpdateOneOptions::getCachedResolver()->resolve($options);
+        $this->options = UpdateManyOptions::getCachedResolver()->resolve($options);
     }
 
     public function writeToBulk(BulkWrite $bulk)
