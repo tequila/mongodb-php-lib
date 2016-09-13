@@ -7,10 +7,6 @@ use Symfony\Component\EventDispatcher\Event;
 use Tequilla\MongoDB\CommandCursor;
 use Tequilla\MongoDB\Exception\LogicException;
 
-/**
- * Class DatabaseCommandEvent
- * @package Tequilla\MongoDB\Event
- */
 class DatabaseCommandEvent extends Event
 {
     /**
