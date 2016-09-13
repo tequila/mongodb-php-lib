@@ -120,7 +120,15 @@ class Connection
     public function executeCommand($databaseName, $commandOptions, ReadPreference $readPreference = null)
     {
         StringUtils::ensureValidDatabaseName($databaseName);
-        TypeUtils::ensureType($commandOptions, '$command', ['array', 'object']);
+
+        if (!is_array($commandOptions) && !is_object($commandOptions)) {
+            throw new InvalidArgumentException(
+                sprintf(
+                    '$commandOptions must be an array or an object, %s given',
+                    TypeUtils::getType($commandOptions)
+                )
+            );
+        }
 
         if ($commandOptions instanceof Command) {
             throw new InvalidArgumentException(

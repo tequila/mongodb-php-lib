@@ -27,6 +27,11 @@ class ReplaceOne implements WriteModelInterface
      */
     private $options;
 
+    /**
+     * @param $filter
+     * @param $replacement
+     * @param array $options
+     */
     public function __construct($filter, $replacement, array $options = [])
     {
         self::validateFilter($filter);

@@ -69,37 +69,6 @@ final class TypeUtils
     }
 
     /**
-     * Ensures that given value has one of the allowed types, throws InvalidArgumentException otherwise
-     *
-     * @param mixed $value
-     * @param string $varName
-     * @param array $allowedTypes
-     * @throws InvalidArgumentException
-     */
-    public static function ensureType($value, $varName, array $allowedTypes)
-    {
-        foreach ($allowedTypes as $allowedType) {
-            $funcName = sprintf('is_%s', $allowedType);
-            if (function_exists($funcName) && $funcName($value)) {
-                return;
-            }
-
-            if (class_exists($allowedType) && $value instanceof $allowedType) {
-                return;
-            }
-
-            throw new InvalidArgumentException(
-                sprintf(
-                    'Allowed types for %s are: %s, but %s given',
-                    $varName,
-                    implode(', ', $allowedTypes),
-                    self::getType($value)
-                )
-            );
-        }
-    }
-
-    /**
      * @param mixed $value
      * @return string
      */
