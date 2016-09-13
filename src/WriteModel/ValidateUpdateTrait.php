@@ -21,7 +21,7 @@ trait ValidateUpdateTrait
             );
         }
 
-        $update = TypeUtils::convertToArray($update);
+        $update = TypeUtils::ensureArray($update);
 
         if (empty($update)) {
             throw new InvalidArgumentException('$update cannot be empty');

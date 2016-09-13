@@ -8,23 +8,20 @@ use Tequilla\MongoDB\Exception\InvalidArgumentException;
 use Tequilla\MongoDB\Options\ConfigurableInterface;
 use Tequilla\MongoDB\Options\Traits\CachedResolverTrait;
 
-class UpdateOptions implements ConfigurableInterface
+class ReplaceOneOptions implements ConfigurableInterface
 {
     use CachedResolverTrait;
 
     public static function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefined([
-            'upsert',
-            'multi',
-            'collation',
-        ]);
+        UpdateOneOptions::configureOptions($resolver);
 
-        $resolver->setAllowedTypes('upsert', 'bool');
-        $resolver->setAllowedTypes('multi', 'bool');
-        $resolver->setDefaults([
-            'upsert' => false,
-            'multi' => false,
-        ]);
+        $resolver->setNormalizer('multi', function(Options $options, $multi) {
+            if ($multi) {
+                throw new InvalidArgumentException(
+                    'Option "multi" cannot be true on replace operations'
+                );
+            }
+        });
     }
 }

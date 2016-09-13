@@ -4,6 +4,7 @@ namespace Tequilla\MongoDB\Options\Write;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tequilla\MongoDB\Options\ConfigurableInterface;
+use Tequilla\MongoDB\Options\Traits\CachedResolverTrait;
 
 class UpdateManyOptions implements ConfigurableInterface
 {
