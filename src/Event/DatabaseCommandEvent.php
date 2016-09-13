@@ -21,7 +21,7 @@ class DatabaseCommandEvent extends Event
     /**
      * @var array
      */
-    private $command;
+    private $commandOptions;
 
     /**
      * @var Server
@@ -36,13 +36,13 @@ class DatabaseCommandEvent extends Event
     /**
      * DatabaseCommandEvent constructor.
      * @param string $databaseName
-     * @param array $command
+     * @param array $commandOptions
      * @param Server $server
      */
-    public function __construct($databaseName, array $command, Server $server)
+    public function __construct($databaseName, array $commandOptions, Server $server)
     {
         $this->databaseName = $databaseName;
-        $this->command = $command;
+        $this->commandOptions = $commandOptions;
         $this->server = $server;
     }
 
@@ -57,9 +57,9 @@ class DatabaseCommandEvent extends Event
     /**
      * @return array
      */
-    public function getCommand()
+    public function getCommandOptions()
     {
-        return $this->command;
+        return $this->commandOptions;
     }
 
     /**
@@ -70,7 +70,7 @@ class DatabaseCommandEvent extends Event
         if (null === $this->commandCursor) {
             throw new LogicException(
                 sprintf(
-                    'Call on %s is denied before command result was set using %s::setCursor().',
+                    'Call on %s is denied before cursor is set using %s::setCursor().',
                     __METHOD__,
                     __CLASS__
                 )
