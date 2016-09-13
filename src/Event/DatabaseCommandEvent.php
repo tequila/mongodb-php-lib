@@ -3,6 +3,7 @@
 namespace Tequilla\MongoDB\Event;
 
 use MongoDB\Driver\Server;
+use Symfony\Component\EventDispatcher\Event;
 use Tequilla\MongoDB\CommandCursor;
 use Tequilla\MongoDB\Exception\LogicException;
 

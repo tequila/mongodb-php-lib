@@ -133,7 +133,8 @@ class Connection
         if ($commandOptions instanceof Command) {
             throw new InvalidArgumentException(
                 sprintf(
-                    '%s does not accept Command instances in order to have access to the command options',
+                    '%s does not accept %s instances in order to have access to the command options',
+                    Command::class,
                     __METHOD__
                 )
             );
