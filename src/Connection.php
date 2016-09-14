@@ -293,18 +293,20 @@ class Connection
     /**
      * @param string $databaseName
      * @param string $collectionName
-     * @return CommandCursor
+     * @return array
      */
     public function listIndexes($databaseName, $collectionName)
     {
         StringUtils::ensureValidDatabaseName($databaseName);
         StringUtils::ensureValidCollectionName($collectionName);
 
-        return $this->buildAndExecuteCommand(
-            $databaseName,
-            ListIndexesType::class,
-            [ListIndexesType::getCommandName() => $collectionName]
-        );
+        return $this
+            ->buildAndExecuteCommand(
+                $databaseName,
+                ListIndexesType::class,
+                [ListIndexesType::getCommandName() => $collectionName]
+            )
+            ->toArray();
     }
 
     /**
