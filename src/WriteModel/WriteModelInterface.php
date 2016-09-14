@@ -2,7 +2,7 @@
 
 namespace Tequilla\MongoDB\WriteModel;
 
-use MongoDB\Driver\BulkWrite;
+use Tequilla\MongoDB\BulkWrite\BulkWrite;
 
 interface WriteModelInterface
 {

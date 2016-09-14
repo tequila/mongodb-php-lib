@@ -2,6 +2,8 @@
 
 namespace Tequilla\MongoDB\Exception;
 
-class LogicException extends \LogicException
+use MongoDB\Driver\Exception\Exception as MongoDBException;
+
+class LogicException extends \LogicException implements MongoDBException
 {
 }

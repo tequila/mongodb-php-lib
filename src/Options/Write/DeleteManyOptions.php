@@ -8,22 +8,22 @@ use Tequilla\MongoDB\Exception\InvalidArgumentException;
 use Tequilla\MongoDB\Options\ConfigurableInterface;
 use Tequilla\MongoDB\Options\Traits\CachedResolverTrait;
 
-class ReplaceOneOptions implements ConfigurableInterface
+class DeleteManyOptions implements ConfigurableInterface
 {
     use CachedResolverTrait;
 
     public static function configureOptions(OptionsResolver $resolver)
     {
-        UpdateOptions::configureOptions($resolver);
-
-        $resolver->setNormalizer('multi', function(Options $options, $multi) {
-            if ($multi) {
+        DeleteOptions::configureOptions($resolver);
+        $resolver->setDefault('limit', 0);
+        $resolver->setNormalizer('limit', function (Options $options, $limit) {
+            if (1 === $limit) {
                 throw new InvalidArgumentException(
-                    'ReplaceOne operation does not allow option "multi" to be true'
+                    'Option "limit" cannot be set to 1 for DeleteMany operation. If you want to delete one document - use DeleteOne'
                 );
             }
 
-            return $multi;
+            return $limit;
         });
     }
 }

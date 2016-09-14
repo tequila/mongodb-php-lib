@@ -3,13 +3,12 @@
 namespace Tequilla\MongoDB\WriteModel;
 
 use Tequilla\MongoDB\Options\Write\UpdateManyOptions;
+use Tequilla\MongoDB\Util\ValidatorUtils;
 use WriteModel\BulkUpdateTrait;
 
 class UpdateMany implements WriteModelInterface
 {
     use BulkUpdateTrait;
-    use ValidateFilterTrait;
-    use ValidateUpdateTrait;
 
     /**
      * Update constructor.
@@ -19,8 +18,8 @@ class UpdateMany implements WriteModelInterface
      */
     public function __construct($filter, $update, array $options = [])
     {
-        self::validateFilter($filter);
-        self::validateUpdate($update);
+        ValidatorUtils::ensureValidFilter($filter);
+        ValidatorUtils::ensureValidUpdate($update);
 
         $this->filter = $filter;
         $this->update = $update;

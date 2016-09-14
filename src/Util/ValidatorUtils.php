@@ -1,40 +1,29 @@
 <?php
 
-namespace Util;
+namespace Tequilla\MongoDB\Util;
 
+use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tequilla\MongoDB\Exception\InvalidArgumentException;
-use Tequilla\MongoDB\Util\StringUtils;
-use Tequilla\MongoDB\Util\TypeUtils;
+use Symfony\Component\OptionsResolver\Exception\InvalidArgumentException as OptionsResolverException;
 
 final class ValidatorUtils
 {
     /**
      * @var bool
      */
-    private static $validationEnabled = false;
+    private static $documentValidationEnabled = false;
 
     /**
-     * Enables heavy validation, like recursive documents validation etc.
+     * @var OptionsResolver
      */
-    public function enableValidation()
-    {
-        self::$validationEnabled = true;
-    }
-
-    /**
-     * Disables heavy validation, like recursive documents validation etc.
-     */
-    public function disableValidation()
-    {
-        self::$validationEnabled = false;
-    }
+    private static $updateResolver;
 
     /**
      * @param array|object $document
      */
     public static function ensureValidDocument($document)
     {
-        if (!self::$validationEnabled) {
+        if (!self::$documentValidationEnabled) {
             return;
         }
 
@@ -47,5 +36,100 @@ final class ValidatorUtils
         array_walk_recursive($document, function($value, $fieldName) {
             StringUtils::ensureValidDocumentFieldName($fieldName);
         });
+    }
+
+    public static function ensureValidFilter($filter)
+    {
+        if (!is_array($filter) && !is_object($filter)) {
+            throw new InvalidArgumentException(
+                sprintf(
+                    '$filter must be an array or an object, %s given',
+                    TypeUtils::getType($filter)
+                )
+            );
+        }
+    }
+
+    /**
+     * @param array|object $update
+     */
+    public static function ensureValidUpdate($update)
+    {
+        if (!is_array($update) && !is_object($update)) {
+            throw new InvalidArgumentException(
+                sprintf(
+                    '$update must be an array or an object, %s given',
+                    TypeUtils::getType($update)
+                )
+            );
+        }
+
+        $update = (array) $update;
+
+        if (empty($update)) {
+            throw new InvalidArgumentException('$update cannot be empty');
+        }
+
+
+
+        try {
+            self::getUpdateResolver()->resolve($update);
+        } catch(OptionsResolverException $e) {
+            throw new InvalidArgumentException(
+                sprintf(
+                    '$update has a wrong format: %s',
+                    $e->getMessage()
+                )
+            );
+        } catch(InvalidArgumentException $e) {
+            throw new InvalidArgumentException(
+                sprintf(
+                    '$update has a wrong format: %s',
+                    $e->getMessage()
+                )
+            );
+        }
+    }
+
+    /**
+     * @return OptionsResolver
+     */
+    private static function getUpdateResolver()
+    {
+        if (!self::$updateResolver) {
+            $updateResolver = new OptionsResolver();
+            $updateResolver->setDefined([
+                '$inc',
+                '$mul',
+                '$rename',
+                '$setOnInsert',
+                '$set',
+                '$unset',
+                '$min',
+                '$max',
+                '$currentDate',
+                '$bit',
+            ]);
+
+            self::$updateResolver = $updateResolver;
+        }
+
+        return self::$updateResolver;
+    }
+
+    /**
+     * Enables heavy validation, like recursive documents validation etc.
+     */
+    public static function enableDocumentValidation()
+    {
+        self::$documentValidationEnabled = true;
+    }
+
+    /**
+     * Disables heavy validation, like recursive documents validation etc.
+     */
+    public static function disableDocumentValidation()
+    {
+        self::$documentValidationEnabled = false;
     }
 }

@@ -31,19 +31,13 @@ class WriteConcernOptions implements ConfigurableInterface
         $resolver->setAllowedTypes(self::JOURNAL, ['bool']);
 
         $resolver->setNormalizer(self::WRITE_CONCERN_TIMEOUT_MS, function(Options $options, $value) {
-            if (!$value) {
-                return $value;
-            }
-            if (isset($options[self::WRITE_CONCERN]) && !is_integer($options[self::WRITE_CONCERN])) {
-                // perhaps "w" = "majority" ot tag sets are used, so wtimeoutMS will get applied
-                return;
-            }
-
             if (!isset($options[self::WRITE_CONCERN]) || $options[self::WRITE_CONCERN] <= 1) {
                 throw new InvalidArgumentException(
                     'Option "wtimeoutMS" will not get applied until "w" > 1, "w" = majority, or tag sets are used.'
                 );
             }
+
+            return $value;
         });
     }
 }

@@ -73,6 +73,17 @@ final class TypeUtils
     }
 
     /**
+     * Checks if array is a list
+     *
+     * @param array $array
+     * @return bool
+     */
+    public static function isList(array $array)
+    {
+        return array_keys($array) === range(0, count($array) - 1);
+    }
+
+    /**
      * @param mixed $value
      * @return string
      */

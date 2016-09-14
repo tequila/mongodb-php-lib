@@ -2,9 +2,9 @@
 
 namespace WriteModel;
 
-use MongoDB\Driver\BulkWrite;
+use Tequilla\MongoDB\BulkWrite\BulkWrite;
 use Tequilla\MongoDB\WriteModel\WriteModelInterface;
-use Util\ValidatorUtils;
+use Tequilla\MongoDB\Util\ValidatorUtils;
 
 class InsertOne implements WriteModelInterface
 {

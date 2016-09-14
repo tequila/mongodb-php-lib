@@ -2,14 +2,12 @@
 
 namespace Tequilla\MongoDB\WriteModel;
 
-use MongoDB\Driver\BulkWrite;
+use Tequilla\MongoDB\BulkWrite\BulkWrite;
 use Tequilla\MongoDB\Options\Write\ReplaceOneOptions;
-use Util\ValidatorUtils;
+use Tequilla\MongoDB\Util\ValidatorUtils;
 
 class ReplaceOne implements WriteModelInterface
 {
-    use ValidateFilterTrait;
-
     /**
      * @var array|object
      */
@@ -32,7 +30,7 @@ class ReplaceOne implements WriteModelInterface
      */
     public function __construct($filter, $replacement, array $options = [])
     {
-        self::validateFilter($filter);
+        ValidatorUtils::ensureValidFilter($filter);
         ValidatorUtils::ensureValidDocument($replacement);
 
         $this->filter = $filter;

@@ -2,7 +2,7 @@
 
 namespace WriteModel;
 
-use MongoDB\Driver\BulkWrite;
+use Tequilla\MongoDB\BulkWrite\BulkWrite;
 
 trait BulkUpdateTrait
 {

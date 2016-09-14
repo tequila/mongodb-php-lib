@@ -24,6 +24,7 @@ use Tequilla\MongoDB\Options\Connection\ConnectionOptions;
 use Tequilla\MongoDB\Options\Driver\DriverOptions;
 use Tequilla\MongoDB\Util\StringUtils;
 use Tequilla\MongoDB\Util\TypeUtils;
+use Tequilla\MongoDB\Traits\ReadPreferenceAndConcernsTrait;
 
 /**
  * Class Client
@@ -31,6 +32,8 @@ use Tequilla\MongoDB\Util\TypeUtils;
  */
 class Connection
 {
+    use ReadPreferenceAndConcernsTrait;
+
     /**
      * @var Manager
      */
@@ -61,30 +64,12 @@ class Connection
         $driverOptions = $driverOptionsResolver->resolve($driverOptions);
 
         $this->manager = new Manager((string)$uri, $options, $driverOptions);
-    }
 
-    /**
-     * @return \MongoDB\Driver\ReadConcern
-     */
-    public function getReadConcern()
-    {
-        return $this->manager->getReadConcern();
-    }
-
-    /**
-     * @return \MongoDB\Driver\WriteConcern
-     */
-    public function getWriteConcern()
-    {
-        return $this->manager->getWriteConcern();
-    }
-
-    /**
-     * @return \MongoDB\Driver\ReadPreference
-     */
-    public function getReadPreference()
-    {
-        return $this->manager->getReadPreference();
+        $this
+            ->setReadPreference($this->manager->getReadPreference())
+            ->setReadConcern($this->manager->getReadConcern())
+            ->setWriteConcern($this->manager->getWriteConcern())
+        ;
     }
 
     /**
@@ -389,7 +374,13 @@ class Connection
     {
         StringUtils::ensureValidDatabaseName($databaseName);
 
-        return new Database($this, $databaseName, $options);
+        $db = new Database($this, $databaseName, $options);
+        $db
+            ->setReadConcern($this->getReadConcern())
+            ->setReadPreference($this->getReadPreference())
+            ->setWriteConcern($this->writeConcern);
+
+        return $db;
     }
 
     /**

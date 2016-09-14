@@ -2,17 +2,14 @@
 
 namespace Tequilla\MongoDB;
 
-use MongoDB\Driver\ReadConcern;
-use MongoDB\Driver\ReadPreference;
-use MongoDB\Driver\WriteConcern;
-use Tequilla\MongoDB\Exception\InvalidArgumentException;
-
 /**
  * Class Database
  * @package Tequilla\MongoDB
  */
 class Database implements DatabaseInterface
 {
+    use Traits\ReadPreferenceAndConcernsTrait;
+
     /**
      * @var string
      */
@@ -22,21 +19,6 @@ class Database implements DatabaseInterface
      * @var Connection
      */
     private $connection;
-
-    /**
-     * @var ReadConcern
-     */
-    private $readConcern;
-
-    /**
-     * @var ReadPreference
-     */
-    private $readPreference;
-
-    /**
-     * @var WriteConcern
-     */
-    private $writeConcern;
 
     /**
      * Database constructor.
@@ -56,30 +38,6 @@ class Database implements DatabaseInterface
     public function getName()
     {
         return $this->name;
-    }
-
-    /**
-     * @return ReadConcern
-     */
-    public function getReadConcern()
-    {
-        return $this->readConcern;
-    }
-
-    /**
-     * @return ReadPreference
-     */
-    public function getReadPreference()
-    {
-        return $this->readPreference;
-    }
-
-    /**
-     * @return WriteConcern
-     */
-    public function getWriteConcern()
-    {
-        return $this->writeConcern;
     }
 
     /**
