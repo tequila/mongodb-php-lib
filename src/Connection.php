@@ -18,12 +18,10 @@ use Tequilla\MongoDB\Command\Type\DropCollectionType;
 use Tequilla\MongoDB\Command\Type\DropDatabaseType;
 use Tequilla\MongoDB\Command\Type\ListCollectionsType;
 use Tequilla\MongoDB\Command\Type\ListDatabasesType;
-use Tequilla\MongoDB\Event\DatabaseCommandEvent;
 use Tequilla\MongoDB\Exception\InvalidArgumentException;
 use Tequilla\MongoDB\Exception\UnexpectedResultException;
 use Tequilla\MongoDB\Options\Connection\ConnectionOptions;
 use Tequilla\MongoDB\Options\Driver\DriverOptions;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Tequilla\MongoDB\Util\StringUtils;
 use Tequilla\MongoDB\Util\TypeUtils;
 
@@ -44,22 +42,15 @@ class Connection
     private $commandBuilders = [];
 
     /**
-     * @var EventDispatcherInterface|null
-     */
-    private $dispatcher;
-
-    /**
      * Client constructor.
      * @param string $uri
      * @param array $options
      * @param array $driverOptions
-     * @param EventDispatcherInterface $dispatcher
      */
     public function __construct(
         $uri = 'mongodb://localhost:27017',
         array $options = [],
-        array $driverOptions = [],
-        EventDispatcherInterface $dispatcher = null
+        array $driverOptions = []
     ) {
         $resolver = new OptionsResolver();
         ConnectionOptions::configureOptions($resolver);
@@ -70,7 +61,6 @@ class Connection
         $driverOptions = $driverOptionsResolver->resolve($driverOptions);
 
         $this->manager = new Manager((string)$uri, $options, $driverOptions);
-        $this->dispatcher = $dispatcher;
     }
 
     /**
@@ -151,22 +141,10 @@ class Connection
         }
 
         $server = $this->manager->selectServer($readPreference);
-
-        if ($this->dispatcher) {
-            $event = new DatabaseCommandEvent($databaseName, $commandOptions, $server);
-            $this->dispatcher->dispatch(Events::BEFORE_DATABASE_COMMAND_EXECUTED, $event);
-        }
-
         $driverCommand = new Command($commandOptions);
 
         $mongoCursor = $server->executeCommand($databaseName, $driverCommand);
         $cursor = new CommandCursor($mongoCursor);
-
-        if ($this->dispatcher) {
-            $event = new DatabaseCommandEvent($databaseName, $commandOptions, $server);
-            $event->setCursor($cursor);
-            $this->dispatcher->dispatch(Events::DATABASE_COMMAND_EXECUTED, $event);
-        }
 
         return $cursor;
     }
