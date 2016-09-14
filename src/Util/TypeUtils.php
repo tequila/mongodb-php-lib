@@ -46,16 +46,12 @@ final class TypeUtils
      * @param $value
      * @return array
      */
-    public static function ensureArray($value)
+    public static function ensureArrayRecursive($value)
     {
-        if (is_array($value)) {
-            return $value;
-        }
-
-        if (!is_object($value)) {
+        if (!is_array($value) && !is_object($value)) {
             throw new InvalidArgumentException(
                 sprintf(
-                    'Value must be an array or an object, %s given',
+                    '$value must be an array or an object, %s given',
                     self::getType($value)
                 )
             );
@@ -65,7 +61,15 @@ final class TypeUtils
             $value = $value->bsonSerialize();
         }
 
-        return (array) $value;
+        $value = (array) $value;
+
+        foreach ($value as $key => $nestedValue) {
+            if (is_array($nestedValue) || is_object($nestedValue)) {
+                $value[$key] = self::ensureArrayRecursive($value);
+            }
+        }
+
+        return $value;
     }
 
     /**

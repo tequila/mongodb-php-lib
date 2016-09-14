@@ -3,6 +3,7 @@
 namespace Tequilla\MongoDB\WriteModel;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\OptionsResolver\Exception\InvalidArgumentException as OptionsResolverException;
 use Tequilla\MongoDB\Exception\InvalidArgumentException;
 use Tequilla\MongoDB\Util\TypeUtils;
 
@@ -21,13 +22,21 @@ trait ValidateUpdateTrait
             );
         }
 
-        $update = TypeUtils::ensureArray($update);
+        $update = TypeUtils::ensureArrayRecursive($update);
 
         if (empty($update)) {
             throw new InvalidArgumentException('$update cannot be empty');
         }
 
-        return self::getUpdateResolver()->resolve($update);
+        try {
+            return self::getUpdateResolver()->resolve($update);
+        } catch(OptionsResolverException $e) {
+            self::throwException($e);
+        } catch(InvalidArgumentException $e) {
+            self::throwException($e);
+        }
+
+        return null;
     }
 
     private static function getUpdateResolver()
@@ -53,4 +62,13 @@ trait ValidateUpdateTrait
         return self::$updateResolver;
     }
 
+    private static function throwException(\Exception $e)
+    {
+        throw new InvalidArgumentException(
+            sprintf(
+                '$update has a wrong format: %s',
+                $e->getMessage()
+            )
+        );
+    }
 }

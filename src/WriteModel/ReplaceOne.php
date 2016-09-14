@@ -58,7 +58,7 @@ class ReplaceOne implements WriteModelInterface
             );
         }
 
-        $replacement = TypeUtils::ensureArray($replacement);
+        $replacement = TypeUtils::ensureArrayRecursive($replacement);
 
         if (empty($replacement)) {
             throw new InvalidArgumentException('$replacement cannot be empty');
