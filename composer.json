@@ -1,5 +1,5 @@
 {
-    "name": "tequilla/mongodb",
+    "name": "tequilla/mongodb-php-lib",
     "description": "PHP MongoDB abstraction layer (driver library)",
     "type": "library",
     "require": {

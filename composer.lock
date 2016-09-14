@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "cad047db652f60eb888d3fea56b453ea",
-    "content-hash": "556b9af4b97dba12e51844e2026c3262",
+    "hash": "e5aafd191c6d839160ce5dbea4c212ed",
+    "content-hash": "aa5c2ba9b470f881e8e8529ec3cbb62b",
     "packages": [
         {
             "name": "symfony/options-resolver",
