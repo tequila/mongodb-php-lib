@@ -22,7 +22,7 @@ trait ValidateUpdateTrait
             );
         }
 
-        $update = TypeUtils::ensureArrayRecursive($update);
+        $update = (array) $update;
 
         if (empty($update)) {
             throw new InvalidArgumentException('$update cannot be empty');

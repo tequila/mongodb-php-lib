@@ -3,20 +3,22 @@
 namespace WriteModel;
 
 use MongoDB\Driver\BulkWrite;
-use Tequilla\MongoDB\WriteModel\ValidateDocumentTrait;
 use Tequilla\MongoDB\WriteModel\WriteModelInterface;
+use Util\ValidatorUtils;
 
 class InsertOne implements WriteModelInterface
 {
-    use ValidateDocumentTrait;
     /**
      * @var array|object
      */
     private $document;
 
+    /**
+     * @param array|object $document
+     */
     public function __construct($document)
     {
-        self::validateDocument($document);
+        ValidatorUtils::ensureValidDocument($document);
 
         $this->document = $document;
     }
