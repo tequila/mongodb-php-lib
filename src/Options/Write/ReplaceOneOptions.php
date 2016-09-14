@@ -14,7 +14,7 @@ class ReplaceOneOptions implements ConfigurableInterface
 
     public static function configureOptions(OptionsResolver $resolver)
     {
-        UpdateOneOptions::configureOptions($resolver);
+        UpdateOptions::configureOptions($resolver);
 
         $resolver->setNormalizer('multi', function(Options $options, $multi) {
             if ($multi) {

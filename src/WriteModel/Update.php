@@ -2,27 +2,13 @@
 
 namespace Tequilla\MongoDB\WriteModel;
 
-use MongoDB\Driver\BulkWrite;
 use Tequilla\MongoDB\Options\Write\UpdateOptions;
+use WriteModel\BulkUpdateTrait;
 
 class Update implements WriteModelInterface
 {
+    use BulkUpdateTrait;
     use ValidateFilterTrait;
-
-    /**
-     * @var array|object
-     */
-    private $filter;
-
-    /**
-     * @var array|object
-     */
-    private $update;
-
-    /**
-     * @var array
-     */
-    private $options;
 
     /**
      * Update constructor.
@@ -36,10 +22,5 @@ class Update implements WriteModelInterface
         $this->filter = $filter;
         $this->update = $update;
         $this->options = UpdateOptions::getCachedResolver()->resolve($options);
-    }
-
-    public function writeToBulk(BulkWrite $bulk)
-    {
-        $bulk->update($this->filter, $this->update, $this->options);
     }
 }
