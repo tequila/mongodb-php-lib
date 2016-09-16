@@ -1,6 +1,6 @@
 <?php
 
-namespace WriteModel;
+namespace Tequilla\MongoDB\WriteModel;
 
 use Tequilla\MongoDB\BulkWrite\BulkWrite;
 

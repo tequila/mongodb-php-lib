@@ -18,11 +18,13 @@ class UpdateManyOptions implements ConfigurableInterface
 
         $resolver->setDefault('multi', true);
         $resolver->setNormalizer('multi', function(Options $options, $multi) {
-            if ($multi) {
+            if (!$multi) {
                 throw new InvalidArgumentException(
                     'UpdateMany operation does not allow option "multi" to be false'
                 );
             }
+
+            return $multi;
         });
     }
 }

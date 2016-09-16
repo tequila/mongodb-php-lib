@@ -5,7 +5,7 @@ namespace Tequilla\MongoDB;
 use Tequilla\MongoDB\BulkWrite\BulkWrite;
 use Tequilla\MongoDB\WriteModel\WriteModelInterface;
 
-class Collection implements CollectionInterface
+class Collection
 {
     use Traits\ReadPreferenceAndConcernsTrait;
 
@@ -39,16 +39,12 @@ class Collection implements CollectionInterface
     /**
      * @param WriteModelInterface[] $requests
      * @param array $options
+     * @return \Tequilla\MongoDB\BulkWrite\BulkWriteResult
      */
     public function bulkWrite(array $requests, array $options = [])
     {
         $bulk = new BulkWrite($requests, $options);
-        $bulk->compile();
 
-        $this->connection->executeBulkWrite(
-            $this->databaseName,
-            $this->name,
-            $bulk->getBulk()
-        );
+        return $bulk->execute($this->connection, $this->databaseName, $this->name);
     }
 }

@@ -367,14 +367,13 @@ class Connection
 
     /**
      * @param string $databaseName
-     * @param array $options
      * @return DatabaseInterface
      */
-    public function selectDatabase($databaseName, array $options = [])
+    public function selectDatabase($databaseName)
     {
         StringUtils::ensureValidDatabaseName($databaseName);
 
-        $db = new Database($this, $databaseName, $options);
+        $db = new Database($this, $databaseName);
         $db
             ->setReadConcern($this->getReadConcern())
             ->setReadPreference($this->getReadPreference())
@@ -386,11 +385,14 @@ class Connection
     /**
      * @param string $databaseName
      * @param string $collectionName
+     * @return CollectionInterface
      */
     public function selectCollection($databaseName, $collectionName)
     {
         StringUtils::ensureValidDatabaseName($databaseName);
         StringUtils::ensureValidCollectionName($collectionName);
+
+        return $this->selectDatabase($databaseName)->selectCollection($collectionName);
     }
 
     /**

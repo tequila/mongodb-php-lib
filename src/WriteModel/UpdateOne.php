@@ -4,7 +4,6 @@ namespace Tequilla\MongoDB\WriteModel;
 
 use Tequilla\MongoDB\Options\Write\UpdateOneOptions;
 use Tequilla\MongoDB\Util\ValidatorUtils;
-use WriteModel\BulkUpdateTrait;
 
 class UpdateOne implements WriteModelInterface
 {

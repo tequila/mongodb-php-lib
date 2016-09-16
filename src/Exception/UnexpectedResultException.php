@@ -2,8 +2,8 @@
 
 namespace Tequilla\MongoDB\Exception;
 
-use MongoDB\Driver\Exception\Exception as MongoDBException;
+use MongoDB\Driver\Exception\UnexpectedValueException;
 
-class UnexpectedResultException extends \UnexpectedValueException implements MongoDBException
+class UnexpectedResultException extends UnexpectedValueException implements Exception
 {
 }

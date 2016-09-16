@@ -2,6 +2,8 @@
 
 namespace Tequilla\MongoDB;
 
+use Tequilla\MongoDB\BulkWrite\BulkWriteResult;
+
 interface CollectionInterface
 {
     public function aggregate(array $pipeline, array $options = []);
@@ -12,6 +14,11 @@ interface CollectionInterface
 
     public function find(array $filter, array $options = []);
 
+    /**
+     * @param array $requests
+     * @param array $options
+     * @return BulkWriteResult
+     */
     public function bulkWrite(array $requests, array $options = []);
 
     public function insertOne($document, array $options = []);

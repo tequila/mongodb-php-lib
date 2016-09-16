@@ -75,12 +75,17 @@ class Database implements DatabaseInterface
 
     /**
      * @param  string $collectionName
-     * @param  array $options
      * @return CollectionInterface
      */
-    public function selectCollection($collectionName, array $options = [])
+    public function selectCollection($collectionName)
     {
+        $collection = new Collection($this->connection, $this->name, $collectionName);
+        $collection
+            ->setReadConcern($this->readConcern)
+            ->setReadPreference($this->readPreference)
+            ->setWriteConcern($this->writeConcern);
 
+        return $collection;
     }
 
     /**

@@ -22,6 +22,8 @@ class DeleteOneOptions implements ConfigurableInterface
                     'Option "limit" cannot be set to 0 for DeleteOne operation. If you want to delete multiple documents - use DeleteMany'
                 );
             }
+
+            return $limit;
         });
     }
 }

@@ -6,7 +6,9 @@ use MongoDB\BSON\ObjectID;
 use MongoDB\BSON\Serializable;
 use MongoDB\Driver\BulkWrite as Bulk;
 use MongoDB\Driver\Exception\Exception as MongoDBException;
+use Tequilla\MongoDB\Connection;
 use Tequilla\MongoDB\Exception\InvalidArgumentException;
+use Tequilla\MongoDB\Exception\RuntimeException;
 use Tequilla\MongoDB\Options\Write\BulkWriteOptions;
 use Tequilla\MongoDB\Util\TypeUtils;
 use Tequilla\MongoDB\WriteModel\WriteModelInterface;
@@ -43,14 +45,6 @@ class BulkWrite
         $this->requests = $requests;
         $this->options = BulkWriteOptions::getCachedResolver()->resolve($options);
         $this->bulk = new Bulk($this->options);
-    }
-
-    /**
-     * @return Bulk
-     */
-    public function getBulk()
-    {
-        return $this->bulk;
     }
 
     /**
@@ -105,13 +99,19 @@ class BulkWrite
         return $this->bulk->count();
     }
 
-    public function compile()
+    /**
+     * @param Connection $connection
+     * @param string $databaseName
+     * @param string $collectionName
+     * @return BulkWriteResult
+     */
+    public function execute(Connection $connection, $databaseName, $collectionName)
     {
         foreach ($this->requests as $i => $request) {
             try {
                 $request->writeToBulk($this);
             } catch(MongoDBException $e) {
-                throw new InvalidArgumentException(
+                throw new RuntimeException(
                     sprintf (
                         'Exception "%s" during adding $requests[%s] to BulkWrite',
                         get_class($e),
@@ -120,6 +120,10 @@ class BulkWrite
                 );
             }
         }
+
+        $writeResult = $connection->executeBulkWrite($databaseName, $collectionName, $this->bulk);
+
+        return new BulkWriteResult($writeResult, $this->insertedIds);
     }
 
     private static function validateRequests(array $requests)

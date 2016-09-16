@@ -13,7 +13,11 @@ interface DatabaseInterface
 
     public function getName();
 
-    public function selectCollection($collectionName, array $options = []);
+    /**
+     * @param $collectionName
+     * @return CollectionInterface
+     */
+    public function selectCollection($collectionName);
 
     public function drop(array $options = []);
 

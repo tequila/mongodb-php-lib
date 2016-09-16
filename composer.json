@@ -8,8 +8,7 @@
         "symfony/options-resolver": ">=2.8"
     },
     "autoload": {
-        "psr-4": { "Tequilla\\MongoDB\\": "src/" },
-        "files": ["src/internal_functions.php"]
+        "psr-4": { "Tequilla\\MongoDB\\": "src/" }
     },
     "autoload-dev": {
         "psr-4": { "Tequilla\\MongoDB\\Tests\\": "tests/" }
