@@ -1,22 +1,22 @@
 <?php
 
-namespace Tequilla\MongoDB\BulkWrite;
+namespace Tequilla\MongoDB\Write\Bulk;
 
 use MongoDB\BSON\ObjectID;
 use MongoDB\BSON\Serializable;
 use MongoDB\Driver\BulkWrite as Bulk;
 use MongoDB\Driver\Exception\Exception as MongoDBException;
+use MongoDB\Driver\WriteConcern;
 use Tequilla\MongoDB\Connection;
 use Tequilla\MongoDB\Exception\InvalidArgumentException;
 use Tequilla\MongoDB\Exception\RuntimeException;
-use Tequilla\MongoDB\Options\Write\BulkWriteOptions;
 use Tequilla\MongoDB\Util\TypeUtils;
-use Tequilla\MongoDB\WriteModel\WriteModelInterface;
+use Tequilla\MongoDB\Write\Model\WriteModelInterface;
 
 class BulkWrite
 {
     /**
-     * @var WriteModelInterface[]
+     * @var \Tequilla\MongoDB\Write\Model\WriteModelInterface[]
      */
     private $requests;
 
@@ -36,7 +36,12 @@ class BulkWrite
     private $insertedIds = [];
 
     /**
-     * @param WriteModelInterface[] $requests
+     * @var WriteConcern
+     */
+    private $writeConcern;
+
+    /**
+     * @param \Tequilla\MongoDB\Write\Model\WriteModelInterface[] $requests
      * @param array $options
      */
     public function __construct(array $requests, array $options)
@@ -44,6 +49,12 @@ class BulkWrite
         self::validateRequests($requests);
         $this->requests = $requests;
         $this->options = BulkWriteOptions::getCachedResolver()->resolve($options);
+
+        if (isset($this->options['writeConcern'])) {
+            $this->writeConcern = $this->options['writeConcern'];
+            unset($this->options['writeConcern']);
+        }
+
         $this->bulk = new Bulk($this->options);
     }
 
@@ -121,7 +132,12 @@ class BulkWrite
             }
         }
 
-        $writeResult = $connection->executeBulkWrite($databaseName, $collectionName, $this->bulk);
+        $writeResult = $connection->executeBulkWrite(
+            $databaseName,
+            $collectionName,
+            $this->bulk,
+            $this->writeConcern
+        );
 
         return new BulkWriteResult($writeResult, $this->insertedIds);
     }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tequilla\MongoDB\Options\Write;
+namespace Tequilla\MongoDB\Write\Options;
 
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
@@ -8,22 +8,23 @@ use Tequilla\MongoDB\Exception\InvalidArgumentException;
 use Tequilla\MongoDB\Options\ConfigurableInterface;
 use Tequilla\MongoDB\Options\Traits\CachedResolverTrait;
 
-class DeleteManyOptions implements ConfigurableInterface
+class UpdateManyOptions implements ConfigurableInterface
 {
     use CachedResolverTrait;
 
     public static function configureOptions(OptionsResolver $resolver)
     {
-        DeleteOptions::configureOptions($resolver);
-        $resolver->setDefault('limit', 0);
-        $resolver->setNormalizer('limit', function (Options $options, $limit) {
-            if (1 === $limit) {
+        UpdateOptions::configureOptions($resolver);
+
+        $resolver->setDefault('multi', true);
+        $resolver->setNormalizer('multi', function(Options $options, $multi) {
+            if (!$multi) {
                 throw new InvalidArgumentException(
-                    'Option "limit" cannot be set to 1 for DeleteMany operation. If you want to delete one document - use DeleteOne'
+                    'UpdateMany operation does not allow option "multi" to be false'
                 );
             }
 
-            return $limit;
+            return $multi;
         });
     }
 }

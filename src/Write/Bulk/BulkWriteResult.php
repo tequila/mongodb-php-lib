@@ -1,6 +1,6 @@
 <?php
 
-namespace Tequilla\MongoDB\BulkWrite;
+namespace Tequilla\MongoDB\Write\Bulk;
 
 use MongoDB\Driver\WriteConcernError;
 use MongoDB\Driver\WriteError;
@@ -104,7 +104,7 @@ class BulkWriteResult
     }
 
     /**
-     * @return WriteConcernError
+     * @return WriteConcernError|null
      */
     public function getWriteConcernError()
     {

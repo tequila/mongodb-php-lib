@@ -1,9 +1,9 @@
 <?php
 
-namespace Tequilla\MongoDB\WriteModel;
+namespace Tequilla\MongoDB\Write\Model;
 
-use Tequilla\MongoDB\BulkWrite\BulkWrite;
-use Tequilla\MongoDB\Options\Write\ReplaceOneOptions;
+use Tequilla\MongoDB\Write\Bulk\BulkWrite;
+use Tequilla\MongoDB\Write\Options\ReplaceOneOptions;
 use Tequilla\MongoDB\Util\ValidatorUtils;
 
 class ReplaceOne implements WriteModelInterface

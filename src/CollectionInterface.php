@@ -2,7 +2,7 @@
 
 namespace Tequilla\MongoDB;
 
-use Tequilla\MongoDB\BulkWrite\BulkWriteResult;
+use Tequilla\MongoDB\Write\Bulk\BulkWriteResult;
 
 interface CollectionInterface
 {
@@ -17,7 +17,7 @@ interface CollectionInterface
     /**
      * @param array $requests
      * @param array $options
-     * @return BulkWriteResult
+     * @return \Tequilla\MongoDB\Write\Bulk\BulkWriteResult
      */
     public function bulkWrite(array $requests, array $options = []);
 

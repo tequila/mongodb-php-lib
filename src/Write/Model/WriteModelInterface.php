@@ -1,8 +1,8 @@
 <?php
 
-namespace Tequilla\MongoDB\WriteModel;
+namespace Tequilla\MongoDB\Write\Model;
 
-use Tequilla\MongoDB\BulkWrite\BulkWrite;
+use Tequilla\MongoDB\Write\Bulk\BulkWrite;
 
 interface WriteModelInterface
 {

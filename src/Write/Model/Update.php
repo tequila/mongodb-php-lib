@@ -1,13 +1,13 @@
 <?php
 
-namespace Tequilla\MongoDB\WriteModel;
+namespace Tequilla\MongoDB\Write\Model;
 
-use Tequilla\MongoDB\Options\Write\UpdateOptions;
+use Tequilla\MongoDB\Write\Options\UpdateOptions;
 use Tequilla\MongoDB\Util\ValidatorUtils;
 
 class Update implements WriteModelInterface
 {
-    use BulkUpdateTrait;
+    use Traits\BulkUpdateTrait;
 
     /**
      * @param array|object $filter

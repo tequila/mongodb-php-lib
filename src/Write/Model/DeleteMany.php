@@ -1,13 +1,13 @@
 <?php
 
-namespace Tequilla\MongoDB\WriteModel;
+namespace Tequilla\MongoDB\Write\Model;
 
-use Tequilla\MongoDB\Options\Write\DeleteManyOptions;
+use Tequilla\MongoDB\Write\Options\DeleteManyOptions;
 use Tequilla\MongoDB\Util\ValidatorUtils;
 
-class DeleteMany
+class DeleteMany implements WriteModelInterface
 {
-    use BulkDeleteTrait;
+    use Traits\BulkDeleteTrait;
 
     /**
      * @param array|object $filter

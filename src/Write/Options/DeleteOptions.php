@@ -1,6 +1,6 @@
 <?php
 
-namespace Tequilla\MongoDB\Options\Write;
+namespace Tequilla\MongoDB\Write\Options;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tequilla\MongoDB\Options\ConfigurableInterface;

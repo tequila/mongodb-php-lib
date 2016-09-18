@@ -1,9 +1,8 @@
 <?php
 
-namespace Tequilla\MongoDB\WriteModel;
+namespace Tequilla\MongoDB\Write\Model;
 
-use Tequilla\MongoDB\BulkWrite\BulkWrite;
-use Tequilla\MongoDB\WriteModel\WriteModelInterface;
+use Tequilla\MongoDB\Write\Bulk\BulkWrite;
 use Tequilla\MongoDB\Util\ValidatorUtils;
 
 class InsertOne implements WriteModelInterface

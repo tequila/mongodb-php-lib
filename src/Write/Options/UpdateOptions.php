@@ -1,10 +1,8 @@
 <?php
 
-namespace Tequilla\MongoDB\Options\Write;
+namespace Tequilla\MongoDB\Write\Options;
 
-use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Tequilla\MongoDB\Exception\InvalidArgumentException;
 use Tequilla\MongoDB\Options\ConfigurableInterface;
 use Tequilla\MongoDB\Options\Traits\CachedResolverTrait;
 

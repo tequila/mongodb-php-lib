@@ -1,13 +1,13 @@
 <?php
 
-namespace Tequilla\MongoDB\WriteModel;
+namespace Tequilla\MongoDB\Write\Model;
 
-use Tequilla\MongoDB\Options\Write\UpdateManyOptions;
+use Tequilla\MongoDB\Write\Options\UpdateOneOptions;
 use Tequilla\MongoDB\Util\ValidatorUtils;
 
-class UpdateMany implements WriteModelInterface
+class UpdateOne implements WriteModelInterface
 {
-    use BulkUpdateTrait;
+    use Traits\BulkUpdateTrait;
 
     /**
      * Update constructor.
@@ -22,6 +22,6 @@ class UpdateMany implements WriteModelInterface
 
         $this->filter = $filter;
         $this->update = $update;
-        $this->options = UpdateManyOptions::getCachedResolver()->resolve($options);
+        $this->options = UpdateOneOptions::getCachedResolver()->resolve($options);
     }
 }
