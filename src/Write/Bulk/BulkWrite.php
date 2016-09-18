@@ -8,6 +8,7 @@ use MongoDB\Driver\BulkWrite as Bulk;
 use MongoDB\Driver\WriteConcern;
 use Tequilla\MongoDB\Connection;
 use Tequilla\MongoDB\Exception\InvalidArgumentException;
+use Tequilla\MongoDB\Exception\LogicException;
 use Tequilla\MongoDB\Util\TypeUtils;
 use Tequilla\MongoDB\Write\Model\WriteModelInterface;
 
@@ -136,6 +137,10 @@ class BulkWrite
 
             $request->writeToBulk($this);
             $expectedIndex += 1;
+        }
+
+        if (0 === $this->bulk->count()) {
+            throw new LogicException('Attempt to execute empty bulk');
         }
 
         $writeResult = $connection->executeBulkWrite(

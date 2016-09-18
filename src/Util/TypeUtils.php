@@ -48,15 +48,6 @@ final class TypeUtils
      */
     public static function ensureArrayRecursive($value)
     {
-        if (!is_array($value) && !is_object($value)) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    '$value must be an array or an object, %s given',
-                    self::getType($value)
-                )
-            );
-        }
-
         if ($value instanceof Serializable) {
             $value = $value->bsonSerialize();
         }
