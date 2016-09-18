@@ -5,11 +5,9 @@ namespace Tequilla\MongoDB\Write\Bulk;
 use MongoDB\BSON\ObjectID;
 use MongoDB\BSON\Serializable;
 use MongoDB\Driver\BulkWrite as Bulk;
-use MongoDB\Driver\Exception\Exception as MongoDBException;
 use MongoDB\Driver\WriteConcern;
 use Tequilla\MongoDB\Connection;
 use Tequilla\MongoDB\Exception\InvalidArgumentException;
-use Tequilla\MongoDB\Exception\RuntimeException;
 use Tequilla\MongoDB\Util\TypeUtils;
 use Tequilla\MongoDB\Write\Model\WriteModelInterface;
 
@@ -44,9 +42,8 @@ class BulkWrite
      * @param \Tequilla\MongoDB\Write\Model\WriteModelInterface[] $requests
      * @param array $options
      */
-    public function __construct(array $requests, array $options)
+    public function __construct($requests, array $options)
     {
-        self::validateRequests($requests);
         $this->requests = $requests;
         $this->options = BulkWriteOptions::getCachedResolver()->resolve($options);
 
@@ -118,37 +115,14 @@ class BulkWrite
      */
     public function execute(Connection $connection, $databaseName, $collectionName)
     {
+        $expectedIndex = 0;
         foreach ($this->requests as $i => $request) {
-            try {
-                $request->writeToBulk($this);
-            } catch(MongoDBException $e) {
-                throw new RuntimeException(
-                    sprintf (
-                        'Exception "%s" during adding $requests[%s] to BulkWrite',
-                        get_class($e),
-                        $i
-                    )
+            if ($i !== $expectedIndex) {
+                throw new InvalidArgumentException(
+                    sprintf('$requests is not a list. Unexpected index: %s', $i)
                 );
             }
-        }
 
-        $writeResult = $connection->executeBulkWrite(
-            $databaseName,
-            $collectionName,
-            $this->bulk,
-            $this->writeConcern
-        );
-
-        return new BulkWriteResult($writeResult, $this->insertedIds);
-    }
-
-    private static function validateRequests(array $requests)
-    {
-        if (!TypeUtils::isList($requests)) {
-            throw new InvalidArgumentException('$requests is not a list');
-        }
-
-        foreach ($requests as $i => $request) {
             if (!$request instanceof WriteModelInterface) {
                 throw new InvalidArgumentException(
                     sprintf(
@@ -159,7 +133,19 @@ class BulkWrite
                     )
                 );
             }
+
+            $request->writeToBulk($this);
+            $expectedIndex += 1;
         }
+
+        $writeResult = $connection->executeBulkWrite(
+            $databaseName,
+            $collectionName,
+            $this->bulk,
+            $this->writeConcern
+        );
+
+        return new BulkWriteResult($writeResult, $this->insertedIds);
     }
 
     /**

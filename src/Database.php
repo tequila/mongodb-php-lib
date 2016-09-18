@@ -56,12 +56,11 @@ class Database implements DatabaseInterface
 
     /**
      * @param string $collectionName
-     * @param array $options
      * @return array
      */
-    public function dropCollection($collectionName, array $options = [])
+    public function dropCollection($collectionName)
     {
-        return $this->connection->dropCollection($this->name, $collectionName, $options);
+        return $this->connection->dropCollection($this->name, $collectionName);
     }
 
     /**

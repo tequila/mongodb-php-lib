@@ -169,10 +169,9 @@ class Connection
     /**
      * @param string $databaseName
      * @param string $collectionName
-     * @param array $options
      * @return array
      */
-    public function dropCollection($databaseName, $collectionName, array $options = [])
+    public function dropCollection($databaseName, $collectionName)
     {
         StringUtils::ensureValidDatabaseName($databaseName);
         StringUtils::ensureValidCollectionName($collectionName);

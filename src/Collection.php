@@ -48,6 +48,30 @@ class Collection
     }
 
     /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDatabaseName()
+    {
+        return $this->databaseName;
+    }
+
+    /**
+     * @return array
+     */
+    public function drop()
+    {
+        return $this->connection->dropCollection($this->databaseName, $this->name);
+    }
+
+    /**
      * @param WriteModelInterface[] $requests
      * @param array $options
      * @return \Tequilla\MongoDB\Write\Bulk\BulkWriteResult

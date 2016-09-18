@@ -2,8 +2,6 @@
 
 namespace Tequilla\MongoDB;
 
-use Tequilla\MongoDB\Write\Bulk\BulkWriteResult;
-
 interface CollectionInterface
 {
     public function aggregate(array $pipeline, array $options = []);
@@ -11,6 +9,11 @@ interface CollectionInterface
     public function count(array $filter, array $options = []);
 
     public function distinct($fieldName, array $filter, array $options = []);
+
+    /**
+     * @return array
+     */
+    public function drop();
 
     public function find(array $filter, array $options = []);
 
