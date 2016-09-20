@@ -3,11 +3,13 @@
 namespace Tequilla\MongoDB\Write\Model;
 
 use Tequilla\MongoDB\Write\Options\UpdateOneOptions;
-use Tequilla\MongoDB\Util\ValidatorUtils;
 
 class UpdateOne implements WriteModelInterface
 {
+    use Traits\FilterValidationTrait;
+    use Traits\UpdateValidationTrait;
     use Traits\BulkUpdateTrait;
+    use Traits\UpdateValidationTrait;
 
     /**
      * Update constructor.
@@ -17,8 +19,8 @@ class UpdateOne implements WriteModelInterface
      */
     public function __construct($filter, $update, array $options = [])
     {
-        ValidatorUtils::ensureValidFilter($filter);
-        ValidatorUtils::ensureValidUpdate($update);
+        $this->ensureValidFilter($filter);
+        $this->ensureValidUpdate($update);
 
         $this->filter = $filter;
         $this->update = $update;

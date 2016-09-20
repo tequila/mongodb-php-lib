@@ -7,18 +7,6 @@ use Tequilla\MongoDB\Exception\InvalidArgumentException;
 final class StringUtils
 {
     /**
-     * Checks if string starts with substring
-     *
-     * @param $string
-     * @param $substring
-     * @return bool
-     */
-    public static function startsWith($string, $substring)
-    {
-        return 0 === mb_strpos($string, $substring);
-    }
-
-    /**
      * Ensures that given string is a valid MongoDB database name
      *
      * @param string $databaseName
@@ -54,31 +42,6 @@ final class StringUtils
         }
     }
 
-    /**
-     * Ensures that given string is a valid MongoDB document field name
-     *
-     * @param string $fieldName
-     */
-    public static function ensureValidDocumentFieldName($fieldName) {
-        if (!is_string($fieldName)) {
-            throw new InvalidArgumentException(
-                sprintf('Document\'s field name must be a string, %s given', TypeUtils::getType($fieldName))
-            );
-        }
-
-        if (empty($fieldName)) {
-            throw new InvalidArgumentException('Document\'s field name cannot be empty.');
-        }
-
-        if (self::startsWith($fieldName, '$')) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    'Document\'s field name cannot start with "$" character, field name "%s" given',
-                    $fieldName
-                )
-            );
-        }
-    }
 
     public static function createNamespace($databaseName, $collectionName)
     {

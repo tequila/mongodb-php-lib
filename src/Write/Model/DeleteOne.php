@@ -3,10 +3,10 @@
 namespace Tequilla\MongoDB\Write\Model;
 
 use Tequilla\MongoDB\Write\Options\DeleteOneOptions;
-use Tequilla\MongoDB\Util\ValidatorUtils;
 
 class DeleteOne implements WriteModelInterface
 {
+    use Traits\FilterValidationTrait;
     use Traits\BulkDeleteTrait;
 
     /**
@@ -15,7 +15,8 @@ class DeleteOne implements WriteModelInterface
      */
     public function __construct($filter, array $options = [])
     {
-        ValidatorUtils::ensureValidFilter($filter);
+        $this->ensureValidFilter($filter);
+
         $this->filter = $filter;
         $this->options = DeleteOneOptions::getCachedResolver()->resolve($options);
     }

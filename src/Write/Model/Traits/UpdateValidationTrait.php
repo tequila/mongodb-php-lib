@@ -1,58 +1,16 @@
 <?php
 
-namespace Tequilla\MongoDB\Util;
+namespace Tequilla\MongoDB\Write\Model\Traits;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tequilla\MongoDB\Exception\InvalidArgumentException;
+use Tequilla\MongoDB\Util\TypeUtils;
 use Symfony\Component\OptionsResolver\Exception\InvalidArgumentException as OptionsResolverException;
 
-final class ValidatorUtils
+trait UpdateValidationTrait
 {
-    /**
-     * @var bool
-     */
-    private static $documentValidationEnabled = false;
-
-    /**
-     * @var OptionsResolver
-     */
     private static $updateResolver;
 
-    /**
-     * @param array|object $document
-     */
-    public static function ensureValidDocument($document)
-    {
-        if (!self::$documentValidationEnabled) {
-            return;
-        }
-
-        $document = TypeUtils::ensureArrayRecursive($document);
-
-        if (empty($document)) {
-            throw new InvalidArgumentException('Document cannot be empty');
-        }
-
-        array_walk_recursive($document, function($value, $fieldName) {
-            StringUtils::ensureValidDocumentFieldName($fieldName);
-        });
-    }
-
-    public static function ensureValidFilter($filter)
-    {
-        if (!is_array($filter) && !is_object($filter)) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    '$filter must be an array or an object, %s given',
-                    TypeUtils::getType($filter)
-                )
-            );
-        }
-    }
-
-    /**
-     * @param array|object $update
-     */
     public static function ensureValidUpdate($update)
     {
         if (!is_array($update) && !is_object($update)) {
@@ -115,21 +73,5 @@ final class ValidatorUtils
         }
 
         return self::$updateResolver;
-    }
-
-    /**
-     * Enables heavy validation, like recursive documents validation etc.
-     */
-    public static function enableDocumentValidation()
-    {
-        self::$documentValidationEnabled = true;
-    }
-
-    /**
-     * Disables heavy validation, like recursive documents validation etc.
-     */
-    public static function disableDocumentValidation()
-    {
-        self::$documentValidationEnabled = false;
     }
 }

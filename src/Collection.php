@@ -50,17 +50,17 @@ class Collection
     /**
      * @return string
      */
-    public function getName()
+    public function getDatabaseName()
     {
-        return $this->name;
+        return $this->databaseName;
     }
 
     /**
      * @return string
      */
-    public function getDatabaseName()
+    public function getName()
     {
-        return $this->databaseName;
+        return $this->name;
     }
 
     /**

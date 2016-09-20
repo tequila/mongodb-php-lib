@@ -2,12 +2,15 @@
 
 namespace Tequilla\MongoDB\Write\Model;
 
+use Tequilla\MongoDB\Exception\InvalidArgumentException;
+use Tequilla\MongoDB\Util\TypeUtils;
 use Tequilla\MongoDB\Write\Bulk\BulkWrite;
 use Tequilla\MongoDB\Write\Options\ReplaceOneOptions;
-use Tequilla\MongoDB\Util\ValidatorUtils;
 
 class ReplaceOne implements WriteModelInterface
 {
+    use Traits\FilterValidationTrait;
+    use Traits\DocumentValidationTrait;
     /**
      * @var array|object
      */
@@ -30,8 +33,18 @@ class ReplaceOne implements WriteModelInterface
      */
     public function __construct($filter, $replacement, array $options = [])
     {
-        ValidatorUtils::ensureValidFilter($filter);
-        ValidatorUtils::ensureValidDocument($replacement);
+        $this->ensureValidFilter($filter);
+
+        if (!is_array($replacement) && !is_object($replacement)) {
+            throw new InvalidArgumentException(
+                sprintf(
+                    '$replacement must be an array or an object, %s given',
+                    TypeUtils::getType($filter)
+                )
+            );
+        }
+
+        $this->ensureValidDocument($replacement);
 
         $this->filter = $filter;
         $this->replacement = $replacement;
