@@ -9,7 +9,6 @@ class UpdateOne implements WriteModelInterface
     use Traits\EnsureValidFilterTrait;
     use Traits\EnsureValidUpdateTrait;
     use Traits\BulkUpdateTrait;
-    use Traits\EnsureValidUpdateTrait;
 
     /**
      * Update constructor.
