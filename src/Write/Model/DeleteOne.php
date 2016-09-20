@@ -6,7 +6,7 @@ use Tequilla\MongoDB\Write\Options\DeleteOneOptions;
 
 class DeleteOne implements WriteModelInterface
 {
-    use Traits\FilterValidationTrait;
+    use Traits\EnsureValidFilterTrait;
     use Traits\BulkDeleteTrait;
 
     /**

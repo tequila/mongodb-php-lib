@@ -5,7 +5,7 @@ namespace Tequilla\MongoDB\Write\Model\Traits;
 use Tequilla\MongoDB\Exception\InvalidArgumentException;
 use Tequilla\MongoDB\Util\TypeUtils;
 
-trait FilterValidationTrait
+trait EnsureValidFilterTrait
 {
     public function ensureValidFilter($filter)
     {

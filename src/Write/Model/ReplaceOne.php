@@ -9,8 +9,8 @@ use Tequilla\MongoDB\Write\Options\ReplaceOneOptions;
 
 class ReplaceOne implements WriteModelInterface
 {
-    use Traits\FilterValidationTrait;
-    use Traits\DocumentValidationTrait;
+    use Traits\EnsureValidFilterTrait;
+    use Traits\EnsureValidDocumentTrait;
     /**
      * @var array|object
      */

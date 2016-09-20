@@ -6,9 +6,9 @@ use Tequilla\MongoDB\Write\Options\UpdateOptions;
 
 class Update implements WriteModelInterface
 {
-    use Traits\FilterValidationTrait;
+    use Traits\EnsureValidFilterTrait;
     use Traits\BulkUpdateTrait;
-    use Traits\UpdateValidationTrait;
+    use Traits\EnsureValidUpdateTrait;
 
     /**
      * @param array|object $filter

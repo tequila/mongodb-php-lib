@@ -6,7 +6,7 @@ use Tequilla\MongoDB\Write\Options\DeleteManyOptions;
 
 class DeleteMany implements WriteModelInterface
 {
-    use Traits\FilterValidationTrait;
+    use Traits\EnsureValidFilterTrait;
     use Traits\BulkDeleteTrait;
 
     /**

@@ -7,7 +7,7 @@ use Tequilla\MongoDB\Exception\InvalidArgumentException;
 use Tequilla\MongoDB\Util\TypeUtils;
 use Symfony\Component\OptionsResolver\Exception\InvalidArgumentException as OptionsResolverException;
 
-trait UpdateValidationTrait
+trait EnsureValidUpdateTrait
 {
     private static $updateResolver;
 

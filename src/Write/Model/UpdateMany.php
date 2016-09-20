@@ -6,10 +6,10 @@ use Tequilla\MongoDB\Write\Options\UpdateManyOptions;
 
 class UpdateMany implements WriteModelInterface
 {
-    use Traits\FilterValidationTrait;
-    use Traits\UpdateValidationTrait;
+    use Traits\EnsureValidFilterTrait;
+    use Traits\EnsureValidUpdateTrait;
     use Traits\BulkUpdateTrait;
-    use Traits\UpdateValidationTrait;
+    use Traits\EnsureValidUpdateTrait;
 
     /**
      * Update constructor.

@@ -5,11 +5,11 @@ namespace Tequilla\MongoDB\Write\Model;
 use Tequilla\MongoDB\Exception\InvalidArgumentException;
 use Tequilla\MongoDB\Util\TypeUtils;
 use Tequilla\MongoDB\Write\Bulk\BulkWrite;
-use Tequilla\MongoDB\Write\Model\Traits\DocumentValidationTrait;
+use Tequilla\MongoDB\Write\Model\Traits\EnsureValidDocumentTrait;
 
 class InsertOne implements WriteModelInterface
 {
-    use DocumentValidationTrait;
+    use EnsureValidDocumentTrait;
 
     /**
      * @var array|object

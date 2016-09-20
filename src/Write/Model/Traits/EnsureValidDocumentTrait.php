@@ -5,7 +5,7 @@ namespace Tequilla\MongoDB\Write\Model\Traits;
 use MongoDB\BSON\Serializable;
 use Tequilla\MongoDB\Exception\InvalidArgumentException;
 
-trait DocumentValidationTrait
+trait EnsureValidDocumentTrait
 {
     private function ensureValidDocument($document)
     {
