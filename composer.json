@@ -1,5 +1,5 @@
 {
-    "name": "Tequila/mongodb-php-lib",
+    "name": "tequila/mongodb-php-lib",
     "description": "PHP MongoDB abstraction layer (driver library)",
     "type": "library",
     "require": {
