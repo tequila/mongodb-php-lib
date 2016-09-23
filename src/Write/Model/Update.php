@@ -8,7 +8,6 @@ class Update implements WriteModelInterface
 {
     use Traits\EnsureValidFilterTrait;
     use Traits\BulkUpdateTrait;
-    use Traits\EnsureValidUpdateTrait;
 
     /**
      * @param array|object $filter
@@ -20,6 +19,6 @@ class Update implements WriteModelInterface
         $this->ensureValidFilter($filter);
         $this->filter = $filter;
         $this->update = $update;
-        $this->options = UpdateOptions::getCachedResolver()->resolve($options);
+        $this->options = UpdateOptions::resolve($options);
     }
 }

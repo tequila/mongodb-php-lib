@@ -5,7 +5,7 @@ namespace Tequilla\MongoDB\Write\Model;
 use Tequilla\MongoDB\Exception\InvalidArgumentException;
 use Tequilla\MongoDB\Util\TypeUtils;
 use Tequilla\MongoDB\Write\Bulk\BulkWrite;
-use Tequilla\MongoDB\Write\Options\ReplaceOneOptions;
+use Tequilla\MongoDB\Write\Options\UpdateOptions;
 
 class ReplaceOne implements WriteModelInterface
 {
@@ -46,9 +46,16 @@ class ReplaceOne implements WriteModelInterface
 
         $this->ensureValidDocument($replacement);
 
+        $options = UpdateOptions::resolve($options);
+        if (isset($options['multi']) && $options['multi']) {
+            throw new InvalidArgumentException(
+                'ReplaceOne operation does not allow option "multi" to be true'
+            );
+        }
+
         $this->filter = $filter;
         $this->replacement = $replacement;
-        $this->options = ReplaceOneOptions::getCachedResolver()->resolve($options);
+        $this->options = $options;
     }
 
     public function writeToBulk(BulkWrite $bulk)

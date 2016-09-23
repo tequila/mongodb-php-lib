@@ -43,10 +43,10 @@ class BulkWrite
      * @param \Tequilla\MongoDB\Write\Model\WriteModelInterface[] $requests
      * @param array $options
      */
-    public function __construct($requests, array $options)
+    public function __construct($requests, array $options = [])
     {
         $this->requests = $requests;
-        $this->options = BulkWriteOptions::getCachedResolver()->resolve($options);
+        $this->options = BulkWriteOptions::resolve($options);
 
         if (isset($this->options['writeConcern'])) {
             $this->writeConcern = $this->options['writeConcern'];
@@ -127,10 +127,10 @@ class BulkWrite
             if (!$request instanceof WriteModelInterface) {
                 throw new InvalidArgumentException(
                     sprintf(
-                        'Every request in $requests must be an instance of %s, %s given in $requests[%d]',
+                        '$requests[%d] must be an instance of %s, %s given',
+                        $i,
                         WriteModelInterface::class,
-                        TypeUtils::getType($request),
-                        $i
+                        TypeUtils::getType($request)
                     )
                 );
             }

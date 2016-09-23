@@ -2,7 +2,7 @@
 
 namespace Tequilla\MongoDB\Write\Model;
 
-use Tequilla\MongoDB\Write\Options\DeleteOneOptions;
+use Tequilla\MongoDB\Write\Options\DeleteOptions;
 
 class DeleteOne implements WriteModelInterface
 {
@@ -18,6 +18,6 @@ class DeleteOne implements WriteModelInterface
         $this->ensureValidFilter($filter);
 
         $this->filter = $filter;
-        $this->options = DeleteOneOptions::getCachedResolver()->resolve($options);
+        $this->options = DeleteOptions::->resolve($options);
     }
 }
