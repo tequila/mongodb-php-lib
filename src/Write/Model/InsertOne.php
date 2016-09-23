@@ -1,11 +1,11 @@
 <?php
 
-namespace Tequilla\MongoDB\Write\Model;
+namespace Tequila\MongoDB\Write\Model;
 
-use Tequilla\MongoDB\Exception\InvalidArgumentException;
-use Tequilla\MongoDB\Util\TypeUtils;
-use Tequilla\MongoDB\Write\Bulk\BulkWrite;
-use Tequilla\MongoDB\Write\Model\Traits\EnsureValidDocumentTrait;
+use Tequila\MongoDB\Exception\InvalidArgumentException;
+use Tequila\MongoDB\Util\TypeUtils;
+use Tequila\MongoDB\Write\Bulk\BulkWrite;
+use Tequila\MongoDB\Write\Model\Traits\EnsureValidDocumentTrait;
 
 class InsertOne implements WriteModelInterface
 {

@@ -1,18 +1,18 @@
 <?php
 
-namespace Tequilla\MongoDB\Command;
+namespace Tequila\MongoDB\Command;
 
 use MongoDB\Driver\ReadPreference;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Tequilla\MongoDB\CommandCursor;
-use Tequilla\MongoDB\Connection;
-use Tequilla\MongoDB\Exception\InvalidArgumentException;
+use Tequila\MongoDB\CommandCursor;
+use Tequila\MongoDB\Connection;
+use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Symfony\Component\OptionsResolver\Exception\InvalidArgumentException as OptionsResolverException;
-use Tequilla\MongoDB\Util\TypeUtils;
+use Tequila\MongoDB\Util\TypeUtils;
 
 /**
  * Class Command
- * @package Tequilla\MongoDB\Command
+ * @package Tequila\MongoDB\Command
  */
 class CommandWrapper
 {

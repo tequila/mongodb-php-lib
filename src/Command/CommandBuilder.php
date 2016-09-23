@@ -1,12 +1,12 @@
 <?php
 
-namespace Tequilla\MongoDB\Command;
+namespace Tequila\MongoDB\Command;
 
-use Tequilla\MongoDB\Connection;
+use Tequila\MongoDB\Connection;
 
 /**
  * Class CommandBuilder
- * @package Tequilla\MongoDB\Command
+ * @package Tequila\MongoDB\Command
  */
 class CommandBuilder
 {

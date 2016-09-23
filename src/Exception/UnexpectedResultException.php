@@ -1,6 +1,6 @@
 <?php
 
-namespace Tequilla\MongoDB\Exception;
+namespace Tequila\MongoDB\Exception;
 
 use MongoDB\Driver\Exception\UnexpectedValueException;
 

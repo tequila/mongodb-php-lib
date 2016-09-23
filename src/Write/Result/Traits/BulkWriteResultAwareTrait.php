@@ -1,8 +1,8 @@
 <?php
 
-namespace Tequilla\MongoDB\Write\Result\Traits;
+namespace Tequila\MongoDB\Write\Result\Traits;
 
-use Tequilla\MongoDB\Write\Bulk\BulkWriteResult;
+use Tequila\MongoDB\Write\Bulk\BulkWriteResult;
 
 trait BulkWriteResultAwareTrait
 {

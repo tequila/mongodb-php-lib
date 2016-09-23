@@ -1,9 +1,9 @@
 <?php
 
-namespace Tequilla\MongoDB\Write\Model;
+namespace Tequila\MongoDB\Write\Model;
 
-use Tequilla\MongoDB\Exception\InvalidArgumentException;
-use Tequilla\MongoDB\Write\Options\UpdateOptions;
+use Tequila\MongoDB\Exception\InvalidArgumentException;
+use Tequila\MongoDB\Write\Options\UpdateOptions;
 
 class UpdateMany implements WriteModelInterface
 {

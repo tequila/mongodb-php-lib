@@ -1,6 +1,6 @@
 <?php
 
-namespace Tequilla\MongoDB;
+namespace Tequila\MongoDB;
 
 interface DatabaseInterface
 {

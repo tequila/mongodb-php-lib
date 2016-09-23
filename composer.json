@@ -1,5 +1,5 @@
 {
-    "name": "tequilla/mongodb-php-lib",
+    "name": "Tequila/mongodb-php-lib",
     "description": "PHP MongoDB abstraction layer (driver library)",
     "type": "library",
     "require": {
@@ -8,10 +8,10 @@
         "symfony/options-resolver": ">=2.8"
     },
     "autoload": {
-        "psr-4": { "Tequilla\\MongoDB\\": "src/" }
+        "psr-4": { "Tequila\\MongoDB\\": "src/" }
     },
     "autoload-dev": {
-        "psr-4": { "Tequilla\\MongoDB\\Tests\\": "tests/" }
+        "psr-4": { "Tequila\\MongoDB\\Tests\\": "tests/" }
     },
     "license": "MIT",
     "authors": [

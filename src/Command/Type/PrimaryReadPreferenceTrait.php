@@ -1,12 +1,12 @@
 <?php
 
-namespace Tequilla\MongoDB\Command\Type;
+namespace Tequila\MongoDB\Command\Type;
 
 use MongoDB\Driver\ReadPreference;
 
 /**
  * Trait PrimaryReadPreferenceTrait
- * @package Tequilla\MongoDB\Command\Type
+ * @package Tequila\MongoDB\Command\Type
  */
 trait PrimaryReadPreferenceTrait
 {

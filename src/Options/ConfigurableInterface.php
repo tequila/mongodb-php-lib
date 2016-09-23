@@ -1,6 +1,6 @@
 <?php
 
-namespace Tequilla\MongoDB\Options;
+namespace Tequila\MongoDB\Options;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
 

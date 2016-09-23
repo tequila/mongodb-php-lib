@@ -1,14 +1,14 @@
 <?php
 
-namespace Tequilla\MongoDB;
+namespace Tequila\MongoDB;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Tequilla\MongoDB\Exception\InvalidArgumentException;
-use Tequilla\MongoDB\Options\Indexes\IndexOptions;
+use Tequila\MongoDB\Exception\InvalidArgumentException;
+use Tequila\MongoDB\Options\Indexes\IndexOptions;
 
 /**
  * Class Index
- * @package Tequilla\MongoDB
+ * @package Tequila\MongoDB
  */
 class Index
 {

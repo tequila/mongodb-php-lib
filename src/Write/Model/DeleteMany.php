@@ -1,8 +1,8 @@
 <?php
 
-namespace Tequilla\MongoDB\Write\Model;
+namespace Tequila\MongoDB\Write\Model;
 
-use Tequilla\MongoDB\Write\Options\DeleteManyOptions;
+use Tequila\MongoDB\Write\Options\DeleteManyOptions;
 
 class DeleteMany implements WriteModelInterface
 {

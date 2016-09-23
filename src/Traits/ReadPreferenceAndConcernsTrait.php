@@ -1,11 +1,11 @@
 <?php
 
-namespace Tequilla\MongoDB\Traits;
+namespace Tequila\MongoDB\Traits;
 
 use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
 use MongoDB\Driver\WriteConcern;
-use Tequilla\MongoDB\Exception\LogicException;
+use Tequila\MongoDB\Exception\LogicException;
 
 trait ReadPreferenceAndConcernsTrait
 {

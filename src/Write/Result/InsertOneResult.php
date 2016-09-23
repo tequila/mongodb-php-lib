@@ -1,9 +1,9 @@
 <?php
 
-namespace Tequilla\MongoDB\Write\Result;
+namespace Tequila\MongoDB\Write\Result;
 
-use Tequilla\MongoDB\Exception\UnexpectedResultException;
-use Tequilla\MongoDB\Write\Bulk\BulkWriteResult;
+use Tequila\MongoDB\Exception\UnexpectedResultException;
+use Tequila\MongoDB\Write\Bulk\BulkWriteResult;
 
 class InsertOneResult
 {

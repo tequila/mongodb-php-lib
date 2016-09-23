@@ -1,6 +1,6 @@
 <?php
 
-namespace Tequilla\MongoDB;
+namespace Tequila\MongoDB;
 
 interface CollectionInterface
 {
@@ -20,7 +20,7 @@ interface CollectionInterface
     /**
      * @param array $requests
      * @param array $options
-     * @return \Tequilla\MongoDB\Write\Bulk\BulkWriteResult
+     * @return \Tequila\MongoDB\Write\Bulk\BulkWriteResult
      */
     public function bulkWrite(array $requests, array $options = []);
 

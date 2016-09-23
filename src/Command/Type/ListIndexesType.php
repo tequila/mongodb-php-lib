@@ -1,9 +1,9 @@
 <?php
 
-namespace Tequilla\MongoDB\Command\Type;
+namespace Tequila\MongoDB\Command\Type;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Tequilla\MongoDB\Command\CommandTypeInterface;
+use Tequila\MongoDB\Command\CommandTypeInterface;
 
 class ListIndexesType implements CommandTypeInterface
 {

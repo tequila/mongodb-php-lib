@@ -1,9 +1,9 @@
 <?php
 
-namespace Tequilla\MongoDB;
+namespace Tequila\MongoDB;
 
 use MongoDB\Driver\Cursor;
-use Tequilla\MongoDB\Exception\LogicException;
+use Tequila\MongoDB\Exception\LogicException;
 
 class CommandCursor
 {

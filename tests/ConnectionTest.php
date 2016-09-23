@@ -1,40 +1,40 @@
 <?php
 
-namespace Tequilla\MongoDB\Tests;
+namespace Tequila\MongoDB\Tests;
 
 use MongoDB\Driver\Manager;
 use MongoDB\Driver\Command;
 use MongoDB\Driver\ReadConcern;
-use Tequilla\MongoDB\Connection;
-use Tequilla\MongoDB\Database;
+use Tequila\MongoDB\Connection;
+use Tequila\MongoDB\Database;
 use PHPUnit\Framework\TestCase;
-use Tequilla\MongoDB\Index;
+use Tequila\MongoDB\Index;
 
 class ConnectionTest extends TestCase
 {
     use WrongInternalTypesProviderTrait;
 
     /**
-     * @covers \Tequilla\MongoDB\Connection::createCollection()
+     * @covers \Tequila\MongoDB\Connection::createCollection()
      * @dataProvider getInvalidStringArgs
-     * @expectedException \Tequilla\MongoDB\Exception\InvalidArgumentException
+     * @expectedException \Tequila\MongoDB\Exception\InvalidArgumentException
      * @expectedExceptionMessage Collection name must be a string
      */
     public function testCreateCollectionThrowsExceptionWhenNameIsNotString($collectionName)
     {
         $connection = new Connection();
-        $connection->createCollection('tequilla_connection_test', $collectionName);
+        $connection->createCollection('Tequila_connection_test', $collectionName);
     }
 
     /**
-     * @covers \Tequilla\MongoDB\Connection::createCollection()
-     * @expectedException \Tequilla\MongoDB\Exception\InvalidArgumentException
+     * @covers \Tequila\MongoDB\Connection::createCollection()
+     * @expectedException \Tequila\MongoDB\Exception\InvalidArgumentException
      */
     public function testCreateCollectionThrowsExceptionOnInvalidOptionsNames()
     {
         $connection = new Connection();
         $connection->createCollection(
-            'tequilla_connection_test',
+            'Tequila_connection_test',
             'test_create_collection_' . uniqid(),
             [
                 'foo',
@@ -45,28 +45,28 @@ class ConnectionTest extends TestCase
     }
 
     /**
-     * @covers \Tequilla\MongoDB\Connection::createCollection()
+     * @covers \Tequila\MongoDB\Connection::createCollection()
      * @dataProvider getInvalidCreateCollectionOptions
-     * @expectedException \Tequilla\MongoDB\Exception\InvalidArgumentException
+     * @expectedException \Tequila\MongoDB\Exception\InvalidArgumentException
      */
     public function testCreateCollectionThrowsExceptionOnInvalidOptionsTypes(array $options)
     {
         $connection = new Connection();
         $connection->createCollection(
-            'tequilla_connection_test',
+            'Tequila_connection_test',
             'test_create_collection_' . uniqid(),
             $options
         );
     }
 
     /**
-     * @covers \Tequilla\MongoDB\Connection::createCollection()
+     * @covers \Tequila\MongoDB\Connection::createCollection()
      */
     public function testCreateCollectionReturnsValidResponse()
     {
         $connection = new Connection();
         $result = $connection->createCollection(
-            'tequilla_connection_test',
+            'Tequila_connection_test',
             'test_create_collection_' . uniqid()
         );
 
@@ -74,12 +74,12 @@ class ConnectionTest extends TestCase
     }
 
     /**
-     * @covers \Tequilla\MongoDB\Connection::createCollection()
+     * @covers \Tequila\MongoDB\Connection::createCollection()
      * @uses Manager
      */
     public function testCreateCollectionCreatesCappedCollection()
     {
-        $dbName = 'tequilla_connection_test';
+        $dbName = 'Tequila_connection_test';
         $collectionName = 'test_create_capped_collection_' . uniqid();
         $connection = new Connection();
         $connection->createCollection(
@@ -114,13 +114,13 @@ class ConnectionTest extends TestCase
     }
 
     /**
-     * @covers \Tequilla\MongoDB\Connection::listCollections()
+     * @covers \Tequila\MongoDB\Connection::listCollections()
      * @uses Manager
      */
     public function testListCollectionsReturnsValidResponse()
     {
         $manager = new Manager();
-        $dbName = 'tequilla_connection_test';
+        $dbName = 'Tequila_connection_test';
         $collectionName = 'test_list_collections_' . uniqid();
         $createCommand = new Command(['create' => $collectionName]);
         $manager->executeCommand($dbName, $createCommand);
@@ -144,13 +144,13 @@ class ConnectionTest extends TestCase
     }
 
     /**
-     * @covers \Tequilla\MongoDB\Connection::dropDatabase()
+     * @covers \Tequila\MongoDB\Connection::dropDatabase()
      * @uses Manager
      */
     public function testDropDatabaseMethodDropsDatabase()
     {
         $manager = new Manager();
-        $dbName = 'tequilla_connection_test';
+        $dbName = 'Tequila_connection_test';
         $collectionName = 'test_drop_database_' . uniqid();
         $createCommand = new Command(['create' => $collectionName]);
         $manager->executeCommand($dbName, $createCommand);
@@ -178,13 +178,13 @@ class ConnectionTest extends TestCase
     }
 
     /**
-     * @covers \Tequilla\MongoDB\Connection::dropCollection()
+     * @covers \Tequila\MongoDB\Connection::dropCollection()
      * @uses Manager
      */
     public function testDropCollectionMethodDropsCollection()
     {
         $manager = new Manager();
-        $dbName = 'tequilla_connection_test';
+        $dbName = 'Tequila_connection_test';
         $collectionName = 'test_drop_collection_' . uniqid();
         $createCommand = new Command(['create' => $collectionName]);
         $manager->executeCommand($dbName, $createCommand);
@@ -211,12 +211,12 @@ class ConnectionTest extends TestCase
     }
 
     /**
-     * @covers \Tequilla\MongoDB\Connection::createIndexes()
+     * @covers \Tequila\MongoDB\Connection::createIndexes()
      * @uses Manager
      */
     public function testCreateIndexesCreatesIndexes()
     {
-        $dbName = 'tequilla_connection_test';
+        $dbName = 'Tequila_connection_test';
         $collectionName = 'create_indexes_test_' . uniqid();
         $connection = new Connection();
         $index1 = new Index(['foo' => 1, 'bar' => -1]);
@@ -252,13 +252,13 @@ class ConnectionTest extends TestCase
     }
 
     /**
-     * @covers \Tequilla\MongoDB\Connection::listIndexes()
+     * @covers \Tequila\MongoDB\Connection::listIndexes()
      * @uses Manager
      */
     public function testListIndexesListsIndexes()
     {
         $manager = new Manager();
-        $dbName = 'tequilla_connection_test';
+        $dbName = 'Tequila_connection_test';
         $collectionName = 'test_list_indexes_' . uniqid();
         $createIndexesCommand = new Command([
             'createIndexes' => $collectionName,
@@ -304,14 +304,14 @@ class ConnectionTest extends TestCase
     }
 
     /**
-     * @covers \Tequilla\MongoDB\Connection::dropIndex()
+     * @covers \Tequila\MongoDB\Connection::dropIndex()
      * @uses Manager
      * @depends testListIndexesListsIndexes
      */
     public function testDropIndexDropsSingleIndex()
     {
         $manager = new Manager();
-        $dbName = 'tequilla_connection_test';
+        $dbName = 'Tequila_connection_test';
         $collectionName = 'test_drop_index_' . uniqid();
         $createIndexesCommand = new Command([
             'createIndexes' => $collectionName,
@@ -351,14 +351,14 @@ class ConnectionTest extends TestCase
     }
 
     /**
-     * @covers \Tequilla\MongoDB\Connection::dropIndexes()
+     * @covers \Tequila\MongoDB\Connection::dropIndexes()
      * @uses Manager
      * @depends testListIndexesListsIndexes
      */
     public function testDropIndexesDropsAllIndexesInCollection()
     {
         $manager = new Manager();
-        $dbName = 'tequilla_connection_test';
+        $dbName = 'Tequila_connection_test';
         $collectionName = 'test_drop_indexes_' . uniqid();
         $createIndexesCommand = new Command([
             'createIndexes' => $collectionName,

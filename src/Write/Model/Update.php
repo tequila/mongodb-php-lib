@@ -1,8 +1,8 @@
 <?php
 
-namespace Tequilla\MongoDB\Write\Model;
+namespace Tequila\MongoDB\Write\Model;
 
-use Tequilla\MongoDB\Write\Options\UpdateOptions;
+use Tequila\MongoDB\Write\Options\UpdateOptions;
 
 class Update implements WriteModelInterface
 {

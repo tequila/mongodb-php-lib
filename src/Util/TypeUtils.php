@@ -1,9 +1,9 @@
 <?php
 
-namespace Tequilla\MongoDB\Util;
+namespace Tequila\MongoDB\Util;
 
 use MongoDB\BSON\Serializable;
-use Tequilla\MongoDB\Exception\InvalidArgumentException;
+use Tequila\MongoDB\Exception\InvalidArgumentException;
 
 final class TypeUtils
 {

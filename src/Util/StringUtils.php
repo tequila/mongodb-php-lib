@@ -1,8 +1,8 @@
 <?php
 
-namespace Tequilla\MongoDB\Util;
+namespace Tequila\MongoDB\Util;
 
-use Tequilla\MongoDB\Exception\InvalidArgumentException;
+use Tequila\MongoDB\Exception\InvalidArgumentException;
 
 final class StringUtils
 {

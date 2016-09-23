@@ -1,11 +1,11 @@
 <?php
 
-namespace Tequilla\MongoDB\Command\Type;
+namespace Tequila\MongoDB\Command\Type;
 
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Tequilla\MongoDB\Command\CommandTypeInterface;
-use Tequilla\MongoDB\Exception\InvalidArgumentException;
+use Tequila\MongoDB\Command\CommandTypeInterface;
+use Tequila\MongoDB\Exception\InvalidArgumentException;
 
 class CreateCollectionType implements CommandTypeInterface
 {

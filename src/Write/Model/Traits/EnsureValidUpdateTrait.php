@@ -1,10 +1,10 @@
 <?php
 
-namespace Tequilla\MongoDB\Write\Model\Traits;
+namespace Tequila\MongoDB\Write\Model\Traits;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Tequilla\MongoDB\Exception\InvalidArgumentException;
-use Tequilla\MongoDB\Util\TypeUtils;
+use Tequila\MongoDB\Exception\InvalidArgumentException;
+use Tequila\MongoDB\Util\TypeUtils;
 use Symfony\Component\OptionsResolver\Exception\InvalidArgumentException as OptionsResolverException;
 
 trait EnsureValidUpdateTrait

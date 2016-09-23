@@ -1,13 +1,13 @@
 <?php
 
-namespace Tequilla\MongoDB\Options\Indexes;
+namespace Tequila\MongoDB\Options\Indexes;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Tequilla\MongoDB\Options\ConfigurableInterface;
+use Tequila\MongoDB\Options\ConfigurableInterface;
 
 /**
  * Class IndexOptions
- * @package Tequilla\MongoDB\Options\Indexes
+ * @package Tequila\MongoDB\Options\Indexes
  */
 class IndexOptions implements ConfigurableInterface
 {

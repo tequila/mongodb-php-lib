@@ -1,8 +1,8 @@
 <?php
 
-namespace Tequilla\MongoDB\Write\Model\Traits;
+namespace Tequila\MongoDB\Write\Model\Traits;
 
-use Tequilla\MongoDB\Write\Bulk\BulkWrite;
+use Tequila\MongoDB\Write\Bulk\BulkWrite;
 
 trait BulkDeleteTrait
 {

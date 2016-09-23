@@ -1,10 +1,10 @@
 <?php
 
-namespace Tequilla\MongoDB\Options\Traits;
+namespace Tequila\MongoDB\Options\Traits;
 
 use Symfony\Component\OptionsResolver\Exception\InvalidArgumentException as OptionsResolverException;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Tequilla\MongoDB\Exception\InvalidArgumentException;
+use Tequila\MongoDB\Exception\InvalidArgumentException;
 
 trait CachedResolverTrait
 {

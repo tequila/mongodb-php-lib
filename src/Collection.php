@@ -1,20 +1,20 @@
 <?php
 
-namespace Tequilla\MongoDB;
+namespace Tequila\MongoDB;
 
-use Tequilla\MongoDB\Write\Bulk\BulkWrite;
-use Tequilla\MongoDB\Write\Bulk\BulkWriteOptions;
-use Tequilla\MongoDB\Write\Model\DeleteMany;
-use Tequilla\MongoDB\Write\Model\DeleteOne;
-use Tequilla\MongoDB\Write\Model\InsertOne;
-use Tequilla\MongoDB\Write\Model\ReplaceOne;
-use Tequilla\MongoDB\Write\Model\UpdateMany;
-use Tequilla\MongoDB\Write\Model\UpdateOne;
-use Tequilla\MongoDB\Write\Model\WriteModelInterface;
-use Tequilla\MongoDB\Write\Result\DeleteResult;
-use Tequilla\MongoDB\Write\Result\InsertManyResult;
-use Tequilla\MongoDB\Write\Result\InsertOneResult;
-use Tequilla\MongoDB\Write\Result\UpdateResult;
+use Tequila\MongoDB\Write\Bulk\BulkWrite;
+use Tequila\MongoDB\Write\Bulk\BulkWriteOptions;
+use Tequila\MongoDB\Write\Model\DeleteMany;
+use Tequila\MongoDB\Write\Model\DeleteOne;
+use Tequila\MongoDB\Write\Model\InsertOne;
+use Tequila\MongoDB\Write\Model\ReplaceOne;
+use Tequila\MongoDB\Write\Model\UpdateMany;
+use Tequila\MongoDB\Write\Model\UpdateOne;
+use Tequila\MongoDB\Write\Model\WriteModelInterface;
+use Tequila\MongoDB\Write\Result\DeleteResult;
+use Tequila\MongoDB\Write\Result\InsertManyResult;
+use Tequila\MongoDB\Write\Result\InsertOneResult;
+use Tequila\MongoDB\Write\Result\UpdateResult;
 
 class Collection
 {
@@ -74,7 +74,7 @@ class Collection
     /**
      * @param WriteModelInterface[] $requests
      * @param array $options
-     * @return \Tequilla\MongoDB\Write\Bulk\BulkWriteResult
+     * @return \Tequila\MongoDB\Write\Bulk\BulkWriteResult
      */
     public function bulkWrite(array $requests, array $options = [])
     {

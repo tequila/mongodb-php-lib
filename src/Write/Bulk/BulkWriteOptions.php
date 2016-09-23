@@ -1,11 +1,11 @@
 <?php
 
-namespace Tequilla\MongoDB\Write\Bulk;
+namespace Tequila\MongoDB\Write\Bulk;
 
 use MongoDB\Driver\WriteConcern;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Tequilla\MongoDB\Options\ConfigurableInterface;
-use Tequilla\MongoDB\Options\Traits\CachedResolverTrait;
+use Tequila\MongoDB\Options\ConfigurableInterface;
+use Tequila\MongoDB\Options\Traits\CachedResolverTrait;
 
 class BulkWriteOptions implements ConfigurableInterface
 {

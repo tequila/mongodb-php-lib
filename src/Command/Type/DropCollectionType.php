@@ -1,13 +1,13 @@
 <?php
 
-namespace Tequilla\MongoDB\Command\Type;
+namespace Tequila\MongoDB\Command\Type;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Tequilla\MongoDB\Command\CommandTypeInterface;
+use Tequila\MongoDB\Command\CommandTypeInterface;
 
 /**
  * Class DropCollectionType
- * @package Tequilla\MongoDB\Command\Type
+ * @package Tequila\MongoDB\Command\Type
  */
 class DropCollectionType implements CommandTypeInterface
 {

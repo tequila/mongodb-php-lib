@@ -1,6 +1,6 @@
 <?php
 
-namespace Tequilla\MongoDB\Tests;
+namespace Tequila\MongoDB\Tests;
 
 trait WrongInternalTypesProviderTrait
 {

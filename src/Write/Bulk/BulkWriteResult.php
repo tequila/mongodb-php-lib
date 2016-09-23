@@ -1,11 +1,11 @@
 <?php
 
-namespace Tequilla\MongoDB\Write\Bulk;
+namespace Tequila\MongoDB\Write\Bulk;
 
 use MongoDB\Driver\WriteConcernError;
 use MongoDB\Driver\WriteError;
 use MongoDB\Driver\WriteResult;
-use Tequilla\MongoDB\Exception\BadMethodCallException;
+use Tequila\MongoDB\Exception\BadMethodCallException;
 
 class BulkWriteResult
 {

@@ -1,13 +1,13 @@
 <?php
 
-namespace Tequilla\MongoDB\Options\Driver;
+namespace Tequila\MongoDB\Options\Driver;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Tequilla\MongoDB\Options\ConfigurableInterface;
+use Tequila\MongoDB\Options\ConfigurableInterface;
 
 /**
  * Class DriverOptions
- * @package Tequilla\MongoDB\Options
+ * @package Tequila\MongoDB\Options
  */
 class DriverOptions implements ConfigurableInterface
 {

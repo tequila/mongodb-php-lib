@@ -1,6 +1,6 @@
 <?php
 
-namespace Tequilla\MongoDB\Write\Bulk;
+namespace Tequila\MongoDB\Write\Bulk;
 
 
 class BulkWriteBuilder

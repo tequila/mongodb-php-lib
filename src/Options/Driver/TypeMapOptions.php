@@ -1,10 +1,10 @@
 <?php
 
-namespace Tequilla\MongoDB\Options\Driver;
+namespace Tequila\MongoDB\Options\Driver;
 
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Tequilla\MongoDB\Options\ConfigurableInterface;
+use Tequila\MongoDB\Options\ConfigurableInterface;
 use MongoDB\Driver\Cursor;
 
 class TypeMapOptions implements ConfigurableInterface

@@ -1,10 +1,10 @@
 <?php
 
-namespace Tequilla\MongoDB;
+namespace Tequila\MongoDB;
 
 /**
  * Class Database
- * @package Tequilla\MongoDB
+ * @package Tequila\MongoDB
  */
 class Database implements DatabaseInterface
 {

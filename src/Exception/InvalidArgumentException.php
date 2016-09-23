@@ -1,6 +1,6 @@
 <?php
 
-namespace Tequilla\MongoDB\Exception;
+namespace Tequila\MongoDB\Exception;
 
 class InvalidArgumentException extends \MongoDB\Driver\Exception\InvalidArgumentException implements Exception
 {

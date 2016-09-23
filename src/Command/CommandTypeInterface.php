@@ -1,13 +1,13 @@
 <?php
 
-namespace Tequilla\MongoDB\Command;
+namespace Tequila\MongoDB\Command;
 
 use MongoDB\Driver\ReadPreference;
-use Tequilla\MongoDB\Options\ConfigurableInterface;
+use Tequila\MongoDB\Options\ConfigurableInterface;
 
 /**
  * Interface CommandInterface
- * @package Tequilla\MongoDB\Command
+ * @package Tequila\MongoDB\Command
  */
 interface CommandTypeInterface extends ConfigurableInterface
 {

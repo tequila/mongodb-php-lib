@@ -1,12 +1,12 @@
 <?php
 
-namespace Tequilla\MongoDB\Options\Connection;
+namespace Tequila\MongoDB\Options\Connection;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\OptionsResolver\Options;
-use Tequilla\MongoDB\Options\ConfigurableInterface;
-use Tequilla\MongoDB\Exception\InvalidArgumentException;
-use Tequilla\MongoDB\get_type;
+use Tequila\MongoDB\Options\ConfigurableInterface;
+use Tequila\MongoDB\Exception\InvalidArgumentException;
+use Tequila\MongoDB\get_type;
 
 class WriteConcernOptions implements ConfigurableInterface
 {

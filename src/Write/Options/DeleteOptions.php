@@ -1,10 +1,10 @@
 <?php
 
-namespace Tequilla\MongoDB\Write\Options;
+namespace Tequila\MongoDB\Write\Options;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Tequilla\MongoDB\Options\ConfigurableInterface;
-use Tequilla\MongoDB\Options\Traits\CachedResolverTrait;
+use Tequila\MongoDB\Options\ConfigurableInterface;
+use Tequila\MongoDB\Options\Traits\CachedResolverTrait;
 
 class DeleteOptions implements ConfigurableInterface
 {

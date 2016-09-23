@@ -1,6 +1,6 @@
 <?php
 
-namespace Tequilla\MongoDB\Write\Result;
+namespace Tequila\MongoDB\Write\Result;
 
 class InsertManyResult
 {

@@ -1,9 +1,9 @@
 <?php
 
-namespace Tequilla\MongoDB\Options\Connection;
+namespace Tequila\MongoDB\Options\Connection;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Tequilla\MongoDB\Options\ConfigurableInterface;
+use Tequila\MongoDB\Options\ConfigurableInterface;
 
 final class ReplicaSetOptions implements ConfigurableInterface
 {

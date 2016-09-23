@@ -1,21 +1,21 @@
 <?php
 
-namespace Tequilla\MongoDB\Write\Bulk;
+namespace Tequila\MongoDB\Write\Bulk;
 
 use MongoDB\BSON\ObjectID;
 use MongoDB\BSON\Serializable;
 use MongoDB\Driver\BulkWrite as Bulk;
 use MongoDB\Driver\WriteConcern;
-use Tequilla\MongoDB\Connection;
-use Tequilla\MongoDB\Exception\InvalidArgumentException;
-use Tequilla\MongoDB\Exception\LogicException;
-use Tequilla\MongoDB\Util\TypeUtils;
-use Tequilla\MongoDB\Write\Model\WriteModelInterface;
+use Tequila\MongoDB\Connection;
+use Tequila\MongoDB\Exception\InvalidArgumentException;
+use Tequila\MongoDB\Exception\LogicException;
+use Tequila\MongoDB\Util\TypeUtils;
+use Tequila\MongoDB\Write\Model\WriteModelInterface;
 
 class BulkWrite
 {
     /**
-     * @var \Tequilla\MongoDB\Write\Model\WriteModelInterface[]
+     * @var \Tequila\MongoDB\Write\Model\WriteModelInterface[]
      */
     private $requests;
 
@@ -40,7 +40,7 @@ class BulkWrite
     private $writeConcern;
 
     /**
-     * @param \Tequilla\MongoDB\Write\Model\WriteModelInterface[] $requests
+     * @param \Tequila\MongoDB\Write\Model\WriteModelInterface[] $requests
      * @param array $options
      */
     public function __construct($requests, array $options = [])

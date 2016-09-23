@@ -1,6 +1,6 @@
 <?php
 
-namespace Tequilla\MongoDB\Exception;
+namespace Tequila\MongoDB\Exception;
 
 interface Exception extends \MongoDB\Driver\Exception\Exception
 {

@@ -1,9 +1,9 @@
 <?php
 
-namespace Tequilla\MongoDB\Write\Model\Traits;
+namespace Tequila\MongoDB\Write\Model\Traits;
 
 use MongoDB\BSON\Serializable;
-use Tequilla\MongoDB\Exception\InvalidArgumentException;
+use Tequila\MongoDB\Exception\InvalidArgumentException;
 
 trait EnsureValidDocumentTrait
 {

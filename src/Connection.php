@@ -1,6 +1,6 @@
 <?php
 
-namespace Tequilla\MongoDB;
+namespace Tequila\MongoDB;
 
 use MongoDB\Driver\Command;
 use MongoDB\Driver\Manager;
@@ -9,26 +9,26 @@ use MongoDB\Driver\Query;
 use MongoDB\Driver\WriteConcern;
 use MongoDB\Driver\ReadPreference;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Tequilla\MongoDB\Command\Type\DropIndexesType;
-use Tequilla\MongoDB\Command\Type\ListIndexesType;
-use Tequilla\MongoDB\Command\CommandBuilder;
-use Tequilla\MongoDB\Command\Type\CreateCollectionType;
-use Tequilla\MongoDB\Command\Type\CreateIndexesType;
-use Tequilla\MongoDB\Command\Type\DropCollectionType;
-use Tequilla\MongoDB\Command\Type\DropDatabaseType;
-use Tequilla\MongoDB\Command\Type\ListCollectionsType;
-use Tequilla\MongoDB\Command\Type\ListDatabasesType;
-use Tequilla\MongoDB\Exception\InvalidArgumentException;
-use Tequilla\MongoDB\Exception\UnexpectedResultException;
-use Tequilla\MongoDB\Options\Connection\ConnectionOptions;
-use Tequilla\MongoDB\Options\Driver\DriverOptions;
-use Tequilla\MongoDB\Util\StringUtils;
-use Tequilla\MongoDB\Util\TypeUtils;
-use Tequilla\MongoDB\Traits\ReadPreferenceAndConcernsTrait;
+use Tequila\MongoDB\Command\Type\DropIndexesType;
+use Tequila\MongoDB\Command\Type\ListIndexesType;
+use Tequila\MongoDB\Command\CommandBuilder;
+use Tequila\MongoDB\Command\Type\CreateCollectionType;
+use Tequila\MongoDB\Command\Type\CreateIndexesType;
+use Tequila\MongoDB\Command\Type\DropCollectionType;
+use Tequila\MongoDB\Command\Type\DropDatabaseType;
+use Tequila\MongoDB\Command\Type\ListCollectionsType;
+use Tequila\MongoDB\Command\Type\ListDatabasesType;
+use Tequila\MongoDB\Exception\InvalidArgumentException;
+use Tequila\MongoDB\Exception\UnexpectedResultException;
+use Tequila\MongoDB\Options\Connection\ConnectionOptions;
+use Tequila\MongoDB\Options\Driver\DriverOptions;
+use Tequila\MongoDB\Util\StringUtils;
+use Tequila\MongoDB\Util\TypeUtils;
+use Tequila\MongoDB\Traits\ReadPreferenceAndConcernsTrait;
 
 /**
  * Class Client
- * @package Tequilla\MongoDB
+ * @package Tequila\MongoDB
  */
 class Connection
 {

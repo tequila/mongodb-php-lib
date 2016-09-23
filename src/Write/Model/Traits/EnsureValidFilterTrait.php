@@ -1,9 +1,9 @@
 <?php
 
-namespace Tequilla\MongoDB\Write\Model\Traits;
+namespace Tequila\MongoDB\Write\Model\Traits;
 
-use Tequilla\MongoDB\Exception\InvalidArgumentException;
-use Tequilla\MongoDB\Util\TypeUtils;
+use Tequila\MongoDB\Exception\InvalidArgumentException;
+use Tequila\MongoDB\Util\TypeUtils;
 
 trait EnsureValidFilterTrait
 {

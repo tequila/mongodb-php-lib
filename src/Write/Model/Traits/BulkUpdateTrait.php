@@ -1,8 +1,8 @@
 <?php
 
-namespace Tequilla\MongoDB\Write\Model\Traits;
+namespace Tequila\MongoDB\Write\Model\Traits;
 
-use Tequilla\MongoDB\Write\Bulk\BulkWrite;
+use Tequila\MongoDB\Write\Bulk\BulkWrite;
 
 trait BulkUpdateTrait
 {
@@ -22,9 +22,9 @@ trait BulkUpdateTrait
     private $options;
 
     /**
-     * @see \Tequilla\MongoDB\WriteModel\WriteModelInterface::writeToBulk()
+     * @see \Tequila\MongoDB\WriteModel\WriteModelInterface::writeToBulk()
      *
-     * @param \Tequilla\MongoDB\Write\Bulk\BulkWrite $bulk
+     * @param \Tequila\MongoDB\Write\Bulk\BulkWrite $bulk
      */
     public function writeToBulk(BulkWrite $bulk)
     {
