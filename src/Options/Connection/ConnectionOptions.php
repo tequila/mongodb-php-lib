@@ -4,28 +4,28 @@ namespace Tequila\MongoDB\Options\Connection;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tequila\MongoDB\Options\ConfigurableInterface;
+use Tequila\MongoDB\Options\Traits\CachedResolverTrait;
 
-final class ConnectionOptions implements ConfigurableInterface
+class ConnectionOptions implements ConfigurableInterface
 {
+    use CachedResolverTrait;
+
     const SSL = 'ssl';
     const CONNECT_TIMEOUT_MS = 'connectTimeoutMS';
-    const SOCKET_TIMEOUT_MS = 'sockettimeoutms';
-    
-    public static function getAll()
-    {
-        return [
-            self::SSL,
-            self::CONNECT_TIMEOUT_MS,
-            self::SOCKET_TIMEOUT_MS,
-        ];
-    }
+    const SOCKET_TIMEOUT_MS = 'socketTimeoutMS';
 
     public static function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefined(self::getAll());
-        $resolver->setAllowedTypes(self::SSL, ['bool']);
-        $resolver->setAllowedTypes(self::CONNECT_TIMEOUT_MS, 'integer');
-        $resolver->setAllowedTypes(self::SOCKET_TIMEOUT_MS, 'integer');
+        $resolver->setDefined([
+            self::SSL,
+            self::CONNECT_TIMEOUT_MS,
+            self::SOCKET_TIMEOUT_MS,
+        ]);
+
+        $resolver
+            ->setAllowedTypes(self::SSL, ['bool'])
+            ->setAllowedTypes(self::CONNECT_TIMEOUT_MS, 'integer')
+            ->setAllowedTypes(self::SOCKET_TIMEOUT_MS, 'integer');
         
         AuthenticationOptions::configureOptions($resolver);
         ReadConcernOptions::configureOptions($resolver);

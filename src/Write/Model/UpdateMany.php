@@ -21,6 +21,8 @@ class UpdateMany implements WriteModelInterface
         $this->ensureValidFilter($filter);
         $this->ensureValidUpdate($update);
 
+        $options += ['multi' => true];
+
         $options = UpdateOptions::resolve($options);
         if (isset($options['multi']) && !$options['multi']) {
             throw new InvalidArgumentException(

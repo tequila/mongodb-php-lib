@@ -1,11 +1,12 @@
 <?php
 
-namespace Tequila\MongoDB\Options\Read;
+namespace Tequila\MongoDB\Operation\Options;
 
 use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tequila\MongoDB\Options\ConfigurableInterface;
+use Tequila\MongoDB\Options\Driver\TypeMapOptions;
 use Tequila\MongoDB\Options\Traits\CachedResolverTrait;
 
 class FindOptions implements ConfigurableInterface
@@ -63,6 +64,7 @@ class FindOptions implements ConfigurableInterface
 
     public static function configureOptions(OptionsResolver $resolver)
     {
+        TypeMapOptions::configureOptions($resolver);
         $resolver->setDefined([
             'allowPartialResults',
             'awaitData',

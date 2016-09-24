@@ -4,7 +4,7 @@ namespace Tequila\MongoDB\Write\Result;
 
 class UpdateResult
 {
-    use Traits\BUlkWriteResultAwareTrait;
+    use Traits\BulkWriteResultAwareTrait;
     /**
      * @return int
      */

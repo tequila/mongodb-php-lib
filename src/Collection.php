@@ -2,6 +2,7 @@
 
 namespace Tequila\MongoDB;
 
+use Tequila\MongoDB\Operation\Find;
 use Tequila\MongoDB\Write\Bulk\BulkWrite;
 use Tequila\MongoDB\Write\Bulk\BulkWriteOptions;
 use Tequila\MongoDB\Write\Model\DeleteMany;
@@ -82,6 +83,18 @@ class Collection
         $bulk = new BulkWrite($requests, $options);
 
         return $bulk->execute($this->connection, $this->databaseName, $this->name);
+    }
+
+    /**
+     * @param $filter
+     * @param array $options
+     * @return \MongoDB\Driver\Cursor
+     */
+    public function find($filter = [], array $options = [])
+    {
+        $operation = new Find($filter, $options);
+
+        return $operation->execute($this->connection, $this->databaseName, $this->name);
     }
 
     /**

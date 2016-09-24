@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "4a3f74a3a108069f2c06253b95c4e9b4",
-    "content-hash": "aa5c2ba9b470f881e8e8529ec3cbb62b",
+    "hash": "12dd2ec2071ec534c9b4e56c439bd837",
+    "content-hash": "52db16f13ce2eedda7a65b5d26d66aa4",
     "packages": [
         {
             "name": "symfony/options-resolver",
@@ -311,12 +311,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpspec/prophecy.git",
-                "reference": "d883566b83ae601a50b38b249e92450dc57cf875"
+                "reference": "d3be8294e4729abcf8e6e207f25cdcb299cd1c88"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/d883566b83ae601a50b38b249e92450dc57cf875",
-                "reference": "d883566b83ae601a50b38b249e92450dc57cf875",
+                "url": "https://api.github.com/repos/phpspec/prophecy/zipball/d3be8294e4729abcf8e6e207f25cdcb299cd1c88",
+                "reference": "d3be8294e4729abcf8e6e207f25cdcb299cd1c88",
                 "shasum": ""
             },
             "require": {
@@ -365,7 +365,7 @@
                 "spy",
                 "stub"
             ],
-            "time": "2016-07-19 16:08:43"
+            "time": "2016-09-21 19:41:08"
         },
         {
             "name": "phpunit/php-code-coverage",
@@ -617,12 +617,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/sebastianbergmann/phpunit.git",
-                "reference": "c2ad965fb0416aeb1e6bec481c054e1d8a5cf17c"
+                "reference": "e72a44bfb5eca0254fc124b08ae1ebf67e4aff02"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/c2ad965fb0416aeb1e6bec481c054e1d8a5cf17c",
-                "reference": "c2ad965fb0416aeb1e6bec481c054e1d8a5cf17c",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/e72a44bfb5eca0254fc124b08ae1ebf67e4aff02",
+                "reference": "e72a44bfb5eca0254fc124b08ae1ebf67e4aff02",
                 "shasum": ""
             },
             "require": {
@@ -691,7 +691,7 @@
                 "testing",
                 "xunit"
             ],
-            "time": "2016-09-08 05:22:30"
+            "time": "2016-09-22 17:38:29"
         },
         {
             "name": "phpunit/phpunit-mock-objects",
@@ -1271,12 +1271,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/yaml.git",
-                "reference": "46b44cb89d05e691f2719d468fd476d57487b487"
+                "reference": "7fbb0dfc86370757774ff2d9bd5c3b89c9aac1a8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/yaml/zipball/46b44cb89d05e691f2719d468fd476d57487b487",
-                "reference": "46b44cb89d05e691f2719d468fd476d57487b487",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/7fbb0dfc86370757774ff2d9bd5c3b89c9aac1a8",
+                "reference": "7fbb0dfc86370757774ff2d9bd5c3b89c9aac1a8",
                 "shasum": ""
             },
             "require": {
@@ -1318,7 +1318,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "https://symfony.com",
-            "time": "2016-09-14 23:17:14"
+            "time": "2016-09-20 08:33:13"
         },
         {
             "name": "webmozart/assert",

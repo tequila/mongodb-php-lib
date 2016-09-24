@@ -6,7 +6,6 @@ use MongoDB\Driver\Query;
 use MongoDB\Driver\ReadPreference;
 use Tequila\MongoDB\Connection;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
-use Tequila\MongoDB\Options\Read\FindOptions;
 use Tequila\MongoDB\Util\TypeUtil;
 
 class Find implements OperationInterface
@@ -30,7 +29,7 @@ class Find implements OperationInterface
      * @param array|object $filter
      * @param array $options
      */
-    public function __construct($filter, array $options)
+    public function __construct($filter, array $options = [])
     {
         if (!is_array($filter) && !is_object($filter)) {
             throw new InvalidArgumentException(
@@ -41,7 +40,7 @@ class Find implements OperationInterface
             );
         }
 
-        $options = FindOptions::resolve($options);
+        $options = Options\FindOptions::resolve($options);
         if (isset($options['readPreference'])) {
             $this->readPreference = $options['readPreference'];
             unset($options['readPreference']);
@@ -51,6 +50,12 @@ class Find implements OperationInterface
         $this->options = $options;
     }
 
+    /**
+     * @param Connection $connection
+     * @param string $databaseName
+     * @param string $collectionName
+     * @return \MongoDB\Driver\Cursor
+     */
     public function execute(Connection $connection, $databaseName, $collectionName)
     {
         $query = new Query($this->filter, $this->options);

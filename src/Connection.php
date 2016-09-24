@@ -8,7 +8,6 @@ use MongoDB\Driver\BulkWrite;
 use MongoDB\Driver\Query;
 use MongoDB\Driver\WriteConcern;
 use MongoDB\Driver\ReadPreference;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tequila\MongoDB\Command\Type\DropIndexesType;
 use Tequila\MongoDB\Command\Type\ListIndexesType;
 use Tequila\MongoDB\Command\CommandBuilder;
@@ -32,7 +31,12 @@ class Connection
     /**
      * @var Manager
      */
-    protected $manager;
+    private $manager;
+
+    /**
+     * @var array
+     */
+    private $typeMap;
 
     /**
      * @var CommandBuilder[]
@@ -44,18 +48,13 @@ class Connection
      * @param array $options
      * @param array $driverOptions
      */
-    public function __construct(
-        $uri = 'mongodb://localhost:27017',
-        array $options = [],
-        array $driverOptions = []
-    ) {
-        $resolver = new OptionsResolver();
-        ConnectionOptions::configureOptions($resolver);
-        $options = $resolver->resolve($options);
+    public function __construct($uri = 'mongodb://localhost:27017', array $options = [], array $driverOptions = [])
+    {
+        $options = ConnectionOptions::resolve($options);
+        $driverOptions = DriverOptions::resolve($options);
 
-        $driverOptionsResolver = new OptionsResolver();
-        DriverOptions::configureOptions($driverOptionsResolver);
-        $driverOptions = $driverOptionsResolver->resolve($driverOptions);
+        $this->typeMap = $driverOptions['typeMap'];
+        unset($driverOptions['typeMap']);
 
         $this->manager = new Manager((string)$uri, $options, $driverOptions);
 
@@ -110,7 +109,7 @@ class Connection
         $commandOptions = (array) $commandOptions;
 
         if (empty($commandOptions)) {
-            throw new InvalidArgumentException('$commandOptions must not be empty.');
+            throw new InvalidArgumentException('$commandOptions cannot be empty');
         }
 
         if (!$readPreference) {

@@ -9,13 +9,8 @@ class ReadConcernOptions implements ConfigurableInterface
 {
     const READ_CONCERN_LEVEL = 'readConcernLevel';
 
-    public static function getAll()
-    {
-        return [ self::READ_CONCERN_LEVEL ];
-    }
-
     public static function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefined(self::getAll());
+        $resolver->setDefined(self::READ_CONCERN_LEVEL);
     }
 }
