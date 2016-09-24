@@ -5,10 +5,6 @@ namespace Tequila\MongoDB\Options\Indexes;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tequila\MongoDB\Options\ConfigurableInterface;
 
-/**
- * Class IndexOptions
- * @package Tequila\MongoDB\Options\Indexes
- */
 class IndexOptions implements ConfigurableInterface
 {
     public static function configureOptions(OptionsResolver $resolver)

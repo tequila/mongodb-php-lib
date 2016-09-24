@@ -22,14 +22,9 @@ use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\Exception\UnexpectedResultException;
 use Tequila\MongoDB\Options\Connection\ConnectionOptions;
 use Tequila\MongoDB\Options\Driver\DriverOptions;
-use Tequila\MongoDB\Util\StringUtils;
-use Tequila\MongoDB\Util\TypeUtils;
+use Tequila\MongoDB\Util\TypeUtil;
 use Tequila\MongoDB\Traits\ReadPreferenceAndConcernsTrait;
 
-/**
- * Class Client
- * @package Tequila\MongoDB
- */
 class Connection
 {
     use ReadPreferenceAndConcernsTrait;
@@ -80,7 +75,7 @@ class Connection
      */
     public function executeBulkWrite($databaseName, $collectionName, BulkWrite $bulk, WriteConcern $writeConcern = null)
     {
-        $namespace = StringUtils::createNamespace($databaseName, $collectionName);
+        $namespace = $databaseName . '.' . $collectionName;
 
         return $this->manager->executeBulkWrite($namespace, $bulk, $writeConcern);
     }
@@ -93,13 +88,11 @@ class Connection
      */
     public function executeCommand($databaseName, $commandOptions, ReadPreference $readPreference = null)
     {
-        StringUtils::ensureValidDatabaseName($databaseName);
-
         if (!is_array($commandOptions) && !is_object($commandOptions)) {
             throw new InvalidArgumentException(
                 sprintf(
                     '$commandOptions must be an array or an object, %s given',
-                    TypeUtils::getType($commandOptions)
+                    TypeUtil::getType($commandOptions)
                 )
             );
         }
@@ -117,7 +110,7 @@ class Connection
         $commandOptions = (array) $commandOptions;
 
         if (empty($commandOptions)) {
-            throw new InvalidArgumentException('$command must not be empty.');
+            throw new InvalidArgumentException('$commandOptions must not be empty.');
         }
 
         if (!$readPreference) {
@@ -142,7 +135,7 @@ class Connection
      */
     public function executeQuery($databaseName, $collectionName, Query $query, ReadPreference $readPreference = null)
     {
-        $namespace = StringUtils::createNamespace($databaseName, $collectionName);
+        $namespace = $databaseName . '.' . $collectionName;
 
         return $this->manager->executeQuery($namespace, $query, $readPreference);
     }
@@ -155,9 +148,6 @@ class Connection
      */
     public function createCollection($databaseName, $collectionName, array $options = [])
     {
-        StringUtils::ensureValidDatabaseName($databaseName);
-        StringUtils::ensureValidCollectionName($collectionName);
-
         $options[CreateCollectionType::getCommandName()] = $collectionName;
 
         return $this
@@ -172,10 +162,7 @@ class Connection
      */
     public function dropCollection($databaseName, $collectionName)
     {
-        StringUtils::ensureValidDatabaseName($databaseName);
-        StringUtils::ensureValidCollectionName($collectionName);
-
-        $options[DropCollectionType::getCommandName()] = (string)$collectionName;
+        $options[DropCollectionType::getCommandName()] = $collectionName;
 
         return $this
             ->buildAndExecuteCommand($databaseName, DropCollectionType::class, $options)
@@ -202,9 +189,6 @@ class Connection
      */
     public function createIndexes($databaseName, $collectionName, array $indexes)
     {
-        StringUtils::ensureValidDatabaseName($databaseName);
-        StringUtils::ensureValidCollectionName($collectionName);
-
         if (empty($indexes)) {
             throw new InvalidArgumentException('$indexes array cannot be empty');
         }
@@ -217,7 +201,7 @@ class Connection
                     sprintf(
                         '$indexes[%d] must be an Index instance, %s given',
                         $i,
-                        TypeUtils::getType($index)
+                        TypeUtil::getType($index)
                     )
                 );
             }
@@ -243,9 +227,6 @@ class Connection
      */
     public function createIndex($databaseName, $collectionName, Index $index)
     {
-        StringUtils::ensureValidDatabaseName($databaseName);
-        StringUtils::ensureValidCollectionName($collectionName);
-
         $result = $this->createIndexes($databaseName, $collectionName, [$index]);
 
         return current($result);
@@ -258,9 +239,6 @@ class Connection
      */
     public function listIndexes($databaseName, $collectionName)
     {
-        StringUtils::ensureValidDatabaseName($databaseName);
-        StringUtils::ensureValidCollectionName($collectionName);
-
         return $this
             ->buildAndExecuteCommand(
                 $databaseName,
@@ -280,9 +258,6 @@ class Connection
      */
     public function dropIndex($databaseName, $collectionName, $index)
     {
-        StringUtils::ensureValidDatabaseName($databaseName);
-        StringUtils::ensureValidCollectionName($collectionName);
-
         if (is_string($index)) {
             $indexName = $index;
         } else if ($index instanceof Index) {
@@ -292,8 +267,8 @@ class Connection
         } else {
             throw new InvalidArgumentException(
                 sprintf(
-                    '$index must be a string, Index instance or array of index keys, %s given',
-                    TypeUtils::getType($index)
+                    '$index must be a string, Index instance or an array of index keys, %s given',
+                    TypeUtil::getType($index)
                 )
             );
         }
@@ -316,9 +291,6 @@ class Connection
      */
     public function dropIndexes($databaseName, $collectionName)
     {
-        StringUtils::ensureValidDatabaseName($databaseName);
-        StringUtils::ensureValidCollectionName($collectionName);
-
         $cursor = $this->buildAndExecuteCommand(
             $databaseName,
             DropIndexesType::class,
@@ -335,8 +307,6 @@ class Connection
      */
     public function dropDatabase($databaseName, array $options = [])
     {
-        StringUtils::ensureValidDatabaseName($databaseName);
-
         $cursor = $this->buildAndExecuteCommand($databaseName, DropDatabaseType::class, $options);
 
         return $cursor->toArray();
@@ -369,8 +339,6 @@ class Connection
      */
     public function selectDatabase($databaseName)
     {
-        StringUtils::ensureValidDatabaseName($databaseName);
-
         $db = new Database($this, $databaseName);
         $db
             ->setReadConcern($this->getReadConcern())
@@ -387,9 +355,6 @@ class Connection
      */
     public function selectCollection($databaseName, $collectionName)
     {
-        StringUtils::ensureValidDatabaseName($databaseName);
-        StringUtils::ensureValidCollectionName($collectionName);
-
         return $this->selectDatabase($databaseName)->selectCollection($collectionName);
     }
 
@@ -399,8 +364,6 @@ class Connection
      */
     public function createCommandBuilder($databaseName)
     {
-        StringUtils::ensureValidDatabaseName($databaseName);
-
         if (!isset($this->commandBuilders[$databaseName])) {
             $this->commandBuilders[$databaseName] = new CommandBuilder($this, $databaseName);
         }

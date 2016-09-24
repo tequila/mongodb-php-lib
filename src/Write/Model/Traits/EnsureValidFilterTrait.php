@@ -3,7 +3,7 @@
 namespace Tequila\MongoDB\Write\Model\Traits;
 
 use Tequila\MongoDB\Exception\InvalidArgumentException;
-use Tequila\MongoDB\Util\TypeUtils;
+use Tequila\MongoDB\Util\TypeUtil;
 
 trait EnsureValidFilterTrait
 {
@@ -13,7 +13,7 @@ trait EnsureValidFilterTrait
             throw new InvalidArgumentException(
                 sprintf(
                     '$filter must be an array or an object, %s given',
-                    TypeUtils::getType($filter)
+                    TypeUtil::getType($filter)
                 )
             );
         }

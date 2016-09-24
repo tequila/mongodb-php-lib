@@ -3,7 +3,7 @@
 namespace Tequila\MongoDB\Write\Model;
 
 use Tequila\MongoDB\Exception\InvalidArgumentException;
-use Tequila\MongoDB\Util\TypeUtils;
+use Tequila\MongoDB\Util\TypeUtil;
 use Tequila\MongoDB\Write\Bulk\BulkWrite;
 use Tequila\MongoDB\Write\Options\UpdateOptions;
 
@@ -39,7 +39,7 @@ class ReplaceOne implements WriteModelInterface
             throw new InvalidArgumentException(
                 sprintf(
                     '$replacement must be an array or an object, %s given',
-                    TypeUtils::getType($filter)
+                    TypeUtil::getType($filter)
                 )
             );
         }

@@ -4,10 +4,6 @@ namespace Tequila\MongoDB\Command;
 
 use Tequila\MongoDB\Connection;
 
-/**
- * Class CommandBuilder
- * @package Tequila\MongoDB\Command
- */
 class CommandBuilder
 {
     /**

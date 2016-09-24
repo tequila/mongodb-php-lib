@@ -6,10 +6,6 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\Options\Indexes\IndexOptions;
 
-/**
- * Class Index
- * @package Tequila\MongoDB
- */
 class Index
 {
     /**

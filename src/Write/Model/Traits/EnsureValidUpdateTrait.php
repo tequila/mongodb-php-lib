@@ -4,7 +4,7 @@ namespace Tequila\MongoDB\Write\Model\Traits;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
-use Tequila\MongoDB\Util\TypeUtils;
+use Tequila\MongoDB\Util\TypeUtil;
 use Symfony\Component\OptionsResolver\Exception\InvalidArgumentException as OptionsResolverException;
 
 trait EnsureValidUpdateTrait
@@ -17,7 +17,7 @@ trait EnsureValidUpdateTrait
             throw new InvalidArgumentException(
                 sprintf(
                     '$update must be an array or an object, %s given',
-                    TypeUtils::getType($update)
+                    TypeUtil::getType($update)
                 )
             );
         }

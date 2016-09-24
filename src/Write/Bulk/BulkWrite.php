@@ -9,7 +9,7 @@ use MongoDB\Driver\WriteConcern;
 use Tequila\MongoDB\Connection;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\Exception\LogicException;
-use Tequila\MongoDB\Util\TypeUtils;
+use Tequila\MongoDB\Util\TypeUtil;
 use Tequila\MongoDB\Write\Model\WriteModelInterface;
 
 class BulkWrite
@@ -130,7 +130,7 @@ class BulkWrite
                         '$requests[%d] must be an instance of %s, %s given',
                         $i,
                         WriteModelInterface::class,
-                        TypeUtils::getType($request)
+                        TypeUtil::getType($request)
                     )
                 );
             }

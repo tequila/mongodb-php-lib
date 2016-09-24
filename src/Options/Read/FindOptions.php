@@ -4,7 +4,6 @@ namespace Tequila\MongoDB\Options\Read;
 
 use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
-use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tequila\MongoDB\Options\ConfigurableInterface;
 use Tequila\MongoDB\Options\Traits\CachedResolverTrait;
@@ -110,17 +109,5 @@ class FindOptions implements ConfigurableInterface
             ->setAllowedTypes('skip', 'integer')
             ->setAllowedTypes('sort', ['array', 'object'])
             ->setAllowedTypes('typeMap', 'array');
-
-        $resolver->setNormalizer('cursorType', function(Options $options, $cursorType) {
-            if (in_array($cursorType, [self::CURSOR_TYPE_TAILABLE, self::CURSOR_TYPE_TAILABLE_AWAIT], true)) {
-                $options['tailable'] = true;
-            }
-
-            if (self::CURSOR_TYPE_TAILABLE_AWAIT === $cursorType) {
-                $options['awaitData'] = true;
-            }
-
-            return $cursorType;
-        });
     }
 }

@@ -6,10 +6,6 @@ use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tequila\MongoDB\Command\CommandTypeInterface;
 
-/**
- * Class ListCollectionsType
- * @package Tequila\MongoDB\Command\Type
- */
 class ListCollectionsType implements CommandTypeInterface
 {
     use PrimaryReadPreferenceTrait;

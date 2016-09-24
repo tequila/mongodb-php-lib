@@ -2,10 +2,6 @@
 
 namespace Tequila\MongoDB;
 
-/**
- * Class Database
- * @package Tequila\MongoDB
- */
 class Database implements DatabaseInterface
 {
     use Traits\ReadPreferenceAndConcernsTrait;

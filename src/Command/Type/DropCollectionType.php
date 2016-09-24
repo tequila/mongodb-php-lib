@@ -5,10 +5,6 @@ namespace Tequila\MongoDB\Command\Type;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tequila\MongoDB\Command\CommandTypeInterface;
 
-/**
- * Class DropCollectionType
- * @package Tequila\MongoDB\Command\Type
- */
 class DropCollectionType implements CommandTypeInterface
 {
     use PrimaryReadPreferenceTrait;

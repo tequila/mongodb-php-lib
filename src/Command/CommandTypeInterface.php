@@ -5,10 +5,6 @@ namespace Tequila\MongoDB\Command;
 use MongoDB\Driver\ReadPreference;
 use Tequila\MongoDB\Options\ConfigurableInterface;
 
-/**
- * Interface CommandInterface
- * @package Tequila\MongoDB\Command
- */
 interface CommandTypeInterface extends ConfigurableInterface
 {
     /**

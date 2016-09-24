@@ -8,12 +8,7 @@ use Tequila\MongoDB\CommandCursor;
 use Tequila\MongoDB\Connection;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Symfony\Component\OptionsResolver\Exception\InvalidArgumentException as OptionsResolverException;
-use Tequila\MongoDB\Util\TypeUtils;
 
-/**
- * Class Command
- * @package Tequila\MongoDB\Command
- */
 class CommandWrapper
 {
     /**
@@ -46,16 +41,22 @@ class CommandWrapper
      * @param string $databaseName
      * @param string $commandClass
      */
-    public function __construct(
-        Connection $connection,
-        $databaseName,
-        $commandClass
-    ) {
-        TypeUtils::ensureIsSubclassOf($commandClass, CommandTypeInterface::class);
+    public function __construct(Connection $connection, $databaseName, $commandClass)
+    {
+        $commandClass = (string)$commandClass;
+        if (!is_subclass_of($commandClass, CommandTypeInterface::class)) {
+            throw new InvalidArgumentException(
+                sprintf(
+                    '$commandClass must be a name of class, which implements "%s", %s does not',
+                    CommandTypeInterface::class,
+                    $commandClass
+                )
+            );
+        }
 
-        $this->databaseName = (string) $databaseName;
+        $this->databaseName = (string)$databaseName;
         $this->connection = $connection;
-        $this->commandClass = (string) $commandClass;
+        $this->commandClass = (string)$commandClass;
         $this->readPreference = call_user_func([$commandClass, 'getDefaultReadPreference']);
     }
 
@@ -108,7 +109,7 @@ class CommandWrapper
 
         try {
             $options = $resolver->resolve($options);
-        } catch(OptionsResolverException $e) {
+        } catch (OptionsResolverException $e) {
             throw new InvalidArgumentException($e->getMessage());
         }
 

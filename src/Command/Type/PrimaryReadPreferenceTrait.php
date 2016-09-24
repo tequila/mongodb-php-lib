@@ -4,10 +4,6 @@ namespace Tequila\MongoDB\Command\Type;
 
 use MongoDB\Driver\ReadPreference;
 
-/**
- * Trait PrimaryReadPreferenceTrait
- * @package Tequila\MongoDB\Command\Type
- */
 trait PrimaryReadPreferenceTrait
 {
     /**

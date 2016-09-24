@@ -3,7 +3,7 @@
 namespace Tequila\MongoDB\Write\Model;
 
 use Tequila\MongoDB\Exception\InvalidArgumentException;
-use Tequila\MongoDB\Util\TypeUtils;
+use Tequila\MongoDB\Util\TypeUtil;
 use Tequila\MongoDB\Write\Bulk\BulkWrite;
 use Tequila\MongoDB\Write\Model\Traits\EnsureValidDocumentTrait;
 
@@ -25,7 +25,7 @@ class InsertOne implements WriteModelInterface
             throw new InvalidArgumentException(
                 sprintf(
                     '$document must be an array or an object, %s given',
-                    TypeUtils::getType($document)
+                    TypeUtil::getType($document)
                 )
             );
         }
