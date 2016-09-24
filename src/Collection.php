@@ -123,7 +123,7 @@ class Collection
      */
     public function deleteOne($filter, array $options = [])
     {
-        list($bulkOptions, $options) = $this->extractBulkWriteOptions($options);
+        list($bulkOptions, $options) = self::extractBulkWriteOptions($options);
         $model = new DeleteOne($filter, $options);
         $bulkWriteResult = $this->bulkWrite([$model], $bulkOptions);
 
@@ -137,7 +137,7 @@ class Collection
      */
     public function deleteMany($filter, array $options = [])
     {
-        list($bulkOptions, $options) = $this->extractBulkWriteOptions($options);
+        list($bulkOptions, $options) = self::extractBulkWriteOptions($options);
         $model = new DeleteMany($filter, $options);
         $bulkWriteResult = $this->bulkWrite([$model], $bulkOptions);
 
@@ -152,7 +152,7 @@ class Collection
      */
     public function updateOne($filter, $update, array $options = [])
     {
-        list($bulkOptions, $options) = $this->extractBulkWriteOptions($options);
+        list($bulkOptions, $options) = self::extractBulkWriteOptions($options);
         $model = new UpdateOne($filter, $update, $options);
 
         $bulkWriteResult = $this->bulkWrite([$model], $bulkOptions);
@@ -168,7 +168,7 @@ class Collection
      */
     public function updateMany($filter, $update, array $options = [])
     {
-        list($bulkOptions, $options) = $this->extractBulkWriteOptions($options);
+        list($bulkOptions, $options) = self::extractBulkWriteOptions($options);
         $model = new UpdateMany($filter, $update, $options);
 
         $bulkWriteResult = $this->bulkWrite([$model], $bulkOptions);
@@ -184,7 +184,7 @@ class Collection
      */
     public function replaceOne($filter, $replacement, array $options = [])
     {
-        list($bulkOptions, $options) = $this->extractBulkWriteOptions($options);
+        list($bulkOptions, $options) = self::extractBulkWriteOptions($options);
         $model = new ReplaceOne($filter, $replacement, $options);
 
         $bulkWriteResult = $this->bulkWrite([$model], $bulkOptions);
@@ -196,10 +196,10 @@ class Collection
      * @param array $options
      * @return array
      */
-    private function extractBulkWriteOptions(array $options)
+    private static function extractBulkWriteOptions(array $options)
     {
-        $resolver = BulkWriteOptions::getCachedResolver();
-        $bulkWriteOptions = array_intersect_key($options, array_flip($resolver->getDefinedOptions()));
+        $definedOptions = BulkWriteOptions::getDefinedOptions();
+        $bulkWriteOptions = array_intersect_key($options, array_flip($definedOptions));
         $operationOptions = array_diff_key($options, $bulkWriteOptions);
 
         return [$bulkWriteOptions, $operationOptions];

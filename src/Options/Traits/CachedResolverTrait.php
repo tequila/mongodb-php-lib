@@ -20,7 +20,7 @@ trait CachedResolverTrait
     public static function resolve(array $options)
     {
         try {
-            return self::getCachedResolver()->resolve($options);
+            return self::getResolver()->resolve($options);
         } catch (OptionsResolverException $e) {
             throw new InvalidArgumentException($e->getMessage());
         }
@@ -36,7 +36,7 @@ trait CachedResolverTrait
     /**
      * @return OptionsResolver
      */
-    private static function getCachedResolver()
+    private static function getResolver()
     {
         if (!self::$cachedResolver) {
             self::$cachedResolver = new OptionsResolver();

@@ -21,7 +21,6 @@ class CommandBuilder
     private $databaseName;
 
     /**
-     * CommandBuilder constructor.
      * @param Connection $connection
      * @param string $databaseName
      */

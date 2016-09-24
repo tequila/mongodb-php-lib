@@ -45,7 +45,6 @@ class Connection
     private $commandBuilders = [];
 
     /**
-     * Client constructor.
      * @param string $uri
      * @param array $options
      * @param array $driverOptions

@@ -42,7 +42,6 @@ class CommandWrapper
     private static $cachedResolvers;
 
     /**
-     * Command constructor.
      * @param Connection $connection
      * @param string $databaseName
      * @param string $commandClass

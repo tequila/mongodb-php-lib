@@ -28,4 +28,12 @@ class BulkWriteOptions implements ConfigurableInterface
             ->setDefault('bypassDocumentValidation', true)
             ->setDefault('ordered', true);
     }
+
+    /**
+     * @return \string[]
+     */
+    public static function getDefinedOptions()
+    {
+        return self::getResolver()->getDefinedOptions();
+    }
 }

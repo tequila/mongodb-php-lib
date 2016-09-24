@@ -12,7 +12,6 @@ class UpdateOne implements WriteModelInterface
     use Traits\BulkUpdateTrait;
 
     /**
-     * Update constructor.
      * @param array|object $filter
      * @param array|object $update
      * @param array $options

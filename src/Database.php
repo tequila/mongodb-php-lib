@@ -21,7 +21,6 @@ class Database implements DatabaseInterface
     private $connection;
 
     /**
-     * Database constructor.
      * @param Connection $connection
      * @param string $databaseName
      */

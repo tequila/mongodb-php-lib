@@ -28,7 +28,6 @@ class Index
     private $name;
 
     /**
-     * Index constructor.
      * @param array $keys
      * @param array $options
      */
@@ -38,13 +37,15 @@ class Index
             throw new InvalidArgumentException('$keys array cannot be empty');
         }
 
-        foreach ($keys as $fieldName => $value) {
-            ensureValidDocumentFieldName($fieldName);
-        }
-
         $resolver = new OptionsResolver();
         IndexOptions::configureOptions($resolver);
-        $options = $resolver->resolve($options);
+
+        try {
+            $options = $resolver->resolve($options);
+        } catch(\Symfony\Component\OptionsResolver\Exception\InvalidArgumentException $e) {
+            throw new InvalidArgumentException($e->getMessage());
+        }
+
 
         if (empty($options['name'])) {
             $options['name'] = self::generateIndexName($options['key']);

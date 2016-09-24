@@ -2,7 +2,8 @@
 
 namespace Tequila\MongoDB\Write\Model;
 
-use Tequila\MongoDB\Write\Options\DeleteManyOptions;
+use Tequila\MongoDB\Exception\InvalidArgumentException;
+use Tequila\MongoDB\Write\Options\DeleteOptions;
 
 class DeleteMany implements WriteModelInterface
 {
@@ -16,7 +17,13 @@ class DeleteMany implements WriteModelInterface
     public function __construct($filter, array $options = [])
     {
         $this->ensureValidFilter($filter);
+        if (isset($options['limit']) && 1 === $options['limit']) {
+            throw new InvalidArgumentException(
+                'DeleteMany operation does not allow option "limit" to be set to 1'
+            );
+        }
+
         $this->filter = $filter;
-        $this->options = DeleteManyOptions::getCachedResolver()->resolve($options);
+        $this->options = DeleteOptions::resolve($options);
     }
 }
