@@ -24,7 +24,7 @@ class UpdateMany implements WriteModelInterface
         $options += ['multi' => true];
 
         $options = UpdateOptions::resolve($options);
-        if (isset($options['multi']) && !$options['multi']) {
+        if (isset($options['multi']) && false === $options['multi']) {
             throw new InvalidArgumentException(
                 'UpdateMany operation does not allow option "multi" to be false'
             );
