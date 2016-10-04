@@ -2,8 +2,10 @@
 
 namespace Tequila\MongoDB;
 
+use MongoDB\Driver\Command;
 use MongoDB\Driver\Cursor;
-use Tequila\MongoDB\Exception\LogicException;
+use MongoDB\Driver\Server;
+use Tequila\MongoDB\Options\Driver\TypeMapOptions;
 
 class CommandCursor
 {
@@ -18,11 +20,21 @@ class CommandCursor
     private $arrayRepresentation;
 
     /**
-     * @param Cursor $cursor
+     * @param Server $server
+     * @param $databaseName
+     * @param array $options
      */
-    public function __construct(Cursor $cursor)
+    public function __construct(Server $server, $databaseName, array $options)
     {
-        $this->mongoCursor = $cursor;
+        if (isset($options['typeMap'])) {
+            $typeMap = $options['typeMap'];
+            unset($options['typeMap']);
+        } else {
+            $typeMap = TypeMapOptions::getDefaultTypeMap();
+        }
+
+        $this->mongoCursor = $server->executeCommand($databaseName, new Command($options));
+        $this->mongoCursor->setTypeMap($typeMap);
     }
 
     /**
@@ -47,10 +59,6 @@ class CommandCursor
     public function toArray()
     {
         if (null === $this->arrayRepresentation) {
-            if ($this->mongoCursor->isDead()) {
-                throw new LogicException('Attempt to get array representation from dead cursor');
-            }
-
             $this->arrayRepresentation = $this->mongoCursor->toArray();
         }
 

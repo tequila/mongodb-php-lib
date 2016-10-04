@@ -3,9 +3,9 @@
 namespace Tequila\MongoDB\Options\Connection;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Tequila\MongoDB\Options\ConfigurableInterface;
+use Tequila\MongoDB\Options\OptionsInterface;
 
-class AuthenticationOptions implements ConfigurableInterface
+class AuthenticationOptions implements OptionsInterface
 {
     const AUTH_SOURCE = 'authSource';
     const AUTH_MECHANISM = 'authMechanism';

@@ -3,10 +3,10 @@
 namespace Tequila\MongoDB\Options\Connection;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Tequila\MongoDB\Options\ConfigurableInterface;
+use Tequila\MongoDB\Options\OptionsInterface;
 use Tequila\MongoDB\Options\Traits\CachedResolverTrait;
 
-class ConnectionOptions implements ConfigurableInterface
+class ConnectionOptions implements OptionsInterface
 {
     use CachedResolverTrait;
 

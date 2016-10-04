@@ -2,9 +2,9 @@
 
 namespace Tequila\MongoDB\Operation;
 
+use MongoDB\Driver\Manager;
 use MongoDB\Driver\Query;
 use MongoDB\Driver\ReadPreference;
-use Tequila\MongoDB\Connection;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\Util\TypeUtil;
 
@@ -51,18 +51,17 @@ class Find implements OperationInterface
     }
 
     /**
-     * @param Connection $connection
+     * @param Manager $manager
      * @param string $databaseName
      * @param string $collectionName
      * @return \MongoDB\Driver\Cursor
      */
-    public function execute(Connection $connection, $databaseName, $collectionName)
+    public function execute(Manager $manager, $databaseName, $collectionName)
     {
         $query = new Query($this->filter, $this->options);
 
-        return $connection->executeQuery(
-            $databaseName,
-            $collectionName,
+        return $manager->executeQuery(
+            $databaseName . '.' . $collectionName,
             $query,
             $this->readPreference
         );

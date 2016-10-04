@@ -2,15 +2,15 @@
 
 namespace Tequila\MongoDB\Operation;
 
-use Tequila\MongoDB\Connection;
+use MongoDB\Driver\Manager;
 
 interface OperationInterface
 {
     /**
-     * @param Connection $connection
+     * @param Manager $manager
      * @param string $databaseName
      * @param string $collectionName
      * @return mixed
      */
-    public function execute(Connection $connection, $databaseName, $collectionName);
+    public function execute(Manager $manager, $databaseName, $collectionName);
 }

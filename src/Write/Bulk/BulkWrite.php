@@ -5,8 +5,8 @@ namespace Tequila\MongoDB\Write\Bulk;
 use MongoDB\BSON\ObjectID;
 use MongoDB\BSON\Serializable;
 use MongoDB\Driver\BulkWrite as Bulk;
+use MongoDB\Driver\Manager;
 use MongoDB\Driver\WriteConcern;
-use Tequila\MongoDB\Connection;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\Exception\LogicException;
 use Tequila\MongoDB\Util\TypeUtil;
@@ -17,7 +17,7 @@ class BulkWrite
     /**
      * @var \Tequila\MongoDB\Write\Model\WriteModelInterface[]
      */
-    private $requests;
+    private $writeModels;
 
     /**
      * @var array
@@ -40,12 +40,12 @@ class BulkWrite
     private $writeConcern;
 
     /**
-     * @param \Tequila\MongoDB\Write\Model\WriteModelInterface[] $requests
+     * @param \Tequila\MongoDB\Write\Model\WriteModelInterface[] $writeModels
      * @param array $options
      */
-    public function __construct($requests, array $options = [])
+    public function __construct(array $writeModels, array $options = [])
     {
-        $this->requests = $requests;
+        $this->writeModels = $writeModels;
         $this->options = BulkWriteOptions::resolve($options);
 
         if (isset($this->options['writeConcern'])) {
@@ -54,6 +54,16 @@ class BulkWrite
         }
 
         $this->bulk = new Bulk($this->options);
+    }
+
+    /**
+     * Adds write model to bulk
+     *
+     * @param WriteModelInterface $writeModel
+     */
+    public function add(WriteModelInterface $writeModel)
+    {
+        $this->writeModels[] = $writeModel;
     }
 
     /**
@@ -67,7 +77,7 @@ class BulkWrite
         $index = $this->bulk->count();
         $id = $this->bulk->insert($document);
         if (null === $id) {
-            $id = self::extractIdFromDocument($document);
+            $id = $this->extractIdFromDocument($document);
         }
 
         $this->insertedIds[$index] = $id;
@@ -109,33 +119,37 @@ class BulkWrite
     }
 
     /**
-     * @param Connection $connection
+     * @param Manager $manager
      * @param string $databaseName
      * @param string $collectionName
      * @return BulkWriteResult
      */
-    public function execute(Connection $connection, $databaseName, $collectionName)
+    public function execute(Manager $manager, $databaseName, $collectionName)
     {
         $expectedIndex = 0;
-        foreach ($this->requests as $i => $request) {
+        foreach ($this->writeModels as $i => $model) {
             if ($i !== $expectedIndex) {
                 throw new InvalidArgumentException(
-                    sprintf('$requests is not a list. Unexpected index: %s', $i)
-                );
-            }
-
-            if (!$request instanceof WriteModelInterface) {
-                throw new InvalidArgumentException(
                     sprintf(
-                        '$requests[%d] must be an instance of %s, %s given',
-                        $i,
-                        WriteModelInterface::class,
-                        TypeUtil::getType($request)
+                        '$writeModels is not a list. Expected index "%d", index "%s" given',
+                        $expectedIndex,
+                        $i
                     )
                 );
             }
 
-            $request->writeToBulk($this);
+            if (!$model instanceof WriteModelInterface) {
+                throw new InvalidArgumentException(
+                    sprintf(
+                        '$writeModels[%d] must be an instance of %s, %s given',
+                        $i,
+                        WriteModelInterface::class,
+                        TypeUtil::getType($model)
+                    )
+                );
+            }
+
+            $model->writeToBulk($this);
             $expectedIndex += 1;
         }
 
@@ -143,9 +157,8 @@ class BulkWrite
             throw new LogicException('Attempt to execute empty bulk');
         }
 
-        $writeResult = $connection->executeBulkWrite(
-            $databaseName,
-            $collectionName,
+        $writeResult = $manager->executeBulkWrite(
+            $databaseName . '.' . $collectionName,
             $this->bulk,
             $this->writeConcern
         );
@@ -157,7 +170,7 @@ class BulkWrite
      * @param array|object $document
      * @return ObjectID
      */
-    private static function extractIdFromDocument($document)
+    private function extractIdFromDocument($document)
     {
         if ($document instanceof Serializable) {
             return self::extractIdFromDocument($document->bsonSerialize());

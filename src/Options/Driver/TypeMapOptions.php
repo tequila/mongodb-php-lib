@@ -6,44 +6,58 @@ use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tequila\MongoDB\BSON\BSONArray;
 use Tequila\MongoDB\BSON\BSONDocument;
-use Tequila\MongoDB\Options\ConfigurableInterface;
+use Tequila\MongoDB\Exception\InvalidArgumentException;
+use Tequila\MongoDB\Options\OptionsInterface;
+use Tequila\MongoDB\Options\Traits\CachedResolverTrait;
 
-class TypeMapOptions implements ConfigurableInterface
+class TypeMapOptions implements OptionsInterface
 {
-    const TYPE_MAP = 'typeMap';
-
-    /**
-     * @var OptionsResolver
-     */
-    private static $typeMapResolver;
+    use CachedResolverTrait;
 
     public static function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefined(self::TYPE_MAP);
-        $resolver->setAllowedTypes(self::TYPE_MAP, 'array');
-        $resolver->setDefault(self::TYPE_MAP, [
+        $resolver->setDefaults(self::getDefaultTypeMap());
+
+        $resolver
+            ->setAllowedTypes('array', 'string')
+            ->setAllowedTypes('document', 'string')
+            ->setAllowedTypes('root', 'string');
+
+        $resolver
+            ->setNormalizer('array', self::getNormalizer('array'))
+            ->setNormalizer('document', self::getNormalizer('document'))
+            ->setNormalizer('root', self::getNormalizer('root'));
+    }
+
+    public static function getDefaultTypeMap()
+    {
+        return [
             'array' => BSONArray::class,
             'document' => BSONDocument::class,
             'root' => BSONDocument::class,
-        ]);
-        $resolver->setNormalizer(self::TYPE_MAP, function(Options $options, $value) {
-            return self::getTypeMapResolver()->resolve($value);
-        });
+        ];
     }
 
-    private static function getTypeMapResolver()
+    /**
+     * @param string $fieldName
+     * @return \Closure
+     */
+    private static function getNormalizer($fieldName)
     {
-        if (null === self::$typeMapResolver) {
-            $resolver = new OptionsResolver();
-            $resolver->setDefined([
-                'array',
-                'document',
-                'root',
-            ]);
+        return function(Options $options, $fieldType) use($fieldName) {
+            if (!in_array($fieldType, ['array', 'object'], true)) {
+                if (!class_exists($fieldType)) {
+                    throw new InvalidArgumentException(
+                        sprintf(
+                            'Type map option "%s" must be "array", "object" or a class name, "%s" given',
+                            $fieldName,
+                            $fieldType
+                        )
+                    );
+                }
+            }
 
-            self::$typeMapResolver = $resolver;
-        }
-
-        return self::$typeMapResolver;
+            return $fieldType;
+        };
     }
 }

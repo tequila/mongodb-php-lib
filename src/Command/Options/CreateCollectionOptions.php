@@ -1,23 +1,24 @@
 <?php
 
-namespace Tequila\MongoDB\Command\Type;
+namespace Tequila\MongoDB\Command\Options;
 
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Tequila\MongoDB\Command\CommandTypeInterface;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
+use Tequila\MongoDB\Options\OptionsInterface;
+use Tequila\MongoDB\Options\Traits\CachedResolverTrait;
 
-class CreateCollectionType implements CommandTypeInterface
+class CreateCollectionOptions implements OptionsInterface
 {
-    use PrimaryReadPreferenceTrait;
+    use CachedResolverTrait;
 
     /**
      * @param  OptionsResolver $resolver
      */
     public static function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setRequired('create');
-        
+        CommonOptions::configureOptions($resolver);
+
         $resolver->setDefined([
             'capped',
             'size',
@@ -31,7 +32,6 @@ class CreateCollectionType implements CommandTypeInterface
         ]);
 
         $resolver
-            ->setAllowedTypes('create', 'string')
             ->setAllowedTypes('capped', 'bool')
             ->setAllowedTypes('size', 'integer')
             ->setAllowedTypes('max', 'integer')
@@ -60,7 +60,7 @@ class CreateCollectionType implements CommandTypeInterface
         });
 
         $sizeAndMaxOptionsNormalizer = function(Options $options, $value) {
-            if ($value && empty($options['capped'])) {
+            if ($value && isset($options['capped']) && false === $options['capped']) {
                 throw new InvalidArgumentException(
                     'The "size" and "max" options are meaningless until "capped" option has been set to true'
                 );
@@ -71,10 +71,5 @@ class CreateCollectionType implements CommandTypeInterface
 
         $resolver->setNormalizer('size', $sizeAndMaxOptionsNormalizer);
         $resolver->setNormalizer('max', $sizeAndMaxOptionsNormalizer);
-    }
-
-    public static function getCommandName()
-    {
-        return 'create';
     }
 }

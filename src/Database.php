@@ -2,60 +2,112 @@
 
 namespace Tequila\MongoDB;
 
-class Database implements DatabaseInterface
+use MongoDB\Driver\Manager;
+use MongoDB\Driver\ReadConcern;
+use MongoDB\Driver\ReadPreference;
+use MongoDB\Driver\WriteConcern;
+use Tequila\MongoDB\Command\CreateCollection;
+use Tequila\MongoDB\Command\DropCollection;
+use Tequila\MongoDB\Command\DropDatabase;
+use Tequila\MongoDB\Command\ListCollections;
+use Tequila\MongoDB\Options\DatabaseAndCollectionOptions;
+
+class Database
 {
-    use Traits\ReadPreferenceAndConcernsTrait;
+    /**
+     * @var Manager
+     */
+    private $manager;
 
     /**
      * @var string
      */
-    private $name;
+    private $databaseName;
 
     /**
-     * @var Connection
+     * @var ReadConcern|null
      */
-    private $connection;
+    private $readConcern;
 
     /**
-     * @param Connection $connection
+     * @var ReadPreference|null
+     */
+    private $readPreference;
+
+    /**
+     * @var WriteConcern|null
+     */
+    private $writeConcern;
+
+    /**
+     * @var array
+     */
+    private $typeMap;
+
+    /**
+     * @param Manager $manager
      * @param string $databaseName
+     * @param array $options
      */
-    public function __construct(Connection $connection, $databaseName)
+    public function __construct(Manager $manager, $databaseName, array $options = [])
     {
 
-        $this->connection = $connection;
-        $this->name = $databaseName;
+        $this->manager = $manager;
+        $this->databaseName = $databaseName;
+
+        $options = DatabaseAndCollectionOptions::resolve($options, $manager);
+
+        $this->readConcern = $options['readConcern'];
+        $this->readPreference = $options['readPreference'];
+        $this->writeConcern = $options['writeConcern'];
+        $this->typeMap = $options['typeMap'];
     }
 
     /**
      * @inheritdoc
      */
-    public function getName()
+    public function getDatabaseName()
     {
-        return $this->name;
+        return $this->databaseName;
     }
 
     /**
      * @param string $collectionName
      * @param array $options
-     * @return array
+     * @return array|object
      */
     public function createCollection($collectionName, array $options = [])
     {
-        return $this->connection->createCollection(
-            $this->name,
-            $collectionName,
-            $options
-        );
+        $command = new CreateCollection($this->databaseName, $collectionName, $options);
+
+        $cursor = $command->execute($this->manager);
+
+        return current($cursor->toArray());
+    }
+
+    /**
+     * @param array $options
+     * @return array|object
+     */
+    public function drop(array $options = [])
+    {
+        $command = new DropDatabase($this->databaseName, $options);
+        $cursor = $command->execute($this->manager);
+
+        return current($cursor->toArray());
     }
 
     /**
      * @param string $collectionName
-     * @return array
+     * @param array $options
+     * @return array|object
      */
-    public function dropCollection($collectionName)
+    public function dropCollection($collectionName, array $options = [])
     {
-        return $this->connection->dropCollection($this->name, $collectionName);
+        $command = new DropCollection($this->databaseName, $collectionName, $options);
+        $cursor = $command->execute($this->manager);
+
+        return current($cursor->toArray());
     }
 
     /**
@@ -64,30 +116,26 @@ class Database implements DatabaseInterface
      */
     public function listCollections(array $options = [])
     {
-        return $this->connection->listCollections($this->name);
+        $command = new ListCollections($this->databaseName, $options);
+        $cursor = $command->execute($this->manager);
+
+        return $cursor->toArray();
     }
 
     /**
-     * @param  string $collectionName
-     * @return CollectionInterface
-     */
-    public function selectCollection($collectionName)
-    {
-        $collection = new Collection($this->connection, $this->name, $collectionName);
-        $collection
-            ->setReadConcern($this->readConcern)
-            ->setReadPreference($this->readPreference)
-            ->setWriteConcern($this->writeConcern);
-
-        return $collection;
-    }
-
-    /**
+     * @param string $collectionName
      * @param array $options
-     * @return \MongoDB\Driver\Cursor
+     * @return Collection
      */
-    public function drop(array $options = [])
+    public function selectCollection($collectionName, array $options = [])
     {
-        return $this->connection->dropDatabase($this->name, $options);
+        $options += [
+            'readConcern' => $this->readConcern,
+            'readPreference' => $this->readPreference,
+            'writeConcern' => $this->writeConcern,
+            'typeMap' => $this->typeMap,
+        ];
+
+        return new Collection($this->manager, $this->databaseName, $collectionName, $options);
     }
 }

@@ -3,9 +3,9 @@
 namespace Tequila\MongoDB\Options\Connection;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Tequila\MongoDB\Options\ConfigurableInterface;
+use Tequila\MongoDB\Options\OptionsInterface;
 
-class ReplicaSetOptions implements ConfigurableInterface
+class ReplicaSetOptions implements OptionsInterface
 {
     const REPLICA_SET = 'replicaSet';
 

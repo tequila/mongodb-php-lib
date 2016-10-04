@@ -2,7 +2,6 @@
 
 namespace Tequila\MongoDB;
 
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\Options\Indexes\IndexOptions;
 
@@ -11,7 +10,7 @@ class Index
     /**
      * @var array
      */
-    private $keys;
+    private $key;
 
     /**
      * @var array
@@ -19,45 +18,36 @@ class Index
     private $options;
 
     /**
-     * @var string
-     */
-    private $name;
-
-    /**
-     * @param array $keys
+     * @param array $key
      * @param array $options
      */
-    public function __construct(array $keys, array $options = [])
+    public function __construct(array $key, array $options = [])
     {
-        if (empty($keys)) {
-            throw new InvalidArgumentException('$keys array cannot be empty');
+        if (empty($key)) {
+            throw new InvalidArgumentException('$key document cannot be empty');
         }
 
-        $resolver = new OptionsResolver();
-        IndexOptions::configureOptions($resolver);
-
-        try {
-            $options = $resolver->resolve($options);
-        } catch(\Symfony\Component\OptionsResolver\Exception\InvalidArgumentException $e) {
-            throw new InvalidArgumentException($e->getMessage());
-        }
-
+        $options = IndexOptions::resolve($options);
 
         if (empty($options['name'])) {
-            $options['name'] = self::generateIndexName($options['key']);
+            $options['name'] = self::generateIndexName($key);
         }
 
-        $this->name = $options['name'];
-        $this->keys = $keys;
+        $this->key = $key;
         $this->options = $options;
+    }
+
+    public function __toString()
+    {
+        return $this->getName();
     }
 
     /**
      * @return array
      */
-    public function getKeys()
+    public function getKey()
     {
-        return $this->keys;
+        return $this->key;
     }
 
     /**
@@ -73,26 +63,21 @@ class Index
      */
     public function getName()
     {
-        return $this->name;
+        return $this->options['name'];
     }
 
     /**
-     * @param array $keys
+     * @param array $key
      * @return string
      */
-    public static function generateIndexName(array $keys)
+    public static function generateIndexName(array $key)
     {
         $nameParts = [];
-        foreach ($keys as $fieldName => $direction) {
+        foreach ($key as $fieldName => $direction) {
             $nameParts[] = $fieldName;
-            $nameParts[] = (string) $direction;
+            $nameParts[] = (string)$direction;
         }
 
         return implode('_', $nameParts);
-    }
-
-    public function __toString()
-    {
-        return $this->name;
     }
 }

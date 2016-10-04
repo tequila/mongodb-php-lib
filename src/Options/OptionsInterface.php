@@ -4,7 +4,7 @@ namespace Tequila\MongoDB\Options;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-interface ConfigurableInterface
+interface OptionsInterface
 {
     public static function configureOptions(OptionsResolver $resolver);
 }

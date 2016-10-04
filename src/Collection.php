@@ -2,7 +2,17 @@
 
 namespace Tequila\MongoDB;
 
+use MongoDB\Driver\Manager;
+use MongoDB\Driver\ReadConcern;
+use MongoDB\Driver\ReadPreference;
+use MongoDB\Driver\WriteConcern;
+use Tequila\MongoDB\BSON\BSONArray;
+use Tequila\MongoDB\Command\CreateIndexes;
+use Tequila\MongoDB\Command\DropCollection;
+use Tequila\MongoDB\Command\DropIndexes;
+use Tequila\MongoDB\Command\ListIndexes;
 use Tequila\MongoDB\Operation\Find;
+use Tequila\MongoDB\Options\DatabaseAndCollectionOptions;
 use Tequila\MongoDB\Write\Bulk\BulkWrite;
 use Tequila\MongoDB\Write\Bulk\BulkWriteOptions;
 use Tequila\MongoDB\Write\Model\DeleteMany;
@@ -19,12 +29,10 @@ use Tequila\MongoDB\Write\Result\UpdateResult;
 
 class Collection
 {
-    use Traits\ReadPreferenceAndConcernsTrait;
-
     /**
-     * @var Connection
+     * @var Manager
      */
-    private $connection;
+    private $manager;
 
     /**
      * @var string
@@ -34,18 +42,45 @@ class Collection
     /**
      * @var string
      */
-    private $name;
+    private $collectionName;
 
     /**
-     * @param Connection $connection
+     * @var ReadConcern|null
+     */
+    private $readConcern;
+
+    /**
+     * @var ReadPreference|null
+     */
+    private $readPreference;
+
+    /**
+     * @var WriteConcern|null
+     */
+    private $writeConcern;
+
+    /**
+     * @var array
+     */
+    private $typeMap;
+
+    /**
+     * @param Manager $manager
      * @param string $databaseName
      * @param string $collectionName
+     * @param array $options
      */
-    public function __construct(Connection $connection, $databaseName, $collectionName)
+    public function __construct(Manager $manager, $databaseName, $collectionName, array $options = [])
     {
-        $this->connection = $connection;
-        $this->databaseName = $databaseName;
-        $this->name = $collectionName;
+        $this->manager = $manager;
+        $this->databaseName = (string)$databaseName;
+        $this->collectionName = (string)$collectionName;
+
+        $options = DatabaseAndCollectionOptions::resolve($options, $manager);
+        $this->readConcern = $options['readConcern'];
+        $this->readPreference = $options['readPreference'];
+        $this->writeConcern = $options['writeConcern'];
+        $this->typeMap = $options['typeMap'];
     }
 
     /**
@@ -59,17 +94,52 @@ class Collection
     /**
      * @return string
      */
-    public function getName()
+    public function getCollectionName()
     {
-        return $this->name;
+        return $this->collectionName;
     }
 
     /**
+     * @param array $options
      * @return array
      */
-    public function drop()
+    public function drop(array $options = [])
     {
-        return $this->connection->dropCollection($this->databaseName, $this->name);
+        $command = new DropCollection($this->databaseName, $this->collectionName, $options);
+        $cursor = $command->execute($this->manager);
+
+        return current($cursor->toArray());
+    }
+
+    /**
+     * @param array $options
+     * @return array|object
+     */
+    public function dropIndexes(array $options = [])
+    {
+        $command = new DropIndexes($this->databaseName, $this->collectionName, '*', $options);
+        $cursor = $command->execute($this->manager);
+
+        return current($cursor->toArray());
+    }
+
+    /**
+     * @param string $indexName
+     * @param array $options
+     * @return array|object
+     */
+    public function dropIndex($indexName, array $options = [])
+    {
+        $command = new DropIndexes(
+            $this->databaseName,
+            $this->collectionName,
+            $indexName,
+            $options
+        );
+
+        $cursor = $command->execute($this->manager);
+
+        return current($cursor->toArray());
     }
 
     /**
@@ -79,10 +149,36 @@ class Collection
      */
     public function bulkWrite(array $requests, array $options = [])
     {
-        $options = $options + ['writeConcern' => $this->getWriteConcern()];
+        $options = $options + ['writeConcern' => $this->writeConcern];
         $bulk = new BulkWrite($requests, $options);
 
-        return $bulk->execute($this->connection, $this->databaseName, $this->name);
+        return $bulk->execute($this->manager, $this->databaseName, $this->collectionName);
+    }
+
+    /**
+     * @param Index[] $indexes
+     * @return string[]
+     */
+    public function createIndexes(array $indexes)
+    {
+        $command = new CreateIndexes($this->databaseName, $this->collectionName, $indexes);
+        $command->execute($this->manager);
+
+        return array_map(function(Index $index) {
+            return $index->getName();
+        }, $indexes);
+    }
+
+    /**
+     * @param array $key
+     * @param array $options
+     * @return string
+     */
+    public function createIndex(array $key, array $options = [])
+    {
+        $index = new Index($key, $options);
+
+        return current($this->createIndexes([$index]));
     }
 
     /**
@@ -94,7 +190,7 @@ class Collection
     {
         $operation = new Find($filter, $options);
 
-        return $operation->execute($this->connection, $this->databaseName, $this->name);
+        return $operation->execute($this->manager, $this->databaseName, $this->collectionName);
     }
 
     /**
@@ -104,7 +200,6 @@ class Collection
      */
     public function insertOne($document, array $options = [])
     {
-
         $model = new InsertOne($document);
         $bulkWriteResult = $this->bulkWrite([$model], $options);
 
@@ -155,6 +250,17 @@ class Collection
         $bulkWriteResult = $this->bulkWrite([$model], $bulkOptions);
 
         return new DeleteResult($bulkWriteResult);
+    }
+
+    /**
+     * @return array|BSONArray
+     */
+    public function listIndexes()
+    {
+        $command = new ListIndexes($this->databaseName, $this->collectionName);
+        $cursor = $command->execute($this->manager);
+
+        return $cursor->toArray();
     }
 
     /**

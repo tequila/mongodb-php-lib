@@ -4,10 +4,10 @@ namespace Tequila\MongoDB\Write\Bulk;
 
 use MongoDB\Driver\WriteConcern;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Tequila\MongoDB\Options\ConfigurableInterface;
+use Tequila\MongoDB\Options\OptionsInterface;
 use Tequila\MongoDB\Options\Traits\CachedResolverTrait;
 
-class BulkWriteOptions implements ConfigurableInterface
+class BulkWriteOptions implements OptionsInterface
 {
     use CachedResolverTrait;
 
@@ -23,10 +23,6 @@ class BulkWriteOptions implements ConfigurableInterface
             ->setAllowedTypes('bypassDocumentValidation', 'bool')
             ->setAllowedTypes('ordered', 'bool')
             ->setAllowedTypes('writeConcern', WriteConcern::class);
-
-        $resolver
-            ->setDefault('bypassDocumentValidation', true)
-            ->setDefault('ordered', true);
     }
 
     /**

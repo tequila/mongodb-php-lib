@@ -1,19 +1,20 @@
 <?php
 
-namespace Tequila\MongoDB\Command\Type;
+namespace Tequila\MongoDB\Command\Options;
 
 use Symfony\Component\OptionsResolver\Options;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Tequila\MongoDB\Command\CommandTypeInterface;
+use Tequila\MongoDB\Options\OptionsInterface;
+use Tequila\MongoDB\Options\Traits\CachedResolverTrait;
 
-class ListCollectionsType implements CommandTypeInterface
+class ListCollectionsOptions implements OptionsInterface
 {
-    use PrimaryReadPreferenceTrait;
+    use CachedResolverTrait;
 
     public static function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefault('listCollections', 1);
-        $resolver->setAllowedValues('listCollections', 1);
+        CommonOptions::configureOptions($resolver);
+
         $resolver->setDefined(['filter']);
         $resolver->setAllowedTypes('filter', ['array', 'object']);
         $resolver->setNormalizer('filter', function(Options $options, $value) {
@@ -33,10 +34,5 @@ class ListCollectionsType implements CommandTypeInterface
 
             return (object) $value;
         });
-    }
-    
-    public static function getCommandName()
-    {
-        return 'listCollections';
     }
 }

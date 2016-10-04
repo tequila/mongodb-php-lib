@@ -3,10 +3,13 @@
 namespace Tequila\MongoDB\Options\Indexes;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Tequila\MongoDB\Options\ConfigurableInterface;
+use Tequila\MongoDB\Options\OptionsInterface;
+use Tequila\MongoDB\Options\Traits\CachedResolverTrait;
 
-class IndexOptions implements ConfigurableInterface
+class IndexOptions implements OptionsInterface
 {
+    use CachedResolverTrait;
+
     public static function configureOptions(OptionsResolver $resolver)
     {
         $resolver->setDefined([
@@ -25,7 +28,7 @@ class IndexOptions implements ConfigurableInterface
             'bits',
             'min',
             'max',
-            'bucketSize'
+            'bucketSize',
         ]);
 
         $numberTypes = ['integer', 'float'];

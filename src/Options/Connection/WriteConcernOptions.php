@@ -4,10 +4,10 @@ namespace Tequila\MongoDB\Options\Connection;
 
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\OptionsResolver\Options;
-use Tequila\MongoDB\Options\ConfigurableInterface;
+use Tequila\MongoDB\Options\OptionsInterface;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 
-class WriteConcernOptions implements ConfigurableInterface
+class WriteConcernOptions implements OptionsInterface
 {
     const WRITE_CONCERN = 'w';
     const WRITE_CONCERN_TIMEOUT_MS = 'wtimeoutMS';
