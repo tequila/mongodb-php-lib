@@ -5,36 +5,79 @@ namespace Tequila\MongoDB;
 use MongoDB\Driver\Command;
 use MongoDB\Driver\Cursor;
 use MongoDB\Driver\Server;
+use Tequila\MongoDB\Exception\LogicException;
 use Tequila\MongoDB\Options\Driver\TypeMapOptions;
 
-class CommandCursor
+class CommandCursor implements \IteratorAggregate
 {
+    /**
+     * @var array
+     */
+    protected $arrayRepresentation;
+
+    /**
+     * @var string
+     */
+    protected $databaseName;
+
+    /**
+     * @var bool
+     */
+    protected $locked = false;
+
     /**
      * @var Cursor
      */
-    private $mongoCursor;
+    protected $mongoCursor;
 
     /**
      * @var array
      */
-    private $arrayRepresentation;
+    protected $options;
+
+    /**
+     * @var Server
+     */
+    protected $server;
+
+    /**
+     * @var array
+     */
+    protected $typeMap;
 
     /**
      * @param Server $server
-     * @param $databaseName
+     * @param string $databaseName
      * @param array $options
      */
     public function __construct(Server $server, $databaseName, array $options)
     {
         if (isset($options['typeMap'])) {
-            $typeMap = $options['typeMap'];
+            $this->typeMap = $options['typeMap'];
             unset($options['typeMap']);
         } else {
-            $typeMap = TypeMapOptions::getDefaultTypeMap();
+            $this->typeMap = TypeMapOptions::getDefaultTypeMap();
         }
 
-        $this->mongoCursor = $server->executeCommand($databaseName, new Command($options));
-        $this->mongoCursor->setTypeMap($typeMap);
+        $this->server = $server;
+        $this->databaseName = $databaseName;
+        $this->options = $options;
+
+        $this->initMongoCursor();
+    }
+
+    /**
+     * @return \Iterator
+     */
+    public function getIterator()
+    {
+        if (!$this->arrayRepresentation) {
+            return $this->createGenerator();
+        }
+
+        $this->locked = true;
+
+        return new \ArrayIterator($this->arrayRepresentation);
     }
 
     /**
@@ -42,7 +85,7 @@ class CommandCursor
      */
     public function getServer()
     {
-        return $this->mongoCursor->getServer();
+        return $this->server;
     }
 
     /**
@@ -58,10 +101,40 @@ class CommandCursor
      */
     public function toArray()
     {
+        if ($this->locked) {
+            throw new LogicException(
+                sprintf(
+                    'Method %s cannot be called after iteration over %s has began',
+                    __METHOD__,
+                    __CLASS__
+                )
+            );
+        }
+
         if (null === $this->arrayRepresentation) {
             $this->arrayRepresentation = $this->mongoCursor->toArray();
         }
 
         return $this->arrayRepresentation;
+    }
+
+    /**
+     * @return \Generator
+     */
+    protected function createGenerator()
+    {
+        foreach ($this->mongoCursor as $document) {
+            yield $document;
+        }
+    }
+
+    protected function initMongoCursor()
+    {
+        $this->mongoCursor = $this->server->executeCommand(
+            $this->databaseName,
+            new Command($this->options)
+        );
+
+        $this->mongoCursor->setTypeMap($this->typeMap);
     }
 }

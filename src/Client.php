@@ -68,7 +68,9 @@ class Client
             return $result['databases'];
         }
 
-        throw new UnexpectedResultException('listDatabases command did not return expected "databases" array');
+        throw new UnexpectedResultException(
+            'listDatabases command did not return expected "databases" array'
+        );
     }
 
     /**

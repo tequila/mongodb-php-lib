@@ -11,6 +11,7 @@ use Tequila\MongoDB\Command\CreateIndexes;
 use Tequila\MongoDB\Command\DropCollection;
 use Tequila\MongoDB\Command\DropIndexes;
 use Tequila\MongoDB\Command\ListIndexes;
+use Tequila\MongoDB\Operation\Aggregate;
 use Tequila\MongoDB\Operation\Find;
 use Tequila\MongoDB\Options\DatabaseAndCollectionOptions;
 use Tequila\MongoDB\Write\Bulk\BulkWrite;
@@ -81,6 +82,17 @@ class Collection
         $this->readPreference = $options['readPreference'];
         $this->writeConcern = $options['writeConcern'];
         $this->typeMap = $options['typeMap'];
+    }
+
+    public function aggregate(array $pipeline, array $options = [])
+    {
+        $defaults = [
+            'readConcern' => $this->readConcern,
+            'readPreference' => $this->readPreference,
+            'typeMap' => $this->typeMap,
+        ];
+
+        // TODO finish method
     }
 
     /**
@@ -188,6 +200,12 @@ class Collection
      */
     public function find($filter = [], array $options = [])
     {
+        $defaults = [
+            'readPreference' => $this->readPreference,
+            'readConcern' => $this->readConcern,
+            'typeMap' => $this->typeMap,
+        ];
+        $options = $options + $defaults;
         $operation = new Find($filter, $options);
 
         return $operation->execute($this->manager, $this->databaseName, $this->collectionName);
