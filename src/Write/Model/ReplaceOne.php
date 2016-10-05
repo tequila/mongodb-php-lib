@@ -39,7 +39,7 @@ class ReplaceOne implements WriteModelInterface
             throw new InvalidArgumentException(
                 sprintf(
                     '$replacement must be an array or an object, %s given',
-                    TypeUtil::getType($filter)
+                    TypeUtil::getType($replacement)
                 )
             );
         }

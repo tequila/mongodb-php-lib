@@ -28,8 +28,6 @@ trait EnsureValidUpdateTrait
             throw new InvalidArgumentException('$update cannot be empty');
         }
 
-
-
         try {
             self::getUpdateResolver()->resolve($update);
         } catch(OptionsResolverException $e) {
