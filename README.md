@@ -1,6 +1,6 @@
 # Tequila MongoDB PHP Library (driver library)
 
-The Tequila MongoDB project is a library, which provides the high-level abstraction around the new low-level [PHP MongoDB driver](https://github.com/mongodb/mongo-php-driver), e.g.
+The Tequila MongoDB library provides the high-level abstraction around the new low-level [PHP MongoDB driver](https://github.com/mongodb/mongo-php-driver), e.g.
 schema-management, abstractions around connections, databases, collections, indexes etc.
 
 The library works on PHP 5.6.0 or higher, PHP 7.0 or higher, MongoDB 3.2 or higher. It also requires the PHP `mongodb` extension (the MongoDB driver for PHP) to be installed.
