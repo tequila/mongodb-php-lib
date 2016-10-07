@@ -38,6 +38,15 @@ class TypeMapOptions implements OptionsInterface
         ];
     }
 
+    public static function getArrayTypeMap()
+    {
+        return [
+            'root' => 'array',
+            'document' => 'array',
+            'array' => 'array',
+        ];
+    }
+
     /**
      * @param string $fieldName
      * @return \Closure

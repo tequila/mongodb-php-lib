@@ -8,7 +8,7 @@ use MongoDB\Driver\ReadPreference;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\Util\TypeUtil;
 
-class Find implements OperationInterface
+class Find
 {
     /**
      * @var array|object

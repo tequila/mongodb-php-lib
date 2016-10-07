@@ -3,9 +3,9 @@
 namespace Tequila\MongoDB;
 
 use MongoDB\Driver\Manager;
-use Tequila\MongoDB\BSON\BSONDocument;
 use Tequila\MongoDB\Command\DropDatabase;
 use Tequila\MongoDB\Command\ListDatabases;
+use Tequila\MongoDB\Command\Result\DatabaseInfo;
 use Tequila\MongoDB\Exception\UnexpectedResultException;
 use Tequila\MongoDB\Options\Connection\ConnectionOptions;
 use Tequila\MongoDB\Options\Driver\DriverOptions;
@@ -46,34 +46,36 @@ class Client
     }
 
     /**
-     * @param $databaseName
+     * @param string $databaseName
      * @param array $options
-     * @return BSONDocument
+     * @return array
      */
     public function dropDatabase($databaseName, array $options = [])
     {
         $command = new DropDatabase($databaseName, $options);
         $cursor = $command->execute($this->manager);
-        $cursor->setTypeMap(TypeMapOptions::getDefaultTypeMap());
+        $cursor->setTypeMap(TypeMapOptions::getArrayTypeMap());
 
         return current($cursor->toArray());
     }
 
     /**
-     * @return array
+     * @return DatabaseInfo[]
      */
     public function listDatabases()
     {
         $cursor = (new ListDatabases())->execute($this->manager);
-        $cursor->setTypeMap(TypeMapOptions::getDefaultTypeMap());
+        $cursor->setTypeMap(TypeMapOptions::getArrayTypeMap());
         $result = current($cursor->toArray());
 
-        if (isset($result['databases']) && is_array($result['databases'])) {
-            return $result['databases'];
+        if (!isset($result['databases']) && is_array($result['databases'])) {
+            return array_map(function(array $dbInfo) {
+                return new DatabaseInfo($dbInfo);
+            }, $result['databases']);
         }
 
         throw new UnexpectedResultException(
-            'listDatabases command did not return expected "databases" array'
+            'Command listDatabases did not return expected "databases" array'
         );
     }
 
