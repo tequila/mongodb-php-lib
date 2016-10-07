@@ -3,7 +3,6 @@
 namespace Tequila\MongoDB\Command;
 
 use MongoDB\Driver\Manager;
-use Tequila\MongoDB\CommandCursor;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\Index;
 use Tequila\MongoDB\Util\TypeUtil;
@@ -58,15 +57,11 @@ class CreateIndexes implements CommandInterface
 
     public function execute(Manager $manager)
     {
-        $commandOptions = [
+        $options = [
             'createIndexes' => $this->collectionName,
             'indexes' => $this->indexes,
         ];
 
-        return new CommandCursor(
-            $this->selectPrimaryServer($manager),
-            $this->databaseName,
-            $commandOptions
-        );
+        return $this->executeOnPrimaryServer($manager, $this->databaseName, $options);
     }
 }

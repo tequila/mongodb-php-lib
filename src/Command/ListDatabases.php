@@ -3,7 +3,6 @@
 namespace Tequila\MongoDB\Command;
 
 use MongoDB\Driver\Manager;
-use Tequila\MongoDB\CommandCursor;
 
 class ListDatabases implements CommandInterface
 {
@@ -20,6 +19,6 @@ class ListDatabases implements CommandInterface
             ],
         ];
 
-        return new CommandCursor($this->selectPrimaryServer($manager), 'admin', $options);
+        return $this->executeOnPrimaryServer($manager, 'admin', $options);
     }
 }

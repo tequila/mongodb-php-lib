@@ -17,8 +17,6 @@ class CreateCollectionOptions implements OptionsInterface
      */
     public static function configureOptions(OptionsResolver $resolver)
     {
-        CommonOptions::configureOptions($resolver);
-
         $resolver->setDefined([
             'capped',
             'size',

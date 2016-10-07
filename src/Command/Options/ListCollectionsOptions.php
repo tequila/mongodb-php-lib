@@ -13,8 +13,6 @@ class ListCollectionsOptions implements OptionsInterface
 
     public static function configureOptions(OptionsResolver $resolver)
     {
-        CommonOptions::configureOptions($resolver);
-
         $resolver->setDefined(['filter']);
         $resolver->setAllowedTypes('filter', ['array', 'object']);
         $resolver->setNormalizer('filter', function(Options $options, $value) {

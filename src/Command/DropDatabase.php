@@ -3,8 +3,6 @@
 namespace Tequila\MongoDB\Command;
 
 use MongoDB\Driver\Manager;
-use Tequila\MongoDB\Command\Options\CommonOptions;
-use Tequila\MongoDB\CommandCursor;
 
 class DropDatabase implements CommandInterface
 {
@@ -27,13 +25,13 @@ class DropDatabase implements CommandInterface
     public function __construct($databaseName, array $options = [])
     {
         $this->databaseName = (string)$databaseName;
-        $this->options = CommonOptions::resolve($options);
+        $this->options = $options;
     }
 
     public function execute(Manager $manager)
     {
         $options = ['dropDatabase' => 1] + $this->options;
 
-        return new CommandCursor($this->selectPrimaryServer($manager), $this->databaseName, $options);
+        return $this->executeOnPrimaryServer($manager, $this->databaseName, $options);
     }
 }

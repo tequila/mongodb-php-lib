@@ -3,8 +3,6 @@
 namespace Tequila\MongoDB\Command;
 
 use MongoDB\Driver\Manager;
-use Tequila\MongoDB\Command\Options\CommonOptions;
-use Tequila\MongoDB\CommandCursor;
 
 class DropCollection implements CommandInterface
 {
@@ -34,13 +32,13 @@ class DropCollection implements CommandInterface
     {
         $this->databaseName = (string)$databaseName;
         $this->collectionName = (string)$collectionName;
-        $this->options = CommonOptions::resolve($options);
+        $this->options = $options;
     }
 
     public function execute(Manager $manager)
     {
         $options = ['drop' => $this->collectionName] + $this->options;
 
-        return new CommandCursor($this->selectPrimaryServer($manager), $this->databaseName, $options);
+        return $this->executeOnPrimaryServer($manager, $this->databaseName, $options);
     }
 }

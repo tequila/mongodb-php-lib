@@ -4,7 +4,6 @@ namespace Tequila\MongoDB\Command;
 
 use MongoDB\Driver\Manager;
 use Tequila\MongoDB\Command\Options\CreateCollectionOptions;
-use Tequila\MongoDB\CommandCursor;
 
 class CreateCollection implements CommandInterface
 {
@@ -41,6 +40,6 @@ class CreateCollection implements CommandInterface
     {
         $options = ['create' => $this->collectionName] + $this->options;
 
-        return new CommandCursor($this->selectPrimaryServer($manager), $this->databaseName, $options);
+        return $this->executeOnPrimaryServer($manager, $this->databaseName, $options);
     }
 }

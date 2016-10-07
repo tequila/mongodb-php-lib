@@ -9,7 +9,7 @@ interface CommandInterface
 {
     /**
      * @param Manager $manager
-     * @return CommandCursor
+     * @return \MongoDB\Driver\Cursor
      */
     public function execute(Manager $manager);
 }

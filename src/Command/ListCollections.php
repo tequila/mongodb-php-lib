@@ -4,7 +4,6 @@ namespace Tequila\MongoDB\Command;
 
 use MongoDB\Driver\Manager;
 use Tequila\MongoDB\Command\Options\ListCollectionsOptions;
-use Tequila\MongoDB\CommandCursor;
 
 class ListCollections implements CommandInterface
 {
@@ -34,6 +33,6 @@ class ListCollections implements CommandInterface
     {
         $options = ['listCollections' => 1] + $this->options;
 
-        return new CommandCursor($this->selectPrimaryServer($manager), $this->databaseName, $options);
+        return $this->executeOnPrimaryServer($manager, $this->databaseName, $options);
     }
 }

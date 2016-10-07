@@ -4,7 +4,6 @@ namespace Tequila\MongoDB\Command;
 
 use MongoDB\Driver\Manager;
 use Tequila\MongoDB\Command\Traits\SelectPrimaryServerTrait;
-use Tequila\MongoDB\CommandCursor;
 
 class ListIndexes implements CommandInterface
 {
@@ -34,10 +33,6 @@ class ListIndexes implements CommandInterface
     {
         $options = ['listIndexes' => $this->collectionName];
 
-        return new CommandCursor(
-            $this->selectPrimaryServer($manager),
-            $this->databaseName,
-            $options
-        );
+        return $this->executeOnPrimaryServer($manager, $this->databaseName, $options);
     }
 }

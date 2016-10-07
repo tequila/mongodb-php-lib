@@ -6,11 +6,13 @@ use MongoDB\Driver\Manager;
 use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
 use MongoDB\Driver\WriteConcern;
+use Tequila\MongoDB\BSON\BSONDocument;
 use Tequila\MongoDB\Command\CreateCollection;
 use Tequila\MongoDB\Command\DropCollection;
 use Tequila\MongoDB\Command\DropDatabase;
 use Tequila\MongoDB\Command\ListCollections;
 use Tequila\MongoDB\Options\DatabaseAndCollectionOptions;
+use Tequila\MongoDB\Options\Driver\TypeMapOptions;
 
 class Database
 {
@@ -74,25 +76,26 @@ class Database
     /**
      * @param string $collectionName
      * @param array $options
-     * @return array|object
+     * @return BSONDocument
      */
     public function createCollection($collectionName, array $options = [])
     {
         $command = new CreateCollection($this->databaseName, $collectionName, $options);
-
         $cursor = $command->execute($this->manager);
+        $cursor->setTypeMap(TypeMapOptions::getDefaultTypeMap());
 
         return current($cursor->toArray());
     }
 
     /**
      * @param array $options
-     * @return array|object
+     * @return BSONDocument
      */
     public function drop(array $options = [])
     {
         $command = new DropDatabase($this->databaseName, $options);
         $cursor = $command->execute($this->manager);
+        $cursor->setTypeMap(TypeMapOptions::getDefaultTypeMap());
 
         return current($cursor->toArray());
     }
@@ -100,12 +103,13 @@ class Database
     /**
      * @param string $collectionName
      * @param array $options
-     * @return array|object
+     * @return BSONDocument
      */
     public function dropCollection($collectionName, array $options = [])
     {
         $command = new DropCollection($this->databaseName, $collectionName, $options);
         $cursor = $command->execute($this->manager);
+        $cursor->setTypeMap(TypeMapOptions::getDefaultTypeMap());
 
         return current($cursor->toArray());
     }
@@ -118,6 +122,7 @@ class Database
     {
         $command = new ListCollections($this->databaseName, $options);
         $cursor = $command->execute($this->manager);
+        $cursor->setTypeMap(TypeMapOptions::getDefaultTypeMap());
 
         return $cursor->toArray();
     }
