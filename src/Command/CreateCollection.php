@@ -7,7 +7,7 @@ use Tequila\MongoDB\Command\Options\CreateCollectionOptions;
 
 class CreateCollection implements CommandInterface
 {
-    use Traits\SelectPrimaryServerTrait;
+    use Traits\PrimaryServerTrait;
 
     /**
      * @var string

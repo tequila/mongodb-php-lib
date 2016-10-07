@@ -9,7 +9,7 @@ use Tequila\MongoDB\Util\TypeUtil;
 
 class CreateIndexes implements CommandInterface
 {
-    use Traits\SelectPrimaryServerTrait;
+    use Traits\PrimaryServerTrait;
 
     /**
      * @var string

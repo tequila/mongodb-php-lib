@@ -3,11 +3,11 @@
 namespace Tequila\MongoDB\Command;
 
 use MongoDB\Driver\Manager;
-use Tequila\MongoDB\Command\Traits\SelectPrimaryServerTrait;
+use Tequila\MongoDB\Command\Traits\PrimaryServerTrait;
 
 class ListIndexes implements CommandInterface
 {
-    use SelectPrimaryServerTrait;
+    use PrimaryServerTrait;
 
     /**
      * @var string

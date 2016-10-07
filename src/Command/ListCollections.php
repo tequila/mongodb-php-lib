@@ -7,7 +7,7 @@ use Tequila\MongoDB\Command\Options\ListCollectionsOptions;
 
 class ListCollections implements CommandInterface
 {
-    use Traits\SelectPrimaryServerTrait;
+    use Traits\PrimaryServerTrait;
 
     /**
      * @var string

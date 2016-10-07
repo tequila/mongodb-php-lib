@@ -6,7 +6,7 @@ use MongoDB\Driver\Manager;
 
 class ListDatabases implements CommandInterface
 {
-    use Traits\SelectPrimaryServerTrait;
+    use Traits\PrimaryServerTrait;
 
     public function execute(Manager $manager)
     {

@@ -3,7 +3,6 @@
 namespace Tequila\MongoDB\Command;
 
 use MongoDB\Driver\Manager;
-use Tequila\MongoDB\CommandCursor;
 
 interface CommandInterface
 {
