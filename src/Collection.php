@@ -11,7 +11,6 @@ use Tequila\MongoDB\Command\CreateIndexes;
 use Tequila\MongoDB\Command\DropCollection;
 use Tequila\MongoDB\Command\DropIndexes;
 use Tequila\MongoDB\Command\ListIndexes;
-use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\Operation\Find;
 use Tequila\MongoDB\Options\DatabaseAndCollectionOptions;
 use Tequila\MongoDB\Options\Driver\TypeMapOptions;
@@ -95,24 +94,12 @@ class Collection
         $defaults = [
             'readConcern' => $this->readConcern,
             'readPreference' => $this->readPreference,
+            'typeMap' => $this->typeMap,
         ];
-
-        if (isset($options['typeMap'])) {
-            if (!is_array($options['typeMap'])) {
-                throw new InvalidArgumentException('Option "typeMap" must be an array');
-            }
-
-            $typeMap = TypeMapOptions::resolve($options['typeMap']);
-            unset($options['typeMap']);
-        }
 
         $options += $defaults;
         $command = new Aggregate($this->databaseName, $this->collectionName, $pipeline, $options);
         $cursor = $command->execute($this->manager);
-
-        if (isset($typeMap)) {
-            $cursor->setTypeMap($typeMap);
-        }
 
         return $cursor;
     }
@@ -230,7 +217,7 @@ class Collection
             'readConcern' => $this->readConcern,
             'typeMap' => $this->typeMap,
         ];
-        $options = $options + $defaults;
+        $options += $defaults;
         $operation = new Find($filter, $options);
 
         return $operation->execute($this->manager, $this->databaseName, $this->collectionName);

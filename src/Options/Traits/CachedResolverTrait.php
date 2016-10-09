@@ -2,9 +2,7 @@
 
 namespace Tequila\MongoDB\Options\Traits;
 
-use Symfony\Component\OptionsResolver\Exception\InvalidArgumentException as OptionsResolverException;
-use Symfony\Component\OptionsResolver\OptionsResolver;
-use Tequila\MongoDB\Exception\InvalidArgumentException;
+use Tequila\MongoDB\Options\OptionsResolver;
 
 trait CachedResolverTrait
 {
@@ -19,15 +17,7 @@ trait CachedResolverTrait
      */
     public static function resolve(array $options)
     {
-        try {
-            $options = self::getResolver()->resolve($options);
-
-            return array_filter($options, function($optionValue) {
-                return null !== $optionValue; // ability to delete option by setting it to null
-            });
-        } catch (OptionsResolverException $e) {
-            throw new InvalidArgumentException($e->getMessage());
-        }
+        return self::getResolver()->resolve($options);
     }
 
     /**

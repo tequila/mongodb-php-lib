@@ -7,7 +7,6 @@ use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
 use MongoDB\Driver\WriteConcern;
 use Symfony\Component\OptionsResolver\Options;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tequila\MongoDB\Options\Driver\TypeMapOptions;
 
 class DatabaseAndCollectionOptions implements OptionsInterface
