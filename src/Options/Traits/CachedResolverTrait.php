@@ -20,7 +20,11 @@ trait CachedResolverTrait
     public static function resolve(array $options)
     {
         try {
-            return self::getResolver()->resolve($options);
+            $options = self::getResolver()->resolve($options);
+
+            return array_filter($options, function($optionValue) {
+                return null !== $optionValue; // ability to delete option by setting it to null
+            });
         } catch (OptionsResolverException $e) {
             throw new InvalidArgumentException($e->getMessage());
         }

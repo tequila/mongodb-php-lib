@@ -6,10 +6,12 @@ use MongoDB\Driver\Manager;
 use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
 use MongoDB\Driver\WriteConcern;
+use Tequila\MongoDB\Command\Aggregate;
 use Tequila\MongoDB\Command\CreateIndexes;
 use Tequila\MongoDB\Command\DropCollection;
 use Tequila\MongoDB\Command\DropIndexes;
 use Tequila\MongoDB\Command\ListIndexes;
+use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\Operation\Find;
 use Tequila\MongoDB\Options\DatabaseAndCollectionOptions;
 use Tequila\MongoDB\Options\Driver\TypeMapOptions;
@@ -83,15 +85,36 @@ class Collection
         $this->typeMap = $options['typeMap'];
     }
 
+    /**
+     * @param array $pipeline
+     * @param array $options
+     * @return \MongoDB\Driver\Cursor aggregation cursor
+     */
     public function aggregate(array $pipeline, array $options = [])
     {
         $defaults = [
             'readConcern' => $this->readConcern,
             'readPreference' => $this->readPreference,
-            'typeMap' => $this->typeMap,
         ];
 
-        // TODO finish method
+        if (isset($options['typeMap'])) {
+            if (!is_array($options['typeMap'])) {
+                throw new InvalidArgumentException('Option "typeMap" must be an array');
+            }
+
+            $typeMap = TypeMapOptions::resolve($options['typeMap']);
+            unset($options['typeMap']);
+        }
+
+        $options += $defaults;
+        $command = new Aggregate($this->databaseName, $this->collectionName, $pipeline, $options);
+        $cursor = $command->execute($this->manager);
+
+        if (isset($typeMap)) {
+            $cursor->setTypeMap($typeMap);
+        }
+
+        return $cursor;
     }
 
     /**

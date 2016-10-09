@@ -27,6 +27,8 @@ class DatabaseAndCollectionOptions implements OptionsInterface
             ->setAllowedTypes('writeConcern', WriteConcern::class)
             ->setAllowedTypes('typeMap', 'array');
 
+        $resolver->setDefault('typeMap', TypeMapOptions::getDefaultTypeMap());
+
         $resolver->setNormalizer('typeMap', function(Options $options, array $typeMap) {
             return TypeMapOptions::resolve($typeMap);
         });

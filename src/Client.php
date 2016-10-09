@@ -3,6 +3,7 @@
 namespace Tequila\MongoDB;
 
 use MongoDB\Driver\Manager;
+use Tequila\MongoDB\Command\CommandInterface;
 use Tequila\MongoDB\Command\DropDatabase;
 use Tequila\MongoDB\Command\ListDatabases;
 use Tequila\MongoDB\Command\Result\DatabaseInfo;
@@ -33,7 +34,7 @@ class Client
      * @param array $uriOptions
      * @param array $driverOptions
      */
-    public function __construct($uri = 'mongodb://localhost:27017', array $uriOptions = [], array $driverOptions = [])
+    public function __construct($uri = 'mongodb://127.0.0.1/', array $uriOptions = [], array $driverOptions = [])
     {
         $uriOptions = ConnectionOptions::resolve($uriOptions);
         $driverOptions = DriverOptions::resolve($driverOptions);
@@ -75,8 +76,17 @@ class Client
         }
 
         throw new UnexpectedResultException(
-            'Command listDatabases did not return expected "databases" array'
+            'Command "listDatabases" did not return expected "databases" array'
         );
+    }
+
+    /**
+     * @param CommandInterface $command
+     * @return \MongoDB\Driver\Cursor
+     */
+    public function runCommand(CommandInterface $command)
+    {
+        return $command->execute($this->manager);
     }
 
     /**

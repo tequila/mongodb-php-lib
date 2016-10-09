@@ -22,7 +22,7 @@ trait BulkUpdateTrait
     private $options;
 
     /**
-     * @see \Tequila\MongoDB\WriteModel\WriteModelInterface::writeToBulk()
+     * @see \Tequila\MongoDB\Write\Model\WriteModelInterface::writeToBulk()
      *
      * @param \Tequila\MongoDB\Write\Bulk\BulkWrite $bulk
      */

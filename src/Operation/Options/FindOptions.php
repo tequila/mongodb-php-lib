@@ -5,8 +5,8 @@ namespace Tequila\MongoDB\Operation\Options;
 use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Tequila\MongoDB\Options\OptionsInterface;
 use Tequila\MongoDB\Options\Driver\TypeMapOptions;
+use Tequila\MongoDB\Options\OptionsInterface;
 use Tequila\MongoDB\Options\Traits\CachedResolverTrait;
 
 class FindOptions implements OptionsInterface
@@ -64,7 +64,6 @@ class FindOptions implements OptionsInterface
 
     public static function configureOptions(OptionsResolver $resolver)
     {
-        TypeMapOptions::configureOptions($resolver);
         $resolver->setDefined([
             'allowPartialResults',
             'awaitData',
@@ -93,16 +92,10 @@ class FindOptions implements OptionsInterface
             ->setAllowedTypes('batchSize', 'integer')
             ->setAllowedTypes('collation', 'string')
             ->setAllowedTypes('comment', 'string')
-            ->setAllowedValues('cursorType', [
-                self::CURSOR_TYPE_NON_TAILABLE,
-                self::CURSOR_TYPE_TAILABLE,
-                self::CURSOR_TYPE_TAILABLE_AWAIT,
-            ])
             ->setAllowedTypes('exhaust', 'bool')
             ->setAllowedTypes('limit', 'integer')
             ->setAllowedTypes('maxTimeMS', 'integer')
             ->setAllowedTypes('modifiers', ['array', 'object'])
-            ->setDefault('modifiers', [])
             ->setAllowedTypes('noCursorTimeout', 'bool')
             ->setAllowedTypes('oplogReplay', 'bool')
             ->setAllowedTypes('projection', ['array', 'object'])
@@ -111,5 +104,15 @@ class FindOptions implements OptionsInterface
             ->setAllowedTypes('skip', 'integer')
             ->setAllowedTypes('sort', ['array', 'object'])
             ->setAllowedTypes('typeMap', 'array');
+
+        $resolver->setAllowedValues('cursorType', [
+            self::CURSOR_TYPE_NON_TAILABLE,
+            self::CURSOR_TYPE_TAILABLE,
+            self::CURSOR_TYPE_TAILABLE_AWAIT,
+        ]);
+
+        $resolver
+            ->setDefault('modifiers', [])
+            ->setDefault('typeMap', TypeMapOptions::getDefaultTypeMap());
     }
 }
