@@ -3,7 +3,7 @@
 The Tequila MongoDB PHP library provides the high-level abstraction around the new low-level [PHP MongoDB driver](https://github.com/mongodb/mongo-php-driver), e.g.
 schema-management, abstractions around connections, databases, collections, indexes etc.
 
-This library follows the [MongoDB Driver Specifications](https://github.com/mongodb/specifications), and it's API is quite similar to the API of the official [MongoDB PHP Library](https://github.com/mongodb/mongo-php-driver).
+This library follows the [MongoDB Driver Specifications](https://github.com/mongodb/specifications), and it's API is quite similar to the API of the official [MongoDB PHP Library](https://github.com/mongodb/mongo-php-library).
 There are also differences with official lib API and implementation:
 - Better bulk write API and implementation - this lib has "write models", more consistent implementation of the write results and makes more strict input validation.
 - This library is MIT-licensed.
