@@ -3,7 +3,6 @@
 namespace Tequila\MongoDB\Options;
 
 use Symfony\Component\OptionsResolver\Options;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tequila\MongoDB\Options\Driver\TypeMapOptions;
 use Tequila\MongoDB\Options\Traits\CachedResolverTrait;
 
