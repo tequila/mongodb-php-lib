@@ -98,6 +98,16 @@ class Aggregate implements CommandInterface
         $this->configureOptions($resolver);
         $options = $resolver->resolve($options);
 
+        if (isset($options['readConcern'])) {
+            /** @var ReadConcern $readConcern */
+            $readConcern = $options['readConcern'];
+            if (null === $readConcern->getLevel() || ($this->hasOutStage() && ReadConcern::MAJORITY === $readConcern->getLevel())) {
+                unset($options['readConcern']);
+            } else {
+                $options['readConcern'] = ['level' => $readConcern->getLevel()];
+            }
+        }
+
         $this->readPreference = isset($this->options['readPreference']) ? $this->options['readPreference'] : null;
         unset($options['readPreference']);
 
@@ -154,20 +164,8 @@ class Aggregate implements CommandInterface
             return $batchSize;
         });
 
-        $resolver->setNormalizer('readConcern', function(Options $options, ReadConcern $readConcern) {
-            if (null === $readConcern->getLevel() ) {
-                return null;
-            }
-
-            if ($this->hasOutStage() && ReadConcern::MAJORITY === $readConcern->getLevel()) {
-                return null;
-            }
-
-            return ['level' => $readConcern->getLevel()];
-        });
-
         $resolver->setNormalizer('readPreference', function(Options $options, ReadPreference $readPreference) {
-            if ($this->hasOutStage()) {
+            if ($this->hasOutStage() && ReadPreference::RP_PRIMARY !== $readPreference->getMode()) {
                 return new ReadPreference(ReadPreference::RP_PRIMARY);
             }
 

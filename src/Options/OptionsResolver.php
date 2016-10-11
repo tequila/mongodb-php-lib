@@ -10,11 +10,7 @@ class OptionsResolver extends \Symfony\Component\OptionsResolver\OptionsResolver
     public function resolve(array $options = array())
     {
         try {
-            $options = parent::resolve($options);
-
-            return array_filter($options, function($optionValue) {
-                return null !== $optionValue; // ability to delete option by setting it to null
-            });
+            return parent::resolve($options);
         } catch (OptionsResolverException $e) {
             throw new InvalidArgumentException($e->getMessage());
         }

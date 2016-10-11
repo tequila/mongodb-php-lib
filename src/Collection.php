@@ -13,8 +13,6 @@ use Tequila\MongoDB\Command\DropIndexes;
 use Tequila\MongoDB\Command\ListIndexes;
 use Tequila\MongoDB\Operation\Find;
 use Tequila\MongoDB\Options\CollectionOptions;
-use Tequila\MongoDB\Options\DatabaseOptions;
-use Tequila\MongoDB\Options\Driver\TypeMapOptions;
 use Tequila\MongoDB\Write\Bulk\BulkWrite;
 use Tequila\MongoDB\Write\Bulk\BulkWriteOptions;
 use Tequila\MongoDB\Write\Model\DeleteMany;
@@ -129,7 +127,6 @@ class Collection
     {
         $command = new DropCollection($this->databaseName, $this->collectionName, $options);
         $cursor = $command->execute($this->manager);
-        $cursor->setTypeMap(TypeMapOptions::getDefaults());
 
         return current($cursor->toArray());
     }
@@ -142,7 +139,6 @@ class Collection
     {
         $command = new DropIndexes($this->databaseName, $this->collectionName, '*', $options);
         $cursor = $command->execute($this->manager);
-        $cursor->setTypeMap(TypeMapOptions::getDefaults());
 
         return current($cursor->toArray());
     }
@@ -162,7 +158,6 @@ class Collection
         );
 
         $cursor = $command->execute($this->manager);
-        $cursor->setTypeMap(TypeMapOptions::getDefaults());
 
         return current($cursor->toArray());
     }
@@ -290,7 +285,6 @@ class Collection
     {
         $command = new ListIndexes($this->databaseName, $this->collectionName);
         $cursor = $command->execute($this->manager);
-        $cursor->setTypeMap(TypeMapOptions::getDefaults());
 
         return $cursor->toArray();
     }

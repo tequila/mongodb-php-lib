@@ -5,6 +5,7 @@ namespace Tequila\MongoDB\Command\Traits;
 use MongoDB\Driver\Command;
 use MongoDB\Driver\Manager;
 use MongoDB\Driver\ReadPreference;
+use Tequila\MongoDB\Options\Driver\TypeMapOptions;
 
 trait PrimaryServerTrait
 {
@@ -18,6 +19,9 @@ trait PrimaryServerTrait
     {
         $server = $manager->selectServer(new ReadPreference(ReadPreference::RP_PRIMARY));
 
-        return $server->executeCommand($databaseName, new Command($options));
+        $cursor = $server->executeCommand($databaseName, new Command($options));
+        $cursor->setTypeMap(TypeMapOptions::getDefaults());
+
+        return $cursor;
     }
 }
