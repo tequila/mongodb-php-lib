@@ -11,7 +11,7 @@ use Tequila\MongoDB\Command\CreateCollection;
 use Tequila\MongoDB\Command\DropCollection;
 use Tequila\MongoDB\Command\DropDatabase;
 use Tequila\MongoDB\Command\ListCollections;
-use Tequila\MongoDB\Options\DatabaseAndCollectionOptions;
+use Tequila\MongoDB\Options\DatabaseOptions;
 use Tequila\MongoDB\Options\Driver\TypeMapOptions;
 
 class Database
@@ -42,11 +42,6 @@ class Database
     private $writeConcern;
 
     /**
-     * @var array
-     */
-    private $typeMap;
-
-    /**
      * @param Manager $manager
      * @param string $databaseName
      * @param array $options
@@ -57,12 +52,17 @@ class Database
         $this->manager = $manager;
         $this->databaseName = $databaseName;
 
-        $options = DatabaseAndCollectionOptions::resolve($options, $manager);
+        $options += [
+            'readConcern' => $this->manager->getReadConcern(),
+            'readPreference' => $this->manager->getReadPreference(),
+            'writeConcern' => $this->manager->getWriteConcern(),
+        ];
+
+        $options = DatabaseOptions::resolve($options);
 
         $this->readConcern = $options['readConcern'];
         $this->readPreference = $options['readPreference'];
         $this->writeConcern = $options['writeConcern'];
-        $this->typeMap = $options['typeMap'];
     }
 
     /**
@@ -138,7 +138,6 @@ class Database
             'readConcern' => $this->readConcern,
             'readPreference' => $this->readPreference,
             'writeConcern' => $this->writeConcern,
-            'typeMap' => $this->typeMap,
         ];
 
         return new Collection($this->manager, $this->databaseName, $collectionName, $options);

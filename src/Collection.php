@@ -14,7 +14,8 @@ use Tequila\MongoDB\Command\DropIndexes;
 use Tequila\MongoDB\Command\ListIndexes;
 use Tequila\MongoDB\Operation\Aggregate;
 use Tequila\MongoDB\Operation\Find;
-use Tequila\MongoDB\Options\DatabaseAndCollectionOptions;
+use Tequila\MongoDB\Options\CollectionOptions;
+use Tequila\MongoDB\Options\DatabaseOptions;
 use Tequila\MongoDB\Options\Driver\TypeMapOptions;
 use Tequila\MongoDB\Write\Bulk\BulkWrite;
 use Tequila\MongoDB\Write\Bulk\BulkWriteOptions;
@@ -79,7 +80,7 @@ class Collection
         $this->databaseName = (string)$databaseName;
         $this->collectionName = (string)$collectionName;
 
-        $options = DatabaseAndCollectionOptions::resolve($options, $manager);
+        $options = CollectionOptions::resolve($options);
         $this->readConcern = $options['readConcern'];
         $this->readPreference = $options['readPreference'];
         $this->writeConcern = $options['writeConcern'];

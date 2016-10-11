@@ -8,7 +8,6 @@ use Tequila\MongoDB\Command\DropDatabase;
 use Tequila\MongoDB\Command\ListDatabases;
 use Tequila\MongoDB\Exception\UnexpectedResultException;
 use Tequila\MongoDB\Options\Connection\ConnectionOptions;
-use Tequila\MongoDB\Options\Driver\DriverOptions;
 use Tequila\MongoDB\Options\Driver\TypeMapOptions;
 
 class Client
@@ -24,11 +23,6 @@ class Client
     private $uri;
 
     /**
-     * @var array
-     */
-    private $typeMap;
-
-    /**
      * @param string $uri
      * @param array $uriOptions
      * @param array $driverOptions
@@ -36,10 +30,6 @@ class Client
     public function __construct($uri = 'mongodb://localhost:27017', array $uriOptions = [], array $driverOptions = [])
     {
         $uriOptions = ConnectionOptions::resolve($uriOptions);
-        $driverOptions = DriverOptions::resolve($driverOptions);
-
-        $this->typeMap = $driverOptions['typeMap'];
-        unset($driverOptions['typeMap']);
 
         $this->uri = $uri;
         $this->manager = new Manager((string)$uri, $uriOptions, $driverOptions);
@@ -85,8 +75,6 @@ class Client
      */
     public function selectCollection($databaseName, $collectionName, array $options = [])
     {
-        $options += ['typeMap' => $this->typeMap];
-
         return new Collection($this->manager, $databaseName, $collectionName, $options);
     }
 
@@ -97,8 +85,6 @@ class Client
      */
     public function selectDatabase($databaseName, array $options = [])
     {
-        $options += ['typeMap' => $this->typeMap];
-
         return new Database($this->manager, $databaseName, $options);
     }
 }

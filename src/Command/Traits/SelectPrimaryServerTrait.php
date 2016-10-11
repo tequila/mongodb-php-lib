@@ -10,7 +10,7 @@ trait SelectPrimaryServerTrait
 {
     /**
      * @param Manager $manager
-     * @return \MongoDB\Driver\Server
+     * @return \MongoDB\Driver\Cursor
      */
     private function executeOnPrimaryServer(Manager $manager, $databaseName, array $options)
     {
