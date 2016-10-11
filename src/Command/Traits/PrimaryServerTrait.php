@@ -6,10 +6,12 @@ use MongoDB\Driver\Command;
 use MongoDB\Driver\Manager;
 use MongoDB\Driver\ReadPreference;
 
-trait SelectPrimaryServerTrait
+trait PrimaryServerTrait
 {
     /**
      * @param Manager $manager
+     * @param string $databaseName
+     * @param array $options
      * @return \MongoDB\Driver\Cursor
      */
     private function executeOnPrimaryServer(Manager $manager, $databaseName, array $options)

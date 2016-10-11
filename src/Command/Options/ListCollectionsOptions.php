@@ -3,8 +3,8 @@
 namespace Tequila\MongoDB\Command\Options;
 
 use Symfony\Component\OptionsResolver\Options;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tequila\MongoDB\Options\OptionsInterface;
+use Tequila\MongoDB\Options\OptionsResolver;
 use Tequila\MongoDB\Options\Traits\CachedResolverTrait;
 
 class ListCollectionsOptions implements OptionsInterface

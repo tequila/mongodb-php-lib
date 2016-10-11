@@ -7,6 +7,7 @@ use MongoDB\BSON\Serializable;
 use MongoDB\Driver\BulkWrite as Bulk;
 use MongoDB\Driver\Manager;
 use MongoDB\Driver\WriteConcern;
+use Tequila\MongoDB\Exception\BadMethodCallException;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\Exception\LogicException;
 use Tequila\MongoDB\Util\TypeUtil;
@@ -15,19 +16,24 @@ use Tequila\MongoDB\Write\Model\WriteModelInterface;
 class BulkWrite
 {
     /**
-     * @var \Tequila\MongoDB\Write\Model\WriteModelInterface[]
+     * @var Bulk
      */
-    private $writeModels;
+    private $bulk;
+
+    /**
+     * @var integer
+     */
+    private $currentOperationIndex;
+
+    /**
+     * @var bool
+     */
+    private $executionInProgress = false;
 
     /**
      * @var array
      */
     private $options;
-
-    /**
-     * @var Bulk
-     */
-    private $bulk;
 
     /**
      * @var array
@@ -38,6 +44,11 @@ class BulkWrite
      * @var WriteConcern
      */
     private $writeConcern;
+
+    /**
+     * @var \Tequila\MongoDB\Write\Model\WriteModelInterface[]
+     */
+    private $writeModels;
 
     /**
      * @param \Tequila\MongoDB\Write\Model\WriteModelInterface[] $writeModels
@@ -52,8 +63,6 @@ class BulkWrite
             $this->writeConcern = $this->options['writeConcern'];
             unset($this->options['writeConcern']);
         }
-
-        $this->bulk = new Bulk($this->options);
     }
 
     /**
@@ -74,13 +83,14 @@ class BulkWrite
      */
     public function insert($document)
     {
-        $index = $this->bulk->count();
+        $this->ensureMethodCallIsAllowed(__METHOD__);
+
         $id = $this->bulk->insert($document);
         if (null === $id) {
             $id = $this->extractIdFromDocument($document);
         }
 
-        $this->insertedIds[$index] = $id;
+        $this->insertedIds[$this->currentOperationIndex] = $id;
 
         return $id;
     }
@@ -94,6 +104,8 @@ class BulkWrite
      */
     public function update($filter, $update, array $options = [])
     {
+        $this->ensureMethodCallIsAllowed(__METHOD__);
+
         $this->bulk->update($filter, $update, $options);
     }
 
@@ -105,17 +117,17 @@ class BulkWrite
      */
     public function delete($filter, array $options = [])
     {
+        $this->ensureMethodCallIsAllowed(__METHOD__);
+
         $this->bulk->delete($filter, $options);
     }
 
     /**
-     * Wraps @see \MongoDB\Driver\BulkWrite::count()
-     *
      * @return int
      */
     public function count()
     {
-        return $this->bulk->count();
+        return count($this->writeModels);
     }
 
     /**
@@ -126,6 +138,9 @@ class BulkWrite
      */
     public function execute(Manager $manager, $databaseName, $collectionName)
     {
+        $this->executionInProgress = true;
+        $this->bulk = new Bulk($this->options);
+
         $expectedIndex = 0;
         foreach ($this->writeModels as $i => $model) {
             if ($i !== $expectedIndex) {
@@ -149,6 +164,8 @@ class BulkWrite
                 );
             }
 
+            $this->currentOperationIndex = $i;
+
             $model->writeToBulk($this);
             $expectedIndex += 1;
         }
@@ -162,6 +179,8 @@ class BulkWrite
             $this->bulk,
             $this->writeConcern
         );
+
+        $this->executionInProgress = false;
 
         return new BulkWriteResult($writeResult, $this->insertedIds);
     }
@@ -177,5 +196,18 @@ class BulkWrite
         }
 
         return is_array($document) ? $document['_id'] : $document->_id;
+    }
+
+    private function ensureMethodCallIsAllowed($method)
+    {
+        if (true !== $this->executionInProgress) {
+            throw new BadMethodCallException(
+                sprintf(
+                    'Method %s can only be called from %s instance during the process of bulk execution',
+                    $method,
+                    WriteModelInterface::class
+                )
+            );
+        }
     }
 }

@@ -2,8 +2,8 @@
 
 namespace Tequila\MongoDB\Options\Connection;
 
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tequila\MongoDB\Options\OptionsInterface;
+use Tequila\MongoDB\Options\OptionsResolver;
 use Tequila\MongoDB\Options\Traits\CachedResolverTrait;
 
 class ConnectionOptions implements OptionsInterface

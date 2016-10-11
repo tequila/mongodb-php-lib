@@ -2,8 +2,8 @@
 
 namespace Tequila\MongoDB\Write\Model\Traits;
 
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
+use Tequila\MongoDB\Options\OptionsResolver;
 use Tequila\MongoDB\Util\TypeUtil;
 use Symfony\Component\OptionsResolver\Exception\InvalidArgumentException as OptionsResolverException;
 

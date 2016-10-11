@@ -3,11 +3,11 @@
 namespace Tequila\MongoDB\Options\Driver;
 
 use Symfony\Component\OptionsResolver\Options;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tequila\MongoDB\BSON\BSONArray;
 use Tequila\MongoDB\BSON\BSONDocument;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\Options\OptionsInterface;
+use Tequila\MongoDB\Options\OptionsResolver;
 use Tequila\MongoDB\Options\Traits\CachedResolverTrait;
 
 class TypeMapOptions implements OptionsInterface
@@ -35,6 +35,15 @@ class TypeMapOptions implements OptionsInterface
             'array' => BSONArray::class,
             'document' => BSONDocument::class,
             'root' => BSONDocument::class,
+        ];
+    }
+
+    public static function getArrayTypeMap()
+    {
+        return [
+            'root' => 'array',
+            'document' => 'array',
+            'array' => 'array',
         ];
     }
 

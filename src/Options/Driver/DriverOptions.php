@@ -3,8 +3,8 @@
 namespace Tequila\MongoDB\Options\Driver;
 
 use Symfony\Component\OptionsResolver\Options;
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use Tequila\MongoDB\Options\OptionsInterface;
+use Tequila\MongoDB\Options\OptionsResolver;
 use Tequila\MongoDB\Options\Traits\CachedResolverTrait;
 
 class DriverOptions implements OptionsInterface
@@ -16,7 +16,9 @@ class DriverOptions implements OptionsInterface
         $resolver
             ->setDefined('typeMap')
             ->setAllowedTypes('typeMap', 'array')
-            ->setDefault('typeMap', TypeMapOptions::getDefaultTypeMap())
+            ->setDefault('typeMap', function(Options $options) {
+                return TypeMapOptions::resolve([]);
+            })
             ->setNormalizer('typeMap', function(Options $options, array $typeMap) {
                 return TypeMapOptions::resolve($typeMap);
             });

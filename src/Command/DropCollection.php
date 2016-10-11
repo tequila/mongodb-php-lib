@@ -6,7 +6,7 @@ use MongoDB\Driver\Manager;
 
 class DropCollection implements CommandInterface
 {
-    use Traits\SelectPrimaryServerTrait;
+    use Traits\PrimaryServerTrait;
 
     /**
      * @var string

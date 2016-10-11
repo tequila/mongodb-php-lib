@@ -2,10 +2,10 @@
 
 namespace Tequila\MongoDB\Options\Connection;
 
-use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\OptionsResolver\Options;
 use Tequila\MongoDB\Options\OptionsInterface;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
+use Tequila\MongoDB\Options\OptionsResolver;
 
 class WriteConcernOptions implements OptionsInterface
 {
