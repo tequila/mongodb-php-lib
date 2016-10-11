@@ -6,7 +6,8 @@ schema-management, abstractions around connections, databases, collections, inde
 This library follows the [MongoDB Driver Specifications](https://github.com/mongodb/specifications), and it's API is quite similar to the API of the official [MongoDB PHP Library](https://github.com/mongodb/mongo-php-library).
 There are also differences with official lib API and implementation:
 - Better bulk write API and implementation - this lib has "write models", more consistent implementation of the write results and makes more strict input validation.
-- Schema-management database commands (like CreateCollection, DropIndexes etc.) always return array and does not accept type map, as in the legacy driver. Aggregation commands (Aggregate, Count etc.) and FindAnd* commands accept the type map. 
+- By default this library returns all documents, sub-documents and arrays as plain old PHP arrays, but you can change this behavior by setting type map and using `\MongoDB\Driver\Persistable` instances.
+- Schema-management database commands (like CreateCollection, DropIndexes etc.) always return array and does not accept type map, as in the legacy driver. Aggregation commands (Aggregate, Count etc.) and FindAnd* commands accept the type map.
 - This library uses Symfony's OptionsResolver component to manage options. It makes library code more clear and organized, and so eases the contribution process.
 - The implementation of this library separates the database commands, write and read operations.
 - other differences in API and in implementation (this will be described in documentation).

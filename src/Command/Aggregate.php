@@ -77,7 +77,7 @@ class Aggregate implements CommandInterface
             return $cursor;
         }
 
-        $cursor->setTypeMap(TypeMapOptions::getArrayTypeMap());
+        $cursor->setTypeMap(TypeMapOptions::getDefaults());
         $resultDocument = current($cursor->toArray());
         if (!isset($resultDocument['result']) || !is_array($resultDocument['result'])) {
             throw new UnexpectedResultException(

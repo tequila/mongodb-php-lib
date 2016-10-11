@@ -45,7 +45,7 @@ class Client
     {
         $command = new DropDatabase($databaseName, $options);
         $cursor = $command->execute($this->manager);
-        $cursor->setTypeMap(TypeMapOptions::getArrayTypeMap());
+        $cursor->setTypeMap(TypeMapOptions::getDefaults());
 
         return current($cursor->toArray());
     }
@@ -56,7 +56,7 @@ class Client
     public function listDatabases()
     {
         $cursor = (new ListDatabases())->execute($this->manager);
-        $cursor->setTypeMap(TypeMapOptions::getArrayTypeMap());
+        $cursor->setTypeMap(TypeMapOptions::getDefaults());
         $result = current($cursor->toArray());
 
         if (!isset($result['databases']) && is_array($result['databases'])) {

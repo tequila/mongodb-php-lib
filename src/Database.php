@@ -82,7 +82,7 @@ class Database
     {
         $command = new CreateCollection($this->databaseName, $collectionName, $options);
         $cursor = $command->execute($this->manager);
-        $cursor->setTypeMap(TypeMapOptions::getArrayTypeMap());
+        $cursor->setTypeMap(TypeMapOptions::getDefaults());
 
         return current($cursor->toArray());
     }
@@ -95,7 +95,7 @@ class Database
     {
         $command = new DropDatabase($this->databaseName, $options);
         $cursor = $command->execute($this->manager);
-        $cursor->setTypeMap(TypeMapOptions::getArrayTypeMap());
+        $cursor->setTypeMap(TypeMapOptions::getDefaults());
 
         return current($cursor->toArray());
     }
@@ -109,7 +109,7 @@ class Database
     {
         $command = new DropCollection($this->databaseName, $collectionName, $options);
         $cursor = $command->execute($this->manager);
-        $cursor->setTypeMap(TypeMapOptions::getArrayTypeMap());
+        $cursor->setTypeMap(TypeMapOptions::getDefaults());
 
         return current($cursor->toArray());
     }
@@ -122,7 +122,7 @@ class Database
     {
         $command = new ListCollections($this->databaseName, $options);
         $cursor = $command->execute($this->manager);
-        $cursor->setTypeMap(TypeMapOptions::getArrayTypeMap());
+        $cursor->setTypeMap(TypeMapOptions::getDefaults());
 
         return array_map(function(array $collectionInfo) {
             return new CollectionInfo($collectionInfo);

@@ -17,7 +17,7 @@ class CollectionOptions implements OptionsInterface
         $resolver
             ->setDefined('typeMap')
             ->setAllowedTypes('typeMap', 'array')
-            ->setDefault('typeMap', TypeMapOptions::getDefaultTypeMap())
+            ->setDefault('typeMap', TypeMapOptions::getDefaults())
             ->setNormalizer('typeMap', function(Options $options, array $typeMap) {
                 return TypeMapOptions::resolve($typeMap);
             });

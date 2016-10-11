@@ -3,8 +3,6 @@
 namespace Tequila\MongoDB\Options\Driver;
 
 use Symfony\Component\OptionsResolver\Options;
-use Tequila\MongoDB\BSON\BSONArray;
-use Tequila\MongoDB\BSON\BSONDocument;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\Options\OptionsInterface;
 use Tequila\MongoDB\Options\OptionsResolver;
@@ -16,7 +14,7 @@ class TypeMapOptions implements OptionsInterface
 
     public static function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults(self::getDefaultTypeMap());
+        $resolver->setDefaults(self::getDefaults());
 
         $resolver
             ->setAllowedTypes('array', 'string')
@@ -29,16 +27,7 @@ class TypeMapOptions implements OptionsInterface
             ->setNormalizer('root', self::getNormalizer('root'));
     }
 
-    public static function getDefaultTypeMap()
-    {
-        return [
-            'array' => BSONArray::class,
-            'document' => BSONDocument::class,
-            'root' => BSONDocument::class,
-        ];
-    }
-
-    public static function getArrayTypeMap()
+    public static function getDefaults()
     {
         return [
             'root' => 'array',
