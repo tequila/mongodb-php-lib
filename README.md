@@ -13,7 +13,7 @@ There are also differences with official lib API and implementation:
 
 There are also some other differences:
 - This library is MIT-licensed.
-- This library is planned to have weekly release cycle after the version 1.0. One of of this library's goals is to deliver new features and bugfixes to the end-users more quickly.
+- This library is planned to have weekly release cycle after the version 1.0. One of this library's goals is to deliver new features and bugfixes to the end-users more quickly.
 - This library does not support old versions of MongoDB. This allows for fewer compromises in the library architecture, and eases the contribution process, support and testing. 
 
 The library works on PHP 5.6.0 or higher, PHP 7.0 or higher, MongoDB 3.2 or higher. It also requires the PHP `mongodb` extension (the MongoDB driver for PHP) to be installed.
