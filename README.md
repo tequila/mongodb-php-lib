@@ -19,7 +19,7 @@ There are also some other differences:
 
 The library works on PHP 5.6.0 or higher, PHP 7.0 or higher, MongoDB 3.2 or higher. It also requires the PHP `mongodb` extension (the MongoDB driver for PHP) to be installed.
 
-The library is under an active development and is NOT ready for use right now. The first release is planned for October 12, 2016.
+The library is under an active development and is NOT ready for use right now. The first release is planned for October 15, 2016.
 Contributions are appreciated.
 
 ### Todo before the first release:
