@@ -7,12 +7,12 @@ use Tequila\MongoDB\Write\Bulk\BulkWrite;
 trait BulkUpdateTrait
 {
     /**
-     * @var array|object
+     * @var array
      */
     private $filter;
 
     /**
-     * @var array|object
+     * @var array
      */
     private $update;
 

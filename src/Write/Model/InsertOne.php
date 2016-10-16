@@ -5,7 +5,7 @@ namespace Tequila\MongoDB\Write\Model;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\Util\TypeUtil;
 use Tequila\MongoDB\Write\Bulk\BulkWrite;
-use Tequila\MongoDB\Write\Model\Traits\EnsureValidDocumentTrait;
+use Tequila\MongoDB\Traits\EnsureValidDocumentTrait;
 
 class InsertOne implements WriteModelInterface
 {

@@ -7,16 +7,14 @@ use Tequila\MongoDB\Write\Options\DeleteOptions;
 
 class DeleteMany implements WriteModelInterface
 {
-    use Traits\EnsureValidFilterTrait;
     use Traits\BulkDeleteTrait;
 
     /**
-     * @param array|object $filter
+     * @param array $filter
      * @param array $options
      */
-    public function __construct($filter, array $options = [])
+    public function __construct(array $filter, array $options = [])
     {
-        $this->ensureValidFilter($filter);
         if (isset($options['limit']) && 1 === $options['limit']) {
             throw new InvalidArgumentException(
                 'DeleteMany operation does not allow option "limit" to be set to 1'

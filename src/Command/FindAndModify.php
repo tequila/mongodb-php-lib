@@ -9,6 +9,9 @@ class FindAndModify implements CommandInterface
 {
     use Traits\PrimaryServerTrait;
 
+    const RETURN_DOCUMENT_BEFORE = 'before';
+    const RETURN_DOCUMENT_AFTER  = 'after';
+
     /**
      * @var string
      */
@@ -45,6 +48,8 @@ class FindAndModify implements CommandInterface
 
     public function execute(Manager $manager)
     {
-        return $this->executeOnPrimaryServer($manager, $this->databaseName, $this->options);
+        $options = ['findAndModify' => $this->collectionName, 'query' => $this->query] + $this->options;
+
+        return $this->executeOnPrimaryServer($manager, $this->databaseName, $options);
     }
 }

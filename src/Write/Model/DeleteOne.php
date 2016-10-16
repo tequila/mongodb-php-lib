@@ -7,16 +7,14 @@ use Tequila\MongoDB\Write\Options\DeleteOptions;
 
 class DeleteOne implements WriteModelInterface
 {
-    use Traits\EnsureValidFilterTrait;
     use Traits\BulkDeleteTrait;
 
     /**
-     * @param array|object $filter
+     * @param array $filter
      * @param array $options
      */
-    public function __construct($filter, array $options = [])
+    public function __construct(array $filter, array $options = [])
     {
-        $this->ensureValidFilter($filter);
         if (isset($options['limit']) && 0 === $options['limit']) {
             throw new InvalidArgumentException(
                 'DeleteOne operation does not allow option "limit" to be set to 0'

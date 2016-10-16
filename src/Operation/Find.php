@@ -152,18 +152,20 @@ class Find
             'sort',
         ]);
 
+        $documentTypes = ['array', 'object'];
+
         $resolver
             ->setAllowedTypes('allowPartialResults', 'bool')
             ->setAllowedTypes('batchSize', 'integer')
-            ->setAllowedTypes('collation', 'string')
+            ->setAllowedTypes('collation', $documentTypes)
             ->setAllowedTypes('comment', 'string')
             ->setAllowedTypes('exhaust', 'bool')
             ->setAllowedTypes('limit', 'integer')
             ->setAllowedTypes('maxTimeMS', 'integer')
-            ->setAllowedTypes('modifiers', ['array', 'object'])
+            ->setAllowedTypes('modifiers', $documentTypes)
             ->setAllowedTypes('noCursorTimeout', 'bool')
             ->setAllowedTypes('oplogReplay', 'bool')
-            ->setAllowedTypes('projection', ['array', 'object'])
+            ->setAllowedTypes('projection', $documentTypes)
             ->setAllowedTypes('readConcern', ReadConcern::class)
             ->setAllowedTypes('readPreference', ReadPreference::class)
             ->setAllowedTypes('skip', 'integer')

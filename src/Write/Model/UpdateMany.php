@@ -3,22 +3,21 @@
 namespace Tequila\MongoDB\Write\Model;
 
 use Tequila\MongoDB\Exception\InvalidArgumentException;
+use Tequila\MongoDB\Traits\EnsureValidUpdateTrait;
 use Tequila\MongoDB\Write\Options\UpdateOptions;
 
 class UpdateMany implements WriteModelInterface
 {
-    use Traits\EnsureValidFilterTrait;
-    use Traits\EnsureValidUpdateTrait;
+    use EnsureValidUpdateTrait;
     use Traits\BulkUpdateTrait;
 
     /**
-     * @param array|object $filter
-     * @param array|object $update
+     * @param array $filter
+     * @param array $update
      * @param array $options
      */
-    public function __construct($filter, $update, array $options = [])
+    public function __construct(array $filter, array $update, array $options = [])
     {
-        $this->ensureValidFilter($filter);
         $this->ensureValidUpdate($update);
 
         $options += ['multi' => true];

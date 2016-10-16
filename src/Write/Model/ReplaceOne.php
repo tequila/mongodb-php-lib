@@ -3,16 +3,16 @@
 namespace Tequila\MongoDB\Write\Model;
 
 use Tequila\MongoDB\Exception\InvalidArgumentException;
+use Tequila\MongoDB\Traits\EnsureValidDocumentTrait;
 use Tequila\MongoDB\Util\TypeUtil;
 use Tequila\MongoDB\Write\Bulk\BulkWrite;
 use Tequila\MongoDB\Write\Options\UpdateOptions;
 
 class ReplaceOne implements WriteModelInterface
 {
-    use Traits\EnsureValidFilterTrait;
-    use Traits\EnsureValidDocumentTrait;
+    use EnsureValidDocumentTrait;
     /**
-     * @var array|object
+     * @var array
      */
     private $filter;
 
@@ -31,10 +31,8 @@ class ReplaceOne implements WriteModelInterface
      * @param $replacement
      * @param array $options
      */
-    public function __construct($filter, $replacement, array $options = [])
+    public function __construct(array $filter, $replacement, array $options = [])
     {
-        $this->ensureValidFilter($filter);
-
         if (!is_array($replacement) && !is_object($replacement)) {
             throw new InvalidArgumentException(
                 sprintf(

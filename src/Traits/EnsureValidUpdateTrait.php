@@ -1,29 +1,17 @@
 <?php
 
-namespace Tequila\MongoDB\Write\Model\Traits;
+namespace Tequila\MongoDB\Traits;
 
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\Options\OptionsResolver;
-use Tequila\MongoDB\Util\TypeUtil;
 use Symfony\Component\OptionsResolver\Exception\InvalidArgumentException as OptionsResolverException;
 
 trait EnsureValidUpdateTrait
 {
     private static $updateResolver;
 
-    public static function ensureValidUpdate($update)
+    public static function ensureValidUpdate(array $update)
     {
-        if (!is_array($update) && !is_object($update)) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    '$update must be an array or an object, %s given',
-                    TypeUtil::getType($update)
-                )
-            );
-        }
-
-        $update = (array) $update;
-
         if (empty($update)) {
             throw new InvalidArgumentException('$update cannot be empty');
         }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tequila\MongoDB\Write\Model\Traits;
+namespace Tequila\MongoDB\Traits;
 
 use MongoDB\BSON\Serializable;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
