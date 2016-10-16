@@ -23,8 +23,6 @@ The library is under an active development and is NOT ready for use right now. T
 Contributions are appreciated.
 
 ### Todo before the first release:
-
-- FindAnd* commands;
-- Tests.
+- Tests, bugfixes.
 
 The documentation will come soon.
