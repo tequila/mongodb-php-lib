@@ -38,10 +38,10 @@ class Find
     private $typeMap;
 
     /**
-     * @param array|object $filter
+     * @param array $filter
      * @param array $options
      */
-    public function __construct($filter, array $options = [])
+    public function __construct(array $filter, array $options = [])
     {
         if (!is_array($filter) && !is_object($filter)) {
             throw new InvalidArgumentException(

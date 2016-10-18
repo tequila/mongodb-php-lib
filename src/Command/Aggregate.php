@@ -7,9 +7,8 @@ use MongoDB\Driver\Manager;
 use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
 use Symfony\Component\OptionsResolver\Options;
+use Tequila\MongoDB\AggregationCursor;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
-use Tequila\MongoDB\Exception\UnexpectedResultException;
-use Tequila\MongoDB\Options\Driver\DriverOptions;
 use Tequila\MongoDB\Options\Driver\TypeMapOptions;
 use Tequila\MongoDB\Options\OptionsResolver;
 
@@ -43,7 +42,7 @@ class Aggregate implements CommandInterface
     /**
      * @var array
      */
-    private $typeMap;
+    private $typeMap = [];
 
     /**
      * @var bool
@@ -64,6 +63,10 @@ class Aggregate implements CommandInterface
         $this->options = $this->resolve($options);
     }
 
+    /**
+     * @param Manager $manager
+     * @return AggregationCursor
+     */
     public function execute(Manager $manager)
     {
         $options = ['aggregate' => $this->collectionName, 'pipeline' => $this->pipeline];
@@ -71,21 +74,8 @@ class Aggregate implements CommandInterface
         $command = new Command($options);
 
         $cursor = $manager->executeCommand($this->databaseName, $command, $this->readPreference);
-        if ($this->useCursor) {
-            $cursor->setTypeMap($this->typeMap);
 
-            return $cursor;
-        }
-
-        $cursor->setTypeMap(TypeMapOptions::getDefaults());
-        $resultDocument = current($cursor->toArray());
-        if (!isset($resultDocument['result']) || !is_array($resultDocument['result'])) {
-            throw new UnexpectedResultException(
-                'Command "aggregate" did not return expected "result" array'
-            );
-        }
-
-        return $resultDocument['result'];
+        return new AggregationCursor($cursor, $this->useCursor, $this->typeMap);
     }
 
     /**
@@ -111,8 +101,10 @@ class Aggregate implements CommandInterface
         $this->readPreference = isset($this->options['readPreference']) ? $this->options['readPreference'] : null;
         unset($options['readPreference']);
 
-        $this->typeMap = $options['typeMap'];
-        unset($options['typeMap']);
+        if (isset($options['typeMap'])) {
+            $this->typeMap = $options['typeMap'];
+            unset($options['typeMap']);
+        }
 
         $this->useCursor = $options['useCursor'];
         unset($options['useCursor']);
@@ -131,8 +123,6 @@ class Aggregate implements CommandInterface
 
     private function configureOptions(OptionsResolver $resolver)
     {
-        DriverOptions::configureOptions($resolver);
-
         $resolver->setDefined([
             'allowDiskUse',
             'batchSize',
@@ -140,6 +130,7 @@ class Aggregate implements CommandInterface
             'maxTimeMS',
             'readConcern',
             'readPreference',
+            'typeMap',
             'useCursor',
         ]);
 
@@ -150,6 +141,7 @@ class Aggregate implements CommandInterface
             ->setAllowedTypes('maxTimeMS', 'integer')
             ->setAllowedTypes('readConcern', ReadConcern::class)
             ->setAllowedTypes('readPreference', ReadPreference::class)
+            ->setAllowedTypes('typeMap', 'array')
             ->setAllowedTypes('useCursor', 'bool');
 
         $resolver->setDefault('useCursor', true);
@@ -170,6 +162,16 @@ class Aggregate implements CommandInterface
             }
 
             return $readPreference;
+        });
+
+        $resolver->setNormalizer('typeMap', function(Options $options, array $typeMap) {
+            if (false === $options['useCursor']) {
+                throw new InvalidArgumentException(
+                    'Option "typeMap" will not get applied when option "useCursor" is set to false'
+                );
+            }
+
+            return TypeMapOptions::resolve($typeMap);
         });
     }
 

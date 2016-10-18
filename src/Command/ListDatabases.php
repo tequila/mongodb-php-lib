@@ -12,11 +12,6 @@ class ListDatabases implements CommandInterface
     {
         $options = [
             'listDatabases' => 1,
-            'typeMap' => [
-                'root' => 'array',
-                'document' => 'array',
-                'array' => 'array',
-            ],
         ];
 
         return $this->executeOnPrimaryServer($manager, 'admin', $options);

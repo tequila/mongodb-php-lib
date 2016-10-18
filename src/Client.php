@@ -9,7 +9,6 @@ use Tequila\MongoDB\Command\ListDatabases;
 use Tequila\MongoDB\Command\Result\DatabaseInfo;
 use Tequila\MongoDB\Exception\UnexpectedResultException;
 use Tequila\MongoDB\Options\Connection\ConnectionOptions;
-use Tequila\MongoDB\Options\Driver\TypeMapOptions;
 
 class Client
 {
@@ -45,9 +44,8 @@ class Client
     {
         $command = new DropDatabase($databaseName, $options);
         $cursor = $command->execute($this->manager);
-        $cursor->setTypeMap(TypeMapOptions::getDefaults());
 
-        return current($cursor->toArray());
+        return current(iterator_to_array($cursor));
     }
 
     /**
@@ -56,10 +54,9 @@ class Client
     public function listDatabases()
     {
         $cursor = (new ListDatabases())->execute($this->manager);
-        $cursor->setTypeMap(TypeMapOptions::getDefaults());
-        $result = current($cursor->toArray());
+        $result = current(iterator_to_array($cursor));
 
-        if (!isset($result['databases']) && is_array($result['databases'])) {
+        if (isset($result['databases']) && is_array($result['databases'])) {
             return array_map(function(array $dbInfo) {
                 return new DatabaseInfo($dbInfo);
             }, $result['databases']);

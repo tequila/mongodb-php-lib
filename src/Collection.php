@@ -11,7 +11,6 @@ use Tequila\MongoDB\Command\CreateIndexes;
 use Tequila\MongoDB\Command\DropCollection;
 use Tequila\MongoDB\Command\DropIndexes;
 use Tequila\MongoDB\Command\ListIndexes;
-use Tequila\MongoDB\Operation\Find;
 use Tequila\MongoDB\Options\CollectionOptions;
 use Tequila\MongoDB\Write\Bulk\BulkWrite;
 use Tequila\MongoDB\Write\Bulk\BulkWriteOptions;
@@ -76,6 +75,12 @@ class Collection
         $this->databaseName = (string)$databaseName;
         $this->collectionName = (string)$collectionName;
 
+        $options += [
+            'readConcern' => $this->manager->getReadConcern(),
+            'readPreference' => $this->manager->getReadPreference(),
+            'writeConcern' => $this->manager->getWriteConcern(),
+        ];
+
         $options = CollectionOptions::resolve($options);
         $this->readConcern = $options['readConcern'];
         $this->readPreference = $options['readPreference'];
@@ -86,7 +91,7 @@ class Collection
     /**
      * @param array $pipeline
      * @param array $options
-     * @return \MongoDB\Driver\Cursor aggregation cursor
+     * @return AggregationCursor aggregation cursor
      */
     public function aggregate(array $pipeline, array $options = [])
     {
@@ -128,7 +133,7 @@ class Collection
         $command = new DropCollection($this->databaseName, $this->collectionName, $options);
         $cursor = $command->execute($this->manager);
 
-        return current($cursor->toArray());
+        return current(iterator_to_array($cursor));
     }
 
     /**
@@ -140,7 +145,7 @@ class Collection
         $command = new DropIndexes($this->databaseName, $this->collectionName, '*', $options);
         $cursor = $command->execute($this->manager);
 
-        return current($cursor->toArray());
+        return current(iterator_to_array($cursor));
     }
 
     /**
@@ -159,7 +164,7 @@ class Collection
 
         $cursor = $command->execute($this->manager);
 
-        return current($cursor->toArray());
+        return current(iterator_to_array($cursor));
     }
 
     /**
@@ -202,11 +207,11 @@ class Collection
     }
 
     /**
-     * @param $filter
+     * @param array $filter
      * @param array $options
-     * @return \MongoDB\Driver\Cursor
+     * @return Cursor
      */
-    public function find($filter = [], array $options = [])
+    public function find(array $filter = [], array $options = [])
     {
         $defaults = [
             'readPreference' => $this->readPreference,
@@ -214,9 +219,14 @@ class Collection
             'typeMap' => $this->typeMap,
         ];
         $options += $defaults;
-        $operation = new Find($filter, $options);
 
-        return $operation->execute($this->manager, $this->databaseName, $this->collectionName);
+        return new Cursor(
+            $this->manager,
+            $this->databaseName,
+            $this->collectionName,
+            $filter,
+            $options
+        );
     }
 
     /**
@@ -286,7 +296,7 @@ class Collection
         $command = new ListIndexes($this->databaseName, $this->collectionName);
         $cursor = $command->execute($this->manager);
 
-        return $cursor->toArray();
+        return iterator_to_array($cursor);
     }
 
     /**
