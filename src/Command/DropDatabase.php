@@ -3,6 +3,7 @@
 namespace Tequila\MongoDB\Command;
 
 use MongoDB\Driver\Manager;
+use Tequila\MongoDB\Command\Options\WritingCommandOptions;
 
 class DropDatabase implements CommandInterface
 {
@@ -25,7 +26,7 @@ class DropDatabase implements CommandInterface
     public function __construct($databaseName, array $options = [])
     {
         $this->databaseName = (string)$databaseName;
-        $this->options = $options;
+        $this->options = WritingCommandOptions::resolve($options);
     }
 
     public function execute(Manager $manager)

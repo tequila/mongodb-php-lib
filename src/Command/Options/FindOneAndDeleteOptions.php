@@ -14,6 +14,8 @@ class FindOneAndDeleteOptions implements OptionsInterface
 
     public static function configureOptions(OptionsResolver $resolver)
     {
+        WritingCommandOptions::configureOptions($resolver);
+
         $resolver->setDefined([
             'maxTimeMS',
             'projection',

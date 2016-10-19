@@ -15,6 +15,8 @@ class FindOneAndUpdateOptions implements OptionsInterface
 
     public static function configureOptions(OptionsResolver $resolver)
     {
+        WritingCommandOptions::configureOptions($resolver);
+
         $resolver->setDefined([
             'bypassDocumentValidation',
             'maxTimeMS',

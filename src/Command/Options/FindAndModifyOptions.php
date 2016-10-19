@@ -4,6 +4,7 @@ namespace Tequila\MongoDB\Command\Options;
 
 use MongoDB\Driver\WriteConcern;
 use Symfony\Component\OptionsResolver\Options;
+use Tequila\MongoDB\Command\Traits\ConvertWriteConcernToDocumentTrait;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\Options\OptionsInterface;
 use Tequila\MongoDB\Options\OptionsResolver;
@@ -15,8 +16,12 @@ class FindAndModifyOptions implements OptionsInterface
         CachedResolverTrait::resolve as resolveOptions;
     }
 
+    use ConvertWriteConcernToDocumentTrait;
+
     public static function configureOptions(OptionsResolver $resolver)
     {
+        WritingCommandOptions::configureOptions($resolver);
+
         $resolver->setDefined([
             'sort',
             'remove',
@@ -25,7 +30,6 @@ class FindAndModifyOptions implements OptionsInterface
             'fields',
             'upsert',
             'bypassDocumentValidation',
-            'writeConcern',
             'maxTimeMS',
         ]);
 
@@ -39,7 +43,6 @@ class FindAndModifyOptions implements OptionsInterface
             ->setAllowedTypes('fields', $documentTypes)
             ->setAllowedTypes('upsert', 'bool')
             ->setAllowedTypes('bypassDocumentValidation', 'bool')
-            ->setAllowedTypes('writeConcern', WriteConcern::class)
             ->setAllowedTypes('maxTimeMS', 'integer');
 
         $resolver->setDefault('remove', false);
@@ -66,21 +69,7 @@ class FindAndModifyOptions implements OptionsInterface
         });
 
         $resolver->setNormalizer('writeConcern', function(Options $options, WriteConcern $writeConcern) {
-            $writeConcernOptions = [];
-
-            if (null !== ($w = $writeConcern->getW())) {
-                $writeConcernOptions['w'] = $w;
-            }
-
-            if (null !== ($j = $writeConcern->getJournal())) {
-                $writeConcernOptions['j'] = $j;
-            }
-
-            if (null !== ($wTimeout = $writeConcern->getWtimeout())) {
-                $writeConcernOptions['wtimeout'] = $wTimeout;
-            }
-
-            return (object)$writeConcernOptions;
+            return self::convertWriteConcernToDocument($writeConcern);
         });
     }
 }

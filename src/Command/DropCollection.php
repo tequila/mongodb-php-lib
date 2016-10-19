@@ -3,6 +3,7 @@
 namespace Tequila\MongoDB\Command;
 
 use MongoDB\Driver\Manager;
+use Tequila\MongoDB\Command\Options\WritingCommandOptions;
 
 class DropCollection implements CommandInterface
 {
@@ -32,7 +33,7 @@ class DropCollection implements CommandInterface
     {
         $this->databaseName = (string)$databaseName;
         $this->collectionName = (string)$collectionName;
-        $this->options = $options;
+        $this->options = WritingCommandOptions::resolve($options);
     }
 
     public function execute(Manager $manager)

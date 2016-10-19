@@ -3,6 +3,7 @@
 namespace Tequila\MongoDB\Command;
 
 use MongoDB\Driver\Manager;
+use Tequila\MongoDB\Command\Options\WritingCommandOptions;
 
 class DropIndexes implements CommandInterface
 {
@@ -39,7 +40,7 @@ class DropIndexes implements CommandInterface
         $this->databaseName = (string)$databaseName;
         $this->collectionName = (string)$collectionName;
         $this->indexName = (string)$indexName;
-        $this->options = $options;
+        $this->options = WritingCommandOptions::resolve($options);
     }
 
     public function execute(Manager $manager)

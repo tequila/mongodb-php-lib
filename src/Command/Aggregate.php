@@ -6,14 +6,19 @@ use MongoDB\Driver\Command;
 use MongoDB\Driver\Manager;
 use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
+use MongoDB\Driver\WriteConcern;
 use Symfony\Component\OptionsResolver\Options;
 use Tequila\MongoDB\AggregationCursor;
+use Tequila\MongoDB\Command\Options\WritingCommandOptions;
+use Tequila\MongoDB\Command\Traits\ConvertWriteConcernToDocumentTrait;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\Options\Driver\TypeMapOptions;
 use Tequila\MongoDB\Options\OptionsResolver;
 
 class Aggregate implements CommandInterface
 {
+    use ConvertWriteConcernToDocumentTrait;
+
     /**
      * @var string
      */
@@ -123,6 +128,8 @@ class Aggregate implements CommandInterface
 
     private function configureOptions(OptionsResolver $resolver)
     {
+        WritingCommandOptions::configureOptions($resolver);
+
         $resolver->setDefined([
             'allowDiskUse',
             'batchSize',
@@ -172,6 +179,16 @@ class Aggregate implements CommandInterface
             }
 
             return TypeMapOptions::resolve($typeMap);
+        });
+
+        $resolver->setNormalizer('writeConcern', function(Options $options, WriteConcern $writeConcern) {
+            if (!$this->hasOutStage()) {
+                throw new InvalidArgumentException(
+                    'Options "writeConcern" is meaningless until aggregation pipeline has $out stage'
+                );
+            }
+
+            return self::convertWriteConcernToDocument($writeConcern);
         });
     }
 
