@@ -50,7 +50,7 @@ class CreateCollectionOptions implements OptionsInterface
             ->setAllowedTypes('indexOptionDefaults', ['array', 'object']);
 
         $resolver->setDefault('size', function(Options $options) {
-            if (!empty($options['capped'])) {
+            if (isset($options['capped']) && true === $options['capped']) {
                 throw new InvalidArgumentException(
                     'The option "size" is required for capped collections'
                 );
