@@ -2,61 +2,80 @@
 
 namespace Tequila\MongoDB\Command;
 
-use MongoDB\Driver\Manager;
-use Tequila\MongoDB\Command\Options\FindOneAndUpdateOptions;
+use Tequila\MongoDB\Options\WritingCommandOptions;
+use Tequila\MongoDB\Command\Traits\PrimaryServerTrait;
+use Tequila\MongoDB\CommandInterface;
+use Tequila\MongoDB\Options\OptionsResolver;
+use Tequila\MongoDB\Options\Traits\CachedResolverTrait;
+use Tequila\MongoDB\ServerInfo;
 
 class FindOneAndUpdate implements CommandInterface
 {
-    /**
-     * @var string
-     */
-    private $databaseName;
+    use CachedResolverTrait;
+    use PrimaryServerTrait;
 
     /**
-     * @var string
+     * @var FindAndModify
      */
-    private $collectionName;
+    private $findAndModify;
 
     /**
-     * @var array
-     */
-    private $filter;
-
-    /**
-     * @var array|object
-     */
-    private $update;
-
-    /**
-     * @var array
-     */
-    private $options;
-
-    /**
-     * @param string $databaseName
      * @param string $collectionName
      * @param array $filter
      * @param $update
      * @param array $options
      */
-    public function __construct($databaseName, $collectionName, array $filter, $update, array $options = [])
+    public function __construct($collectionName, array $filter, $update, array $options = [])
     {
-        $this->databaseName = $databaseName;
-        $this->collectionName = $collectionName;
-        $this->filter = $filter;
-        $this->update = $update;
-        $this->options = ['update' => $this->update] + FindOneAndUpdateOptions::resolve($options);
+        $options = ['update' => $update] + self::resolve($options);
+        if (isset($options['projection'])) {
+            $options['fields'] = $options['projection'];
+            unset($options['projection']);
+        }
+
+        if (FindAndModify::RETURN_DOCUMENT_AFTER === $options['returnDocument']) {
+            $options['new'] = true;
+        }
+
+        unset($options['returnDocument']);
+
+        $this->findAndModify = new FindAndModify(
+            $collectionName,
+            $filter,
+            $options
+        );
     }
 
-    public function execute(Manager $manager)
+    /**
+     * @inheritdoc
+     */
+    public function getOptions(ServerInfo $serverInfo)
     {
-        $findAndModify = new FindAndModify(
-            $this->databaseName,
-            $this->collectionName,
-            $this->filter,
-            $this->options
+        return $this->findAndModify->getOptions($serverInfo);
+    }
+
+    private static function configureOptions(OptionsResolver $resolver)
+    {
+        WritingCommandOptions::configureOptions($resolver);
+
+        $resolver->setDefined([
+            'bypassDocumentValidation',
+            'maxTimeMS',
+            'projection',
+            'returnDocument',
+            'sort',
+            'upsert',
+            'collation',
+        ]);
+
+        $resolver->setAllowedValues(
+            'returnDocument',
+            [
+                FindAndModify::RETURN_DOCUMENT_BEFORE,
+                FindAndModify::RETURN_DOCUMENT_AFTER,
+            ]
         );
 
-        return $findAndModify->execute($manager);
+        $resolver->setDefault('returnDocument', FindAndModify::RETURN_DOCUMENT_BEFORE);
     }
 }

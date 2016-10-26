@@ -10,7 +10,9 @@ use Tequila\MongoDB\Options\Traits\CachedResolverTrait;
 
 class TypeMapOptions implements OptionsInterface
 {
-    use CachedResolverTrait;
+    use CachedResolverTrait {
+        resolve as privateResolve;
+    }
 
     public static function configureOptions(OptionsResolver $resolver)
     {
@@ -34,6 +36,11 @@ class TypeMapOptions implements OptionsInterface
             'document' => 'array',
             'array' => 'array',
         ];
+    }
+
+    public static function resolve(array $options)
+    {
+        return self::privateResolve($options);
     }
 
     /**

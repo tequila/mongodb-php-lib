@@ -2,30 +2,16 @@
 
 namespace Tequila\MongoDB\Command;
 
-use MongoDB\Driver\Manager;
-use Tequila\MongoDB\Command\Options\WritingCommandOptions;
+use Tequila\MongoDB\Options\WritingCommandOptions;
+use Tequila\MongoDB\Command\Traits\PrimaryServerTrait;
+use Tequila\MongoDB\CommandInterface;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\Index;
-use Tequila\MongoDB\Util\TypeUtil;
+use Tequila\MongoDB\ServerInfo;
 
 class CreateIndexes implements CommandInterface
 {
-    use Traits\PrimaryServerTrait;
-
-    /**
-     * @var string
-     */
-    private $databaseName;
-
-    /**
-     * @var string
-     */
-    private $collectionName;
-
-    /**
-     * @var array
-     */
-    private $indexes = [];
+    use PrimaryServerTrait;
 
     /**
      * @var array
@@ -33,43 +19,31 @@ class CreateIndexes implements CommandInterface
     private $options;
 
     /**
-     * @param string $databaseName
      * @param string $collectionName
      * @param Index[] $indexes
      * @param array $options
      */
-    public function __construct($databaseName, $collectionName, array $indexes, array $options = [])
+    public function __construct($collectionName, array $indexes, array $options = [])
     {
         if (empty($indexes)) {
             throw new InvalidArgumentException('$indexes array cannot be empty');
         }
 
-        foreach ($indexes as $i => $index) {
-            if (!$index instanceof Index) {
-                throw new InvalidArgumentException(
-                    sprintf(
-                        '$indexes[%d] must be an Index instance, %s given',
-                        $i,
-                        TypeUtil::getType($index)
-                    )
-                );
-            }
+        $compiledIndexes = array_map(function(Index $index) {
+            return $index->toArray();
+        }, $indexes);
 
-            $this->indexes[] = ['key' => $index->getKey()] + $index->getOptions();
-        }
-
-        $this->databaseName = $databaseName;
-        $this->collectionName = $collectionName;
-        $this->options = WritingCommandOptions::resolve($options);
+        $this->options = [
+                'createIndexes' => (string)$collectionName,
+                'indexes' => $compiledIndexes,
+            ] + WritingCommandOptions::resolve($options);
     }
 
-    public function execute(Manager $manager)
+    /**
+     * @inheritdoc
+     */
+    public function getOptions(ServerInfo $serverInfo)
     {
-        $options = [
-            'createIndexes' => $this->collectionName,
-            'indexes' => $this->indexes,
-        ] + $this->options;
-
-        return $this->executeOnPrimaryServer($manager, $this->databaseName, $options);
+        return $this->options;
     }
 }

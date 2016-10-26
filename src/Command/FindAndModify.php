@@ -2,30 +2,25 @@
 
 namespace Tequila\MongoDB\Command;
 
-use MongoDB\Driver\Manager;
-use Tequila\MongoDB\Command\Options\FindAndModifyOptions;
+use MongoDB\Driver\WriteConcern;
+use Symfony\Component\OptionsResolver\Options;
+use Tequila\MongoDB\Options\WritingCommandOptions;
+use Tequila\MongoDB\Command\Traits\ConvertWriteConcernToDocumentTrait;
+use Tequila\MongoDB\Command\Traits\PrimaryServerTrait;
+use Tequila\MongoDB\CommandInterface;
+use Tequila\MongoDB\Exception\InvalidArgumentException;
+use Tequila\MongoDB\Options\OptionsResolver;
+use Tequila\MongoDB\Options\Traits\CachedResolverTrait;
+use Tequila\MongoDB\ServerInfo;
 
 class FindAndModify implements CommandInterface
 {
-    use Traits\PrimaryServerTrait;
+    use CachedResolverTrait;
+    use ConvertWriteConcernToDocumentTrait;
+    use PrimaryServerTrait;
 
     const RETURN_DOCUMENT_BEFORE = 'before';
-    const RETURN_DOCUMENT_AFTER  = 'after';
-
-    /**
-     * @var string
-     */
-    private $databaseName;
-
-    /**
-     * @var string
-     */
-    private $collectionName;
-
-    /**
-     * @var array
-     */
-    private $query;
+    const RETURN_DOCUMENT_AFTER = 'after';
 
     /**
      * @var array
@@ -33,23 +28,78 @@ class FindAndModify implements CommandInterface
     private $options;
 
     /**
-     * @param string $databaseName
      * @param string $collectionName
      * @param array $query
      * @param array $options
      */
-    public function __construct($databaseName, $collectionName, array $query, array $options)
+    public function __construct($collectionName, array $query, array $options)
     {
-        $this->databaseName = (string)$databaseName;
-        $this->collectionName = (string)$collectionName;
-        $this->query = $query;
-        $this->options = FindAndModifyOptions::resolve($options);
+        $this->options = [
+                'findAndModify' => $collectionName,
+                'query' => $query
+            ] + self::resolve($options);
     }
 
-    public function execute(Manager $manager)
+    /**
+     * @inheritdoc
+     */
+    public function getOptions(ServerInfo $serverInfo)
     {
-        $options = ['findAndModify' => $this->collectionName, 'query' => $this->query] + $this->options;
+        return $this->options;
+    }
 
-        return $this->executeOnPrimaryServer($manager, $this->databaseName, $options);
+    private static function configureOptions(OptionsResolver $resolver)
+    {
+        WritingCommandOptions::configureOptions($resolver);
+
+        $resolver->setDefined([
+            'sort',
+            'remove',
+            'update',
+            'new',
+            'fields',
+            'upsert',
+            'bypassDocumentValidation',
+            'maxTimeMS',
+        ]);
+
+        $documentTypes = ['array', 'object'];
+
+        $resolver
+            ->setAllowedTypes('sort', $documentTypes)
+            ->setAllowedTypes('remove', 'bool')
+            ->setAllowedTypes('update', $documentTypes)
+            ->setAllowedTypes('new', 'bool')
+            ->setAllowedTypes('fields', $documentTypes)
+            ->setAllowedTypes('upsert', 'bool')
+            ->setAllowedTypes('bypassDocumentValidation', 'bool')
+            ->setAllowedTypes('maxTimeMS', 'integer');
+
+        $resolver->setDefault('remove', false);
+
+        $resolver->setNormalizer('remove', function (Options $options, $remove) {
+            if (true === $remove) {
+                foreach (['update', 'new', 'upsert'] as $prohibitedOption) {
+                    if (isset($options[$prohibitedOption])) {
+                        throw new InvalidArgumentException(
+                            sprintf(
+                                'Option "%s" is not allowed when option "remove" is set to true',
+                                $prohibitedOption
+                            )
+                        );
+                    }
+                }
+            } else {
+                if (!isset($options['update'])) {
+                    throw new InvalidArgumentException(
+                        'Option "update" is required when option "remove" is set to false or not exists'
+                    );
+                }
+            }
+        });
+
+        $resolver->setNormalizer('writeConcern', function (Options $options, WriteConcern $writeConcern) {
+            return self::convertWriteConcernToDocument($writeConcern);
+        });
     }
 }

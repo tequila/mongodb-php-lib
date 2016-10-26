@@ -15,7 +15,7 @@ trait CachedResolverTrait
      * @param array $options
      * @return array
      */
-    public static function resolve(array $options)
+    private static function resolve(array $options)
     {
         return self::getResolver()->resolve($options);
     }
@@ -23,7 +23,7 @@ trait CachedResolverTrait
     /**
      * @param OptionsResolver $resolver
      */
-    public static function configureOptions(OptionsResolver $resolver)
+    private static function configureOptions(OptionsResolver $resolver)
     {
     }
 

@@ -2,17 +2,14 @@
 
 namespace Tequila\MongoDB\Command;
 
-use MongoDB\Driver\Manager;
-use Tequila\MongoDB\Command\Options\WritingCommandOptions;
+use Tequila\MongoDB\Options\WritingCommandOptions;
+use Tequila\MongoDB\Command\Traits\PrimaryServerTrait;
+use Tequila\MongoDB\CommandInterface;
+use Tequila\MongoDB\ServerInfo;
 
 class DropDatabase implements CommandInterface
 {
-    use Traits\PrimaryServerTrait;
-
-    /**
-     * @var string
-     */
-    private $databaseName;
+    use PrimaryServerTrait;
 
     /**
      * @var array
@@ -20,19 +17,18 @@ class DropDatabase implements CommandInterface
     private $options;
 
     /**
-     * @param string $databaseName
      * @param array $options
      */
-    public function __construct($databaseName, array $options = [])
+    public function __construct(array $options = [])
     {
-        $this->databaseName = (string)$databaseName;
-        $this->options = WritingCommandOptions::resolve($options);
+        $this->options = ['dropDatabase' => 1] + WritingCommandOptions::resolve($options);
     }
 
-    public function execute(Manager $manager)
+    /**
+     * @inheritdoc
+     */
+    public function getOptions(ServerInfo $serverInfo)
     {
-        $options = ['dropDatabase' => 1] + $this->options;
-
-        return $this->executeOnPrimaryServer($manager, $this->databaseName, $options);
+        return $this->options;
     }
 }

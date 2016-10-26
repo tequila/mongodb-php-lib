@@ -2,7 +2,6 @@
 
 namespace Tequila\MongoDB;
 
-use MongoDB\Driver\Manager;
 use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
 use MongoDB\Driver\WriteConcern;
@@ -29,7 +28,7 @@ use Tequila\MongoDB\Write\Result\UpdateResult;
 class Collection
 {
     /**
-     * @var Manager
+     * @var ManagerInterface
      */
     private $manager;
 
@@ -64,12 +63,12 @@ class Collection
     private $typeMap;
 
     /**
-     * @param Manager $manager
+     * @param ManagerInterface $manager
      * @param string $databaseName
      * @param string $collectionName
      * @param array $options
      */
-    public function __construct(Manager $manager, $databaseName, $collectionName, array $options = [])
+    public function __construct(ManagerInterface $manager, $databaseName, $collectionName, array $options = [])
     {
         $this->manager = $manager;
         $this->databaseName = (string)$databaseName;
@@ -102,10 +101,16 @@ class Collection
         ];
 
         $options += $defaults;
-        $command = new Aggregate($this->databaseName, $this->collectionName, $pipeline, $options);
-        $cursor = $command->execute($this->manager);
 
-        return $cursor;
+
+        $command = new Aggregate($this->collectionName, $pipeline, $options);
+        $cursor = $this->manager->executeCommand(
+            $this->databaseName,
+            $command,
+            $command->getReadPreference()
+        );
+
+        return new AggregationCursor($cursor, $command->getUseCursor(), $command->getTypeMap());
     }
 
     /**

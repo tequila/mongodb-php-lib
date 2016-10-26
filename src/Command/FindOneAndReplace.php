@@ -2,61 +2,37 @@
 
 namespace Tequila\MongoDB\Command;
 
-use MongoDB\Driver\Manager;
-use Tequila\MongoDB\Command\Options\FindOneAndUpdateOptions;
+use Tequila\MongoDB\Command\Traits\PrimaryServerTrait;
+use Tequila\MongoDB\CommandInterface;
+use Tequila\MongoDB\ServerInfo;
 
 class FindOneAndReplace implements CommandInterface
 {
-    /**
-     * @var string
-     */
-    private $databaseName;
+    use PrimaryServerTrait;
 
     /**
-     * @var string
+     * @var FindOneAndUpdate
      */
-    private $collectionName;
+    private $findOneAndUpdate;
 
     /**
-     * @var array
-     */
-    private $filter;
-
-    /**
-     * @var array|object
-     */
-    private $replacement;
-
-    /**
-     * @var array
-     */
-    private $options;
-
-    /**
-     * @param string $databaseName
      * @param string $collectionName
      * @param array $filter
      * @param array|object $replacement
      * @param array $options
      */
-    public function __construct($databaseName, $collectionName, array $filter, $replacement, array $options = [])
+    public function __construct($collectionName, array $filter, $replacement, array $options = [])
     {
-        $this->databaseName = $databaseName;
-        $this->collectionName = $collectionName;
-        $this->filter = $filter;
-        $this->replacement = $replacement;
-        $this->options = ['update' => $this->replacement] + FindOneAndUpdateOptions::resolve($options);
+        $this->findOneAndUpdate = new FindOneAndUpdate(
+            $collectionName,
+            $filter,
+            $replacement,
+            $options
+        );
     }
 
-    public function execute(Manager $manager)
+    public function getOptions(ServerInfo $serverInfo)
     {
-        $findAndModify = new FindAndModify(
-            $this->databaseName,
-            $this->collectionName,
-            $this->filter,
-            $this->options
-        );
-
-        return $findAndModify->execute($manager);
+        return $this->findOneAndUpdate->getOptions($serverInfo);
     }
 }

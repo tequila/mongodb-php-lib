@@ -2,32 +2,27 @@
 
 namespace Tequila\MongoDB\Command;
 
-use MongoDB\Driver\Command;
-use MongoDB\Driver\Manager;
 use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
 use MongoDB\Driver\WriteConcern;
 use Symfony\Component\OptionsResolver\Options;
-use Tequila\MongoDB\AggregationCursor;
-use Tequila\MongoDB\Command\Options\WritingCommandOptions;
+use Tequila\MongoDB\Options\WritingCommandOptions;
 use Tequila\MongoDB\Command\Traits\ConvertWriteConcernToDocumentTrait;
+use Tequila\MongoDB\CommandInterface;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\Options\Driver\TypeMapOptions;
 use Tequila\MongoDB\Options\OptionsResolver;
+use Tequila\MongoDB\ServerInfo;
+use Tequila\MongoDB\Traits\EnsureCollationOptionSupportedTrait;
+use Tequila\MongoDB\Traits\EnsureReadConcernOptionSupported;
+use Tequila\MongoDB\Traits\EnsureWriteConcernOptionSupported;
 
 class Aggregate implements CommandInterface
 {
     use ConvertWriteConcernToDocumentTrait;
-
-    /**
-     * @var string
-     */
-    private $databaseName;
-
-    /**
-     * @var string
-     */
-    private $collectionName;
+    use EnsureCollationOptionSupportedTrait;
+    use EnsureWriteConcernOptionSupported;
+    use EnsureReadConcernOptionSupported;
 
     /**
      * @var array
@@ -55,32 +50,69 @@ class Aggregate implements CommandInterface
     private $useCursor;
 
     /**
-     * @param string $databaseName
      * @param string $collectionName
      * @param array $pipeline
      * @param array $options
      */
-    public function __construct($databaseName, $collectionName, array $pipeline, array $options = [])
+    public function __construct($collectionName, array $pipeline, array $options = [])
     {
-        $this->databaseName = (string)$databaseName;
-        $this->collectionName = (string)$collectionName;
         $this->pipeline = $pipeline;
-        $this->options = $this->resolve($options);
+        $this->options = [
+                'aggregate' => $collectionName,
+                'pipeline' => $this->pipeline
+            ] + $this->resolve($options);
     }
 
     /**
-     * @param Manager $manager
-     * @return AggregationCursor
+     * @inheritdoc
      */
-    public function execute(Manager $manager)
+    public function getOptions(ServerInfo $serverInfo)
     {
-        $options = ['aggregate' => $this->collectionName, 'pipeline' => $this->pipeline];
-        $options += $this->options;
-        $command = new Command($options);
+        if (array_key_exists('collation', $this->options)) {
+            $this->ensureCollationOptionSupported($serverInfo);
+        }
 
-        $cursor = $manager->executeCommand($this->databaseName, $command, $this->readPreference);
+        if (array_key_exists('writeConcern', $this->options)) {
+            $this->ensureWriteConcernOptionSupported($serverInfo);
+        }
 
-        return new AggregationCursor($cursor, $this->useCursor, $this->typeMap);
+        if (array_key_exists('readConcern', $this->options)) {
+            $this->ensureReadConcernOptionSupported($serverInfo);
+        }
+
+        return $this->options;
+    }
+
+    /**
+     * @return ReadPreference|null
+     */
+    public function getReadPreference()
+    {
+        return $this->readPreference;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getUseCursor()
+    {
+        return $this->useCursor;
+    }
+
+    /**
+     * @return array
+     */
+    public function getTypeMap()
+    {
+        return $this->typeMap;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function needsPrimaryServer()
+    {
+        return $this->hasOutStage();
     }
 
     /**
@@ -134,6 +166,7 @@ class Aggregate implements CommandInterface
             'allowDiskUse',
             'batchSize',
             'bypassDocumentValidation',
+            'collation',
             'maxTimeMS',
             'readConcern',
             'readPreference',
@@ -145,6 +178,7 @@ class Aggregate implements CommandInterface
             ->setAllowedTypes('allowDiskUse', 'bool')
             ->setAllowedTypes('batchSize', 'integer')
             ->setAllowedTypes('bypassDocumentValidation', 'bool')
+            ->setAllowedTypes('collation', ['array', 'object'])
             ->setAllowedTypes('maxTimeMS', 'integer')
             ->setAllowedTypes('readConcern', ReadConcern::class)
             ->setAllowedTypes('readPreference', ReadPreference::class)
@@ -153,7 +187,7 @@ class Aggregate implements CommandInterface
 
         $resolver->setDefault('useCursor', true);
 
-        $resolver->setNormalizer('batchSize', function(Options $options, $batchSize) {
+        $resolver->setNormalizer('batchSize', function (Options $options, $batchSize) {
             if (!isset($options['useCursor']) || false === $options['useCursor']) {
                 throw new InvalidArgumentException(
                     'Option "batchSize" is meaningless unless option "useCursor" is set to true'
@@ -163,15 +197,7 @@ class Aggregate implements CommandInterface
             return $batchSize;
         });
 
-        $resolver->setNormalizer('readPreference', function(Options $options, ReadPreference $readPreference) {
-            if ($this->hasOutStage() && ReadPreference::RP_PRIMARY !== $readPreference->getMode()) {
-                return new ReadPreference(ReadPreference::RP_PRIMARY);
-            }
-
-            return $readPreference;
-        });
-
-        $resolver->setNormalizer('typeMap', function(Options $options, array $typeMap) {
+        $resolver->setNormalizer('typeMap', function (Options $options, array $typeMap) {
             if (false === $options['useCursor']) {
                 throw new InvalidArgumentException(
                     'Option "typeMap" will not get applied when option "useCursor" is set to false'
@@ -181,7 +207,7 @@ class Aggregate implements CommandInterface
             return TypeMapOptions::resolve($typeMap);
         });
 
-        $resolver->setNormalizer('writeConcern', function(Options $options, WriteConcern $writeConcern) {
+        $resolver->setNormalizer('writeConcern', function (Options $options, WriteConcern $writeConcern) {
             if (!$this->hasOutStage()) {
                 throw new InvalidArgumentException(
                     'Options "writeConcern" is meaningless until aggregation pipeline has $out stage'
@@ -192,11 +218,13 @@ class Aggregate implements CommandInterface
         });
     }
 
+    /**
+     * @return bool
+     */
     private function hasOutStage()
     {
         $lastStage = end($this->pipeline);
 
         return '$out' === key($lastStage);
     }
-
 }

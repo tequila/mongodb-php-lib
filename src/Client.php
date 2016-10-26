@@ -2,37 +2,26 @@
 
 namespace Tequila\MongoDB;
 
-use MongoDB\Driver\Manager;
-use Tequila\MongoDB\Command\CommandInterface;
+use MongoDB\Driver\ReadPreference;
 use Tequila\MongoDB\Command\DropDatabase;
 use Tequila\MongoDB\Command\ListDatabases;
 use Tequila\MongoDB\Command\Result\DatabaseInfo;
 use Tequila\MongoDB\Exception\UnexpectedResultException;
-use Tequila\MongoDB\Options\Connection\ConnectionOptions;
+use Tequila\MongoDB\Options\Driver\TypeMapOptions;
 
 class Client
 {
     /**
-     * @var Manager
+     * @var ManagerInterface
      */
     private $manager;
 
     /**
-     * @var string
+     * @param ManagerInterface $manager
      */
-    private $uri;
-
-    /**
-     * @param string $uri
-     * @param array $uriOptions
-     * @param array $driverOptions
-     */
-    public function __construct($uri = 'mongodb://127.0.0.1/', array $uriOptions = [], array $driverOptions = [])
+    public function __construct(ManagerInterface $manager)
     {
-        $uriOptions = ConnectionOptions::resolve($uriOptions);
-
-        $this->uri = $uri;
-        $this->manager = new Manager((string)$uri, $uriOptions, $driverOptions);
+        $this->manager = $manager;
     }
 
     /**
@@ -43,7 +32,7 @@ class Client
     public function dropDatabase($databaseName, array $options = [])
     {
         $command = new DropDatabase($databaseName, $options);
-        $cursor = $command->execute($this->manager);
+        $cursor = $this->executeCommand($databaseName, $command);
 
         return current(iterator_to_array($cursor));
     }
@@ -53,11 +42,11 @@ class Client
      */
     public function listDatabases()
     {
-        $cursor = (new ListDatabases())->execute($this->manager);
+        $cursor = $this->executeCommand('admin', new ListDatabases());
         $result = current(iterator_to_array($cursor));
 
         if (isset($result['databases']) && is_array($result['databases'])) {
-            return array_map(function(array $dbInfo) {
+            return array_map(function (array $dbInfo) {
                 return new DatabaseInfo($dbInfo);
             }, $result['databases']);
         }
@@ -68,12 +57,23 @@ class Client
     }
 
     /**
+     * @param string $databaseName
      * @param CommandInterface $command
+     * @param ReadPreference $readPreference
+     * @param array $typeMap
      * @return \MongoDB\Driver\Cursor
      */
-    public function runCommand(CommandInterface $command)
-    {
-        return $command->execute($this->manager);
+    public function executeCommand(
+        $databaseName,
+        CommandInterface $command,
+        ReadPreference $readPreference = null,
+        array $typeMap = []
+    ) {
+        $cursor = $this->manager->executeCommand($databaseName, $command, $readPreference);
+        $typeMap = TypeMapOptions::resolve($typeMap);
+        $cursor->setTypeMap($typeMap);
+
+        return $cursor;
     }
 
     /**

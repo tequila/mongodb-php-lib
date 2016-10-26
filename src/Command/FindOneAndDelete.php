@@ -2,54 +2,60 @@
 
 namespace Tequila\MongoDB\Command;
 
-use MongoDB\Driver\Manager;
-use Tequila\MongoDB\Command\Options\FindOneAndDeleteOptions;
+use Tequila\MongoDB\Options\WritingCommandOptions;
+use Tequila\MongoDB\Command\Traits\PrimaryServerTrait;
+use Tequila\MongoDB\CommandInterface;
+use Tequila\MongoDB\Options\OptionsResolver;
+use Tequila\MongoDB\Options\Traits\CachedResolverTrait;
+use Tequila\MongoDB\ServerInfo;
 
 class FindOneAndDelete implements CommandInterface
 {
-    /**
-     * @var string
-     */
-    private $databaseName;
+    use CachedResolverTrait;
+    use PrimaryServerTrait;
 
     /**
-     * @var string
+     * @var FindAndModify
      */
-    private $collectionName;
+    private $findAndModify;
 
     /**
-     * @var array
-     */
-    private $filter;
-
-    /**
-     * @var array
-     */
-    private $options;
-
-    /**
-     * @param string $databaseName
      * @param string $collectionName
      * @param array $filter
      * @param array $options
      */
-    public function __construct($databaseName, $collectionName, array $filter, array $options = [])
+    public function __construct($collectionName, array $filter, array $options = [])
     {
-        $this->databaseName = $databaseName;
-        $this->collectionName = $collectionName;
-        $this->filter = $filter;
-        $this->options = FindOneAndDeleteOptions::resolve($options);
+        $options = ['remove' => true] + self::resolve($options);
+        if (isset($options['projection'])) {
+            $options['fields'] = $options['projection'];
+            unset($options['projection']);
+        }
+
+        $this->findAndModify = new FindAndModify(
+            $collectionName,
+            $filter,
+            $options
+        );
     }
 
-    public function execute(Manager $manager)
+    /**
+     * @inheritdoc
+     */
+    public function getOptions(ServerInfo $serverInfo)
     {
-        $findAndModify = new FindAndModify(
-            $this->databaseName,
-            $this->collectionName,
-            $this->filter,
-            $this->options
-        );
+        return $this->findAndModify->getOptions($serverInfo);
+    }
 
-        return $findAndModify->execute($manager);
+    private static function configureOptions(OptionsResolver $resolver)
+    {
+        WritingCommandOptions::configureOptions($resolver);
+
+        $resolver->setDefined([
+            'maxTimeMS',
+            'projection',
+            'sort',
+            'collation',
+        ]);
     }
 }

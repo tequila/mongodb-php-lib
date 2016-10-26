@@ -45,6 +45,14 @@ class Index
     /**
      * @return array
      */
+    public function toArray()
+    {
+        return ['key' => $this->key] + $this->options;
+    }
+
+    /**
+     * @return array
+     */
     public function getKey()
     {
         return $this->key;

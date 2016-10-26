@@ -2,17 +2,17 @@
 
 namespace Tequila\MongoDB\Command;
 
-use MongoDB\Driver\Manager;
-use Tequila\MongoDB\Command\Options\ListCollectionsOptions;
+use Symfony\Component\OptionsResolver\Options;
+use Tequila\MongoDB\Command\Traits\PrimaryServerTrait;
+use Tequila\MongoDB\CommandInterface;
+use Tequila\MongoDB\Options\OptionsResolver;
+use Tequila\MongoDB\Options\Traits\CachedResolverTrait;
+use Tequila\MongoDB\ServerInfo;
 
 class ListCollections implements CommandInterface
 {
-    use Traits\PrimaryServerTrait;
-
-    /**
-     * @var string
-     */
-    private $databaseName;
+    use CachedResolverTrait;
+    use PrimaryServerTrait;
 
     /**
      * @var array
@@ -20,19 +20,41 @@ class ListCollections implements CommandInterface
     private $options;
 
     /**
-     * @param string $databaseName
      * @param array $options
      */
-    public function __construct($databaseName, array $options = [])
+    public function __construct(array $options = [])
     {
-        $this->databaseName = $databaseName;
-        $this->options = ListCollectionsOptions::resolve($options);
+        $this->options = ['listCollections' => 1] + self::resolve($options);
     }
 
-    public function execute(Manager $manager)
+    /**
+     * @inheritdoc
+     */
+    public function getOptions(ServerInfo $serverInfo)
     {
-        $options = ['listCollections' => 1] + $this->options;
+        return $this->options;
+    }
 
-        return $this->executeOnPrimaryServer($manager, $this->databaseName, $options);
+    private static function configureOptions(OptionsResolver $resolver)
+    {
+        $resolver->setDefined(['filter']);
+        $resolver->setAllowedTypes('filter', ['array', 'object']);
+        $resolver->setNormalizer('filter', function(Options $options, $filter) {
+            $filter = (array)$filter;
+            $filterResolver = new OptionsResolver();
+            $filterResolver->setDefined([
+                'name',
+                'options.capped',
+                'options.autoIndexId',
+                'options.size',
+                'options.max',
+                'options.flags',
+                'options.storageEngine',
+            ]);
+
+            $value = $filterResolver->resolve($filter);
+
+            return (object)$value;
+        });
     }
 }

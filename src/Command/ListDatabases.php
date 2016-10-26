@@ -2,18 +2,19 @@
 
 namespace Tequila\MongoDB\Command;
 
-use MongoDB\Driver\Manager;
+use Tequila\MongoDB\Command\Traits\PrimaryServerTrait;
+use Tequila\MongoDB\CommandInterface;
+use Tequila\MongoDB\ServerInfo;
 
 class ListDatabases implements CommandInterface
 {
-    use Traits\PrimaryServerTrait;
+    use PrimaryServerTrait;
 
-    public function execute(Manager $manager)
+    /**
+     * @inheritdoc
+     */
+    public function getOptions(ServerInfo $serverInfo)
     {
-        $options = [
-            'listDatabases' => 1,
-        ];
-
-        return $this->executeOnPrimaryServer($manager, 'admin', $options);
+        return ['listDatabases' => 1];
     }
 }

@@ -2,37 +2,29 @@
 
 namespace Tequila\MongoDB\Command;
 
-use MongoDB\Driver\Manager;
 use Tequila\MongoDB\Command\Traits\PrimaryServerTrait;
+use Tequila\MongoDB\CommandInterface;
+use Tequila\MongoDB\ServerInfo;
 
 class ListIndexes implements CommandInterface
 {
     use PrimaryServerTrait;
 
     /**
-     * @var string
+     * @var array
      */
-    private $databaseName;
+    private $options;
 
     /**
-     * @var string
-     */
-    private $collectionName;
-
-    /**
-     * @param string $databaseName
      * @param string $collectionName
      */
-    public function __construct($databaseName, $collectionName)
+    public function __construct($collectionName)
     {
-        $this->databaseName = (string)$databaseName;
-        $this->collectionName = (string)$collectionName;
+        $this->options = ['listIndexes' => (string)$collectionName];
     }
 
-    public function execute(Manager $manager)
+    public function getOptions(ServerInfo $serverInfo)
     {
-        $options = ['listIndexes' => $this->collectionName];
-
-        return $this->executeOnPrimaryServer($manager, $this->databaseName, $options);
+        return $this->options;
     }
 }

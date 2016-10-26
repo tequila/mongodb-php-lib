@@ -20,6 +20,7 @@ class ClientTest extends TestCase
      */
     public function testConstructorWithoutArguments()
     {
+        $manager = $this->prophesize(Manager::class);
         return new Client();
     }
 

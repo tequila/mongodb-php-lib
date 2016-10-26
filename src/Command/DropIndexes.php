@@ -2,27 +2,14 @@
 
 namespace Tequila\MongoDB\Command;
 
-use MongoDB\Driver\Manager;
-use Tequila\MongoDB\Command\Options\WritingCommandOptions;
+use Tequila\MongoDB\Options\WritingCommandOptions;
+use Tequila\MongoDB\Command\Traits\PrimaryServerTrait;
+use Tequila\MongoDB\CommandInterface;
+use Tequila\MongoDB\ServerInfo;
 
 class DropIndexes implements CommandInterface
 {
-    use Traits\PrimaryServerTrait;
-
-    /**
-     * @var string
-     */
-    private $databaseName;
-
-    /**
-     * @var string
-     */
-    private $collectionName;
-
-    /**
-     * @var string
-     */
-    private $indexName;
+    use PrimaryServerTrait;
 
     /**
      * @var array
@@ -30,23 +17,23 @@ class DropIndexes implements CommandInterface
     private $options;
 
     /**
-     * @param string $databaseName
      * @param string $collectionName
      * @param string $indexName
      * @param array $options
      */
-    public function __construct($databaseName, $collectionName, $indexName, array $options = [])
+    public function __construct($collectionName, $indexName, array $options = [])
     {
-        $this->databaseName = (string)$databaseName;
-        $this->collectionName = (string)$collectionName;
-        $this->indexName = (string)$indexName;
-        $this->options = WritingCommandOptions::resolve($options);
+        $this->options = [
+                'dropIndexes' => (string)$collectionName,
+                'index' => $indexName
+            ] + WritingCommandOptions::resolve($options);
     }
 
-    public function execute(Manager $manager)
+    /**
+     * @inheritdoc
+     */
+    public function getOptions(ServerInfo $serverInfo)
     {
-        $options = ['dropIndexes' => $this->collectionName, 'index' => $this->indexName] + $this->options;
-
-        return $this->executeOnPrimaryServer($manager, $this->databaseName, $options);
+        return $this->options;
     }
 }

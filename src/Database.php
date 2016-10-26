@@ -2,7 +2,6 @@
 
 namespace Tequila\MongoDB;
 
-use MongoDB\Driver\Manager;
 use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
 use MongoDB\Driver\WriteConcern;
@@ -12,11 +11,12 @@ use Tequila\MongoDB\Command\DropDatabase;
 use Tequila\MongoDB\Command\ListCollections;
 use Tequila\MongoDB\Command\Result\CollectionInfo;
 use Tequila\MongoDB\Options\DatabaseOptions;
+use Tequila\MongoDB\Options\Driver\TypeMapOptions;
 
 class Database
 {
     /**
-     * @var Manager
+     * @var ManagerInterface
      */
     private $manager;
 
@@ -41,11 +41,11 @@ class Database
     private $writeConcern;
 
     /**
-     * @param Manager $manager
+     * @param ManagerInterface $manager
      * @param string $databaseName
      * @param array $options
      */
-    public function __construct(Manager $manager, $databaseName, array $options = [])
+    public function __construct(ManagerInterface $manager, $databaseName, array $options = [])
     {
 
         $this->manager = $manager;
@@ -79,8 +79,8 @@ class Database
      */
     public function createCollection($collectionName, array $options = [])
     {
-        $command = new CreateCollection($this->databaseName, $collectionName, $options);
-        $cursor = $command->execute($this->manager);
+        $command = new CreateCollection($collectionName, $options);
+        $cursor = $this->executeCommand($command);
 
         return current(iterator_to_array($cursor));
     }
@@ -91,8 +91,8 @@ class Database
      */
     public function drop(array $options = [])
     {
-        $command = new DropDatabase($this->databaseName, $options);
-        $cursor = $command->execute($this->manager);
+        $command = new DropDatabase($options);
+        $cursor = $this->executeCommand($command);
 
         return current(iterator_to_array($cursor));
     }
@@ -104,10 +104,28 @@ class Database
      */
     public function dropCollection($collectionName, array $options = [])
     {
-        $command = new DropCollection($this->databaseName, $collectionName, $options);
-        $cursor = $command->execute($this->manager);
+        $command = new DropCollection($collectionName, $options);
+        $cursor = $this->executeCommand($command);
 
         return current(iterator_to_array($cursor));
+    }
+
+    /**
+     * @param CommandInterface $command
+     * @param ReadPreference $readPreference
+     * @param array $typeMap
+     * @return \MongoDB\Driver\Cursor
+     */
+    public function executeCommand(
+        CommandInterface $command,
+        ReadPreference $readPreference = null,
+        array $typeMap = []
+    ) {
+        $cursor = $this->manager->executeCommand($this->databaseName, $command, $readPreference);
+        $typeMap = TypeMapOptions::resolve($typeMap);
+        $cursor->setTypeMap($typeMap);
+
+        return $cursor;
     }
 
     /**
@@ -116,8 +134,8 @@ class Database
      */
     public function listCollections(array $options = [])
     {
-        $command = new ListCollections($this->databaseName, $options);
-        $cursor = $command->execute($this->manager);
+        $command = new ListCollections($options);
+        $cursor = $this->executeCommand($command);
 
         return array_map(function(array $collectionInfo) {
             return new CollectionInfo($collectionInfo);
