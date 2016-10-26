@@ -2,9 +2,9 @@
 
 namespace Tequila\MongoDB\Write\Model;
 
+use Tequila\MongoDB\BulkWrite;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\Util\TypeUtil;
-use Tequila\MongoDB\Write\Bulk\BulkWrite;
 use Tequila\MongoDB\Traits\EnsureValidDocumentTrait;
 
 class InsertOne implements WriteModelInterface
@@ -31,12 +31,11 @@ class InsertOne implements WriteModelInterface
         }
 
         $this->ensureValidDocument($document);
-
         $this->document = $document;
     }
 
     public function writeToBulk(BulkWrite $bulk)
     {
-        return $bulk->insert($this->document);
+        $bulk->insert($this->document);
     }
 }

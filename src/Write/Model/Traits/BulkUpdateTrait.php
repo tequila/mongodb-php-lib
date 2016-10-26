@@ -2,32 +2,36 @@
 
 namespace Tequila\MongoDB\Write\Model\Traits;
 
-use Tequila\MongoDB\Write\Bulk\BulkWrite;
+use Tequila\MongoDB\BulkWrite;
+use Tequila\MongoDB\Options\CollationOptions;
+use Tequila\MongoDB\Options\OptionsResolver;
+use Tequila\MongoDB\Traits\CachedResolverTrait;
+use Tequila\MongoDB\Write\Model\Update;
 
 trait BulkUpdateTrait
 {
-    /**
-     * @var array
-     */
-    private $filter;
+    use CachedResolverTrait;
 
     /**
-     * @var array
+     * @var Update
      */
     private $update;
 
     /**
-     * @var array
-     */
-    private $options;
-
-    /**
      * @see \Tequila\MongoDB\Write\Model\WriteModelInterface::writeToBulk()
      *
-     * @param \Tequila\MongoDB\Write\Bulk\BulkWrite $bulk
+     * @param \Tequila\MongoDB\BulkWrite $bulk
      */
     public function writeToBulk(BulkWrite $bulk)
     {
-        $bulk->update($this->filter, $this->update, $this->options);
+        $this->update->writeToBulk($bulk);
+    }
+
+    private static function configureOptions(OptionsResolver $resolver)
+    {
+        CollationOptions::configureOptions($resolver);
+
+        $resolver->setDefined('upsert');
+        $resolver->setAllowedTypes('upsert', 'bool');
     }
 }

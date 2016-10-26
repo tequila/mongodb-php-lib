@@ -11,7 +11,7 @@ use Tequila\MongoDB\Command\DropDatabase;
 use Tequila\MongoDB\Command\ListCollections;
 use Tequila\MongoDB\Command\Result\CollectionInfo;
 use Tequila\MongoDB\Options\DatabaseOptions;
-use Tequila\MongoDB\Options\Driver\TypeMapOptions;
+use Tequila\MongoDB\Options\TypeMapOptions;
 
 class Database
 {

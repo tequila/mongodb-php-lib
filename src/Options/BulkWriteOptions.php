@@ -1,15 +1,15 @@
 <?php
 
-namespace Tequila\MongoDB\Write\Bulk;
+namespace Tequila\MongoDB\Options;
 
 use MongoDB\Driver\WriteConcern;
-use Tequila\MongoDB\Options\OptionsInterface;
-use Tequila\MongoDB\Options\OptionsResolver;
-use Tequila\MongoDB\Options\Traits\CachedResolverTrait;
+use Tequila\MongoDB\Traits\CachedResolverTrait;
 
-class BulkWriteOptions implements OptionsInterface
+class BulkWriteOptions
 {
-    use CachedResolverTrait;
+    use CachedResolverTrait {
+        resolve as privateResolve;
+    }
 
     public static function configureOptions(OptionsResolver $resolver)
     {
@@ -31,5 +31,10 @@ class BulkWriteOptions implements OptionsInterface
     public static function getDefinedOptions()
     {
         return self::getResolver()->getDefinedOptions();
+    }
+
+    public static function resolve(array $options)
+    {
+        return self::privateResolve($options);
     }
 }

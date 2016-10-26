@@ -2,16 +2,18 @@
 
 namespace Tequila\MongoDB\Write\Result;
 
+use Tequila\MongoDB\Traits\WriteResultDecoratorTrait;
+
 class InsertManyResult
 {
-    use Traits\BulkWriteResultAwareTrait;
+    use WriteResultDecoratorTrait;
 
     /**
      * @return int
      */
     public function getInsertedCount()
     {
-        return $this->bulkWriteResult->getInsertedCount();
+        return $this->writeResult->getInsertedCount();
     }
 
     /**
@@ -19,6 +21,6 @@ class InsertManyResult
      */
     public function getInsertedIds()
     {
-        return $this->bulkWriteResult->getInsertedIds();
+        return $this->writeResult->getInsertedIds();
     }
 }

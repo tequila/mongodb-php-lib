@@ -5,9 +5,9 @@ namespace Tequila\MongoDB\Options;
 use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
 use MongoDB\Driver\WriteConcern;
-use Tequila\MongoDB\Options\Traits\CachedResolverTrait;
+use Tequila\MongoDB\Traits\CachedResolverTrait;
 
-class DatabaseOptions implements OptionsInterface
+class DatabaseOptions
 {
     use CachedResolverTrait {
         resolve as privateResolve;

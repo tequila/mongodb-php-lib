@@ -7,7 +7,7 @@ use Tequila\MongoDB\Options\CollationOptions;
 use Tequila\MongoDB\Options\OptionsResolver;
 use Tequila\MongoDB\Traits\CachedResolverTrait;
 
-class Update implements WriteModelInterface
+class Delete implements WriteModelInterface
 {
     use CachedResolverTrait;
 
@@ -19,22 +19,15 @@ class Update implements WriteModelInterface
     /**
      * @var array
      */
-    private $update;
-
-    /**
-     * @var array
-     */
     private $options;
 
     /**
      * @param array $filter
-     * @param array $update
      * @param array $options
      */
-    public function __construct(array $filter, array $update, array $options = [])
+    public function __construct(array $filter, array $options = [])
     {
         $this->filter = $filter;
-        $this->update = $update;
         $this->options = self::resolve($options);
     }
 
@@ -43,19 +36,15 @@ class Update implements WriteModelInterface
      */
     public function writeToBulk(BulkWrite $bulk)
     {
-        $bulk->update($this->filter, $this->update, $this->options);
+        $bulk->delete($this->filter, $this->options);
     }
 
     private static function configureOptions(OptionsResolver $resolver)
     {
         CollationOptions::configureOptions($resolver);
 
-        $resolver->setDefined([
-            'upsert',
-            'multi',
-        ]);
-
-        $resolver->setAllowedTypes('upsert', 'bool');
-        $resolver->setAllowedTypes('multi', 'bool');
+        $resolver
+            ->setDefined('limit')
+            ->setAllowedValues('limit', [0, 1]);
     }
 }

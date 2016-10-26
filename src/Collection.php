@@ -11,8 +11,8 @@ use Tequila\MongoDB\Command\DropCollection;
 use Tequila\MongoDB\Command\DropIndexes;
 use Tequila\MongoDB\Command\ListIndexes;
 use Tequila\MongoDB\Options\CollectionOptions;
-use Tequila\MongoDB\Write\Bulk\BulkWrite;
-use Tequila\MongoDB\Write\Bulk\BulkWriteOptions;
+use Tequila\MongoDB\Options\TypeMapOptions;
+use Tequila\MongoDB\Options\BulkWriteOptions;
 use Tequila\MongoDB\Write\Model\DeleteMany;
 use Tequila\MongoDB\Write\Model\DeleteOne;
 use Tequila\MongoDB\Write\Model\InsertOne;
@@ -102,7 +102,6 @@ class Collection
 
         $options += $defaults;
 
-
         $command = new Aggregate($this->collectionName, $pipeline, $options);
         $cursor = $this->manager->executeCommand(
             $this->databaseName,
@@ -111,6 +110,51 @@ class Collection
         );
 
         return new AggregationCursor($cursor, $command->getUseCursor(), $command->getTypeMap());
+    }
+
+    /**
+     * @param WriteModelInterface[] $requests
+     * @param array $options
+     * @return \Tequila\MongoDB\WriteResult
+     */
+    public function bulkWrite(array $requests, array $options = [])
+    {
+        $writeConcern = isset($options['writeConcern']) ? $options['writeConcern'] : $this->writeConcern;
+        unset($options['writeConcern']);
+
+        $builder = new BulkWriteBuilder();
+        $builder->addMany($requests);
+        $bulk = $builder->getBulk($options);
+        $namespace = $this->databaseName . '.' . $this->collectionName;
+
+        return $this->manager->executeBulkWrite($namespace, $bulk, $writeConcern);
+    }
+
+    /**
+     * @param array $key
+     * @param array $options
+     * @return string
+     */
+    public function createIndex(array $key, array $options = [])
+    {
+        $index = new Index($key, $options);
+
+        return current($this->createIndexes([$index]));
+    }
+
+    /**
+     * @param Index[] $indexes
+     * @param array $options
+     * @return \string[]
+     */
+    public function createIndexes(array $indexes, array $options = [])
+    {
+        $command = new CreateIndexes($this->collectionName, $indexes, $options);
+        $this->executeCommand($command);
+
+        return array_map(function(Index $index) {
+            return $index->getName();
+        }, $indexes);
     }
 
     /**
@@ -135,8 +179,8 @@ class Collection
      */
     public function drop(array $options = [])
     {
-        $command = new DropCollection($this->databaseName, $this->collectionName, $options);
-        $cursor = $command->execute($this->manager);
+        $command = new DropCollection($this->collectionName, $options);
+        $cursor = $this->executeCommand($command);
 
         return current(iterator_to_array($cursor));
     }
@@ -147,8 +191,8 @@ class Collection
      */
     public function dropIndexes(array $options = [])
     {
-        $command = new DropIndexes($this->databaseName, $this->collectionName, '*', $options);
-        $cursor = $command->execute($this->manager);
+        $command = new DropIndexes($this->collectionName, '*', $options);
+        $cursor = $this->executeCommand($command);
 
         return current(iterator_to_array($cursor));
     }
@@ -167,48 +211,21 @@ class Collection
             $options
         );
 
-        $cursor = $command->execute($this->manager);
+        $cursor = $this->executeCommand($command);
 
         return current(iterator_to_array($cursor));
     }
 
-    /**
-     * @param WriteModelInterface[] $requests
-     * @param array $options
-     * @return \Tequila\MongoDB\Write\Bulk\BulkWriteResult
-     */
-    public function bulkWrite(array $requests, array $options = [])
-    {
-        $options = $options + ['writeConcern' => $this->writeConcern];
-        $bulk = new BulkWrite($requests, $options);
+    public function executeCommand(
+        CommandInterface $command,
+        ReadPreference $readPreference = null,
+        array $typeMap = []
+    ) {
+        $cursor = $this->manager->executeCommand($this->databaseName, $command, $readPreference);
+        $typeMap = TypeMapOptions::resolve($typeMap);
+        $cursor->setTypeMap($typeMap);
 
-        return $bulk->execute($this->manager, $this->databaseName, $this->collectionName);
-    }
-
-    /**
-     * @param Index[] $indexes
-     * @return string[]
-     */
-    public function createIndexes(array $indexes)
-    {
-        $command = new CreateIndexes($this->databaseName, $this->collectionName, $indexes);
-        $command->execute($this->manager);
-
-        return array_map(function(Index $index) {
-            return $index->getName();
-        }, $indexes);
-    }
-
-    /**
-     * @param array $key
-     * @param array $options
-     * @return string
-     */
-    public function createIndex(array $key, array $options = [])
-    {
-        $index = new Index($key, $options);
-
-        return current($this->createIndexes([$index]));
+        return $cursor;
     }
 
     /**

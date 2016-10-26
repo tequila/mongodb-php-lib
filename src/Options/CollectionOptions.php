@@ -3,12 +3,13 @@
 namespace Tequila\MongoDB\Options;
 
 use Symfony\Component\OptionsResolver\Options;
-use Tequila\MongoDB\Options\Driver\TypeMapOptions;
-use Tequila\MongoDB\Options\Traits\CachedResolverTrait;
+use Tequila\MongoDB\Traits\CachedResolverTrait;
 
-class CollectionOptions implements OptionsInterface
+class CollectionOptions
 {
-    use CachedResolverTrait;
+    use CachedResolverTrait {
+        resolve as privateResolve;
+    }
 
     public static function configureOptions(OptionsResolver $resolver)
     {
@@ -17,9 +18,16 @@ class CollectionOptions implements OptionsInterface
         $resolver
             ->setDefined('typeMap')
             ->setAllowedTypes('typeMap', 'array')
-            ->setDefault('typeMap', TypeMapOptions::getDefaults())
+            ->setDefault('typeMap', function(Options $options) {
+                return TypeMapOptions::resolve([]);
+            })
             ->setNormalizer('typeMap', function(Options $options, array $typeMap) {
                 return TypeMapOptions::resolve($typeMap);
             });
+    }
+
+    public static function resolve(array $options)
+    {
+        return self::privateResolve($options);
     }
 }

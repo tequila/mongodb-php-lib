@@ -5,26 +5,12 @@ namespace Tequila\MongoDB\Write\Model;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\Traits\EnsureValidDocumentTrait;
 use Tequila\MongoDB\Util\TypeUtil;
-use Tequila\MongoDB\Write\Bulk\BulkWrite;
-use Tequila\MongoDB\Write\Options\UpdateOptions;
+use Tequila\MongoDB\Write\Model\Traits\BulkUpdateTrait;
 
 class ReplaceOne implements WriteModelInterface
 {
+    use BulkUpdateTrait;
     use EnsureValidDocumentTrait;
-    /**
-     * @var array
-     */
-    private $filter;
-
-    /**
-     * @var array|object
-     */
-    private $replacement;
-
-    /**
-     * @var array
-     */
-    private $options;
 
     /**
      * @param $filter
@@ -44,20 +30,7 @@ class ReplaceOne implements WriteModelInterface
 
         $this->ensureValidDocument($replacement);
 
-        $options = UpdateOptions::resolve($options);
-        if (isset($options['multi']) && $options['multi']) {
-            throw new InvalidArgumentException(
-                'ReplaceOne operation does not allow option "multi" to be true'
-            );
-        }
-
-        $this->filter = $filter;
-        $this->replacement = $replacement;
-        $this->options = $options;
-    }
-
-    public function writeToBulk(BulkWrite $bulk)
-    {
-        $bulk->update($this->filter, $this->replacement, $this->options);
+        $options = ['multi' => false] + self::resolve($options);
+        $this->update = new Update($filter, $replacement, $options);
     }
 }

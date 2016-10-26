@@ -6,7 +6,7 @@ use Tequila\MongoDB\Options\WritingCommandOptions;
 use Tequila\MongoDB\Command\Traits\PrimaryServerTrait;
 use Tequila\MongoDB\CommandInterface;
 use Tequila\MongoDB\Options\OptionsResolver;
-use Tequila\MongoDB\Options\Traits\CachedResolverTrait;
+use Tequila\MongoDB\Traits\CachedResolverTrait;
 use Tequila\MongoDB\ServerInfo;
 
 class FindOneAndDelete implements CommandInterface

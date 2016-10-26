@@ -1,6 +1,6 @@
 <?php
 
-namespace Tequila\MongoDB\Options\Traits;
+namespace Tequila\MongoDB\Traits;
 
 use Tequila\MongoDB\Options\OptionsResolver;
 

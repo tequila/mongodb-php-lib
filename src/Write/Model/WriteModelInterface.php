@@ -2,13 +2,12 @@
 
 namespace Tequila\MongoDB\Write\Model;
 
-use Tequila\MongoDB\Write\Bulk\BulkWrite;
+use Tequila\MongoDB\BulkWrite;
 
 interface WriteModelInterface
 {
     /**
      * @param BulkWrite $bulk
-     * @return mixed
      */
     public function writeToBulk(BulkWrite $bulk);
 }

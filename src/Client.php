@@ -7,7 +7,7 @@ use Tequila\MongoDB\Command\DropDatabase;
 use Tequila\MongoDB\Command\ListDatabases;
 use Tequila\MongoDB\Command\Result\DatabaseInfo;
 use Tequila\MongoDB\Exception\UnexpectedResultException;
-use Tequila\MongoDB\Options\Driver\TypeMapOptions;
+use Tequila\MongoDB\Options\TypeMapOptions;
 
 class Client
 {

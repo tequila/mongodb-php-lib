@@ -2,12 +2,11 @@
 
 namespace Tequila\MongoDB\Write\Model;
 
-use Tequila\MongoDB\Exception\InvalidArgumentException;
-use Tequila\MongoDB\Write\Options\DeleteOptions;
+use Tequila\MongoDB\Write\Model\Traits\BulkDeleteTrait;
 
 class DeleteOne implements WriteModelInterface
 {
-    use Traits\BulkDeleteTrait;
+    use BulkDeleteTrait;
 
     /**
      * @param array $filter
@@ -15,13 +14,7 @@ class DeleteOne implements WriteModelInterface
      */
     public function __construct(array $filter, array $options = [])
     {
-        if (isset($options['limit']) && 0 === $options['limit']) {
-            throw new InvalidArgumentException(
-                'DeleteOne operation does not allow option "limit" to be set to 0'
-            );
-        }
-
-        $this->filter = $filter;
-        $this->options = DeleteOptions::resolve($options);
+        $options = ['limit' => 1] + self::resolve($options);
+        $this->delete = new Delete($filter, $options);
     }
 }

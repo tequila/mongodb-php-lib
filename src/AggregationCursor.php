@@ -4,7 +4,7 @@ namespace Tequila\MongoDB;
 
 use MongoDB\Driver\Cursor;
 use Tequila\MongoDB\Exception\UnexpectedResultException;
-use Tequila\MongoDB\Options\Driver\TypeMapOptions;
+use Tequila\MongoDB\Options\TypeMapOptions;
 
 class AggregationCursor implements CursorInterface
 {
@@ -41,16 +41,12 @@ class AggregationCursor implements CursorInterface
     public function getIterator()
     {
         if (true === $this->useCursor) {
-            if ($this->typeMap) {
-                $this->mongoCursor->setTypeMap($this->typeMap);
-            } else {
-                $this->mongoCursor->setTypeMap(TypeMapOptions::getDefaults());
-            }
+            $this->mongoCursor->setTypeMap(TypeMapOptions::resolve($this->typeMap));
 
             return self::getGenerator($this->mongoCursor);
         }
 
-        $this->mongoCursor->setTypeMap(TypeMapOptions::getDefaults());
+        $this->mongoCursor->setTypeMap(TypeMapOptions::resolve([])); // default type map
 
         $resultDocument = current($this->mongoCursor->toArray());
         if (!isset($resultDocument['result']) || !is_array($resultDocument['result'])) {

@@ -10,7 +10,7 @@ use Tequila\MongoDB\Options\WritingCommandOptions;
 use Tequila\MongoDB\Command\Traits\ConvertWriteConcernToDocumentTrait;
 use Tequila\MongoDB\CommandInterface;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
-use Tequila\MongoDB\Options\Driver\TypeMapOptions;
+use Tequila\MongoDB\Options\TypeMapOptions;
 use Tequila\MongoDB\Options\OptionsResolver;
 use Tequila\MongoDB\ServerInfo;
 use Tequila\MongoDB\Traits\EnsureCollationOptionSupportedTrait;

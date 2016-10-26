@@ -3,22 +3,23 @@
 namespace Tequila\MongoDB\Write\Result;
 
 use Tequila\MongoDB\Exception\UnexpectedResultException;
-use Tequila\MongoDB\Write\Bulk\BulkWriteResult;
+use Tequila\MongoDB\Traits\WriteResultDecoratorTrait;
+use Tequila\MongoDB\WriteResult;
 
 class InsertOneResult
 {
-    use Traits\BulkWriteResultAwareTrait;
+    use WriteResultDecoratorTrait;
 
     public function getInsertedId()
     {
-        foreach ($this->bulkWriteResult->getInsertedIds() as $id) {
+        foreach ($this->writeResult->getInsertedIds() as $id) {
             return $id;
         }
 
         throw new UnexpectedResultException(
             sprintf(
                 '%s::getInsertedIds() returned empty array, though there was insert operation',
-                BulkWriteResult::class
+                WriteResult::class
             )
         );
     }

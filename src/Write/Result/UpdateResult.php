@@ -2,15 +2,17 @@
 
 namespace Tequila\MongoDB\Write\Result;
 
+use Tequila\MongoDB\Traits\WriteResultDecoratorTrait;
+
 class UpdateResult
 {
-    use Traits\BulkWriteResultAwareTrait;
+    use WriteResultDecoratorTrait;
     /**
      * @return int
      */
     public function getMatchedCount()
     {
-        return $this->bulkWriteResult->getMatchedCount();
+        return $this->writeResult->getMatchedCount();
     }
 
     /**
@@ -18,7 +20,7 @@ class UpdateResult
      */
     public function getModifiedCount()
     {
-        return $this->bulkWriteResult->getModifiedCount();
+        return $this->writeResult->getModifiedCount();
     }
 
     /**
@@ -26,7 +28,7 @@ class UpdateResult
      */
     public function getUpsertedCount()
     {
-        return $this->bulkWriteResult->getUpsertedCount();
+        return $this->writeResult->getUpsertedCount();
     }
 
     /**
@@ -34,7 +36,7 @@ class UpdateResult
      */
     public function getUpsertedId()
     {
-        foreach ($this->bulkWriteResult->getUpsertedIds() as $id) {
+        foreach ($this->writeResult->getUpsertedIds() as $id) {
             return $id;
         }
 

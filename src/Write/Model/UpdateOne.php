@@ -2,14 +2,13 @@
 
 namespace Tequila\MongoDB\Write\Model;
 
-use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\Traits\EnsureValidUpdateTrait;
-use Tequila\MongoDB\Write\Options\UpdateOptions;
+use Tequila\MongoDB\Write\Model\Traits\BulkUpdateTrait;
 
 class UpdateOne implements WriteModelInterface
 {
+    use BulkUpdateTrait;
     use EnsureValidUpdateTrait;
-    use Traits\BulkUpdateTrait;
 
     /**
      * @param array $filter
@@ -19,16 +18,8 @@ class UpdateOne implements WriteModelInterface
     public function __construct(array $filter, array $update, array $options = [])
     {
         $this->ensureValidUpdate($update);
+        $options = ['multi' => false] + self::resolve($options);
 
-        $options = UpdateOptions::resolve($options);
-        if (isset($options['multi']) && $options['multi']) {
-            throw new InvalidArgumentException(
-                'UpdateOne operation does not allow option "multi" to be true'
-            );
-        }
-
-        $this->filter = $filter;
-        $this->update = $update;
-        $this->options = $options;
+        $this->update = new Update($filter, $update, $options);
     }
 }

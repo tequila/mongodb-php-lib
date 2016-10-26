@@ -2,12 +2,14 @@
 
 namespace Tequila\MongoDB\Write\Result;
 
+use Tequila\MongoDB\Traits\WriteResultDecoratorTrait;
+
 class DeleteResult
 {
-    use Traits\BulkWriteResultAwareTrait;
+    use WriteResultDecoratorTrait;
 
     public function getDeletedCount()
     {
-        return $this->bulkWriteResult->getDeletedCount();
+        return $this->writeResult->getDeletedCount();
     }
 }

@@ -3,9 +3,9 @@
 namespace Tequila\MongoDB\Options;
 
 use MongoDB\Driver\WriteConcern;
-use Tequila\MongoDB\Options\Traits\CachedResolverTrait;
+use Tequila\MongoDB\Traits\CachedResolverTrait;
 
-class WritingCommandOptions implements OptionsInterface
+class WritingCommandOptions
 {
     use CachedResolverTrait {
         resolve as privateResolve;

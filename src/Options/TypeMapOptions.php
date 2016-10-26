@@ -1,14 +1,12 @@
 <?php
 
-namespace Tequila\MongoDB\Options\Driver;
+namespace Tequila\MongoDB\Options;
 
 use Symfony\Component\OptionsResolver\Options;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
-use Tequila\MongoDB\Options\OptionsInterface;
-use Tequila\MongoDB\Options\OptionsResolver;
-use Tequila\MongoDB\Options\Traits\CachedResolverTrait;
+use Tequila\MongoDB\Traits\CachedResolverTrait;
 
-class TypeMapOptions implements OptionsInterface
+class TypeMapOptions
 {
     use CachedResolverTrait {
         resolve as privateResolve;
@@ -16,7 +14,11 @@ class TypeMapOptions implements OptionsInterface
 
     public static function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults(self::getDefaults());
+        $resolver->setDefaults([
+            'root' => 'array',
+            'document' => 'array',
+            'array' => 'array',
+        ]);
 
         $resolver
             ->setAllowedTypes('array', 'string')
@@ -27,15 +29,6 @@ class TypeMapOptions implements OptionsInterface
             ->setNormalizer('array', self::getNormalizer('array'))
             ->setNormalizer('document', self::getNormalizer('document'))
             ->setNormalizer('root', self::getNormalizer('root'));
-    }
-
-    public static function getDefaults()
-    {
-        return [
-            'root' => 'array',
-            'document' => 'array',
-            'array' => 'array',
-        ];
     }
 
     public static function resolve(array $options)
@@ -50,16 +43,14 @@ class TypeMapOptions implements OptionsInterface
     private static function getNormalizer($fieldName)
     {
         return function(Options $options, $fieldType) use($fieldName) {
-            if (!in_array($fieldType, ['array', 'object'], true)) {
-                if (!class_exists($fieldType)) {
-                    throw new InvalidArgumentException(
-                        sprintf(
-                            'Type map option "%s" must be "array", "object" or a class name, "%s" given',
-                            $fieldName,
-                            $fieldType
-                        )
-                    );
-                }
+            if (!in_array($fieldType, ['array', 'object'], true) && !class_exists($fieldType)) {
+                throw new InvalidArgumentException(
+                    sprintf(
+                        'Type map option "%s" must be "array", "object" or a class name, "%s" given',
+                        $fieldName,
+                        $fieldType
+                    )
+                );
             }
 
             return $fieldType;
