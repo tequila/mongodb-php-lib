@@ -2,6 +2,7 @@
 
 namespace Tequila\MongoDB;
 
+use MongoDB\Driver\Cursor;
 use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
 use MongoDB\Driver\WriteConcern;
@@ -90,7 +91,7 @@ class Collection
     /**
      * @param array $pipeline
      * @param array $options
-     * @return AggregationCursor aggregation cursor
+     * @return Cursor
      */
     public function aggregate(array $pipeline, array $options = [])
     {
@@ -109,13 +110,15 @@ class Collection
             $command->getReadPreference()
         );
 
-        return new AggregationCursor($cursor, $command->getUseCursor(), $command->getTypeMap());
+        $cursor->setTypeMap($command->getTypeMap());
+
+        return $cursor;
     }
 
     /**
      * @param WriteModelInterface[] $requests
      * @param array $options
-     * @return \Tequila\MongoDB\WriteResult
+     * @return WriteResult
      */
     public function bulkWrite(array $requests, array $options = [])
     {
@@ -125,9 +128,8 @@ class Collection
         $builder = new BulkWriteBuilder();
         $builder->addMany($requests);
         $bulk = $builder->getBulk($options);
-        $namespace = $this->databaseName . '.' . $this->collectionName;
 
-        return $this->manager->executeBulkWrite($namespace, $bulk, $writeConcern);
+        return $this->manager->executeBulkWrite($this->getNamespace(), $bulk, $writeConcern);
     }
 
     /**
@@ -158,19 +160,31 @@ class Collection
     }
 
     /**
-     * @return string
+     * @param array|object $filter
+     * @param array $options
+     * @return DeleteResult
      */
-    public function getDatabaseName()
+    public function deleteMany($filter, array $options = [])
     {
-        return $this->databaseName;
+        list($bulkOptions, $options) = self::extractBulkWriteOptions($options);
+        $model = new DeleteMany($filter, $options);
+        $bulkWriteResult = $this->bulkWrite([$model], $bulkOptions);
+
+        return new DeleteResult($bulkWriteResult);
     }
 
     /**
-     * @return string
+     * @param array|object $filter
+     * @param array $options
+     * @return DeleteResult
      */
-    public function getCollectionName()
+    public function deleteOne($filter, array $options = [])
     {
-        return $this->collectionName;
+        list($bulkOptions, $options) = self::extractBulkWriteOptions($options);
+        $model = new DeleteOne($filter, $options);
+        $bulkWriteResult = $this->bulkWrite([$model], $bulkOptions);
+
+        return new DeleteResult($bulkWriteResult);
     }
 
     /**
@@ -216,6 +230,12 @@ class Collection
         return current(iterator_to_array($cursor));
     }
 
+    /**
+     * @param CommandInterface $command
+     * @param ReadPreference|null $readPreference
+     * @param array $typeMap
+     * @return Cursor
+     */
     public function executeCommand(
         CommandInterface $command,
         ReadPreference $readPreference = null,
@@ -242,26 +262,37 @@ class Collection
         ];
         $options += $defaults;
 
-        return new Cursor(
-            $this->manager,
-            $this->databaseName,
-            $this->collectionName,
-            $filter,
-            $options
+        $query = new FindQuery($filter, $options);
+
+        return $this->manager->executeQuery(
+            $this->getNamespace(),
+            $query,
+            $query->getReadPreference()
         );
     }
 
     /**
-     * @param array|object $document
-     * @param array $options
-     * @return InsertOneResult
+     * @return string
      */
-    public function insertOne($document, array $options = [])
+    public function getCollectionName()
     {
-        $model = new InsertOne($document);
-        $bulkWriteResult = $this->bulkWrite([$model], $options);
+        return $this->collectionName;
+    }
 
-        return new InsertOneResult($bulkWriteResult);
+    /**
+     * @return string
+     */
+    public function getDatabaseName()
+    {
+        return $this->databaseName;
+    }
+
+    /**
+     * @return string
+     */
+    public function getNamespace()
+    {
+        return $this->databaseName . '.' . $this->collectionName;
     }
 
     /**
@@ -283,31 +314,16 @@ class Collection
     }
 
     /**
-     * @param array|object $filter
+     * @param array|object $document
      * @param array $options
-     * @return DeleteResult
+     * @return InsertOneResult
      */
-    public function deleteOne($filter, array $options = [])
+    public function insertOne($document, array $options = [])
     {
-        list($bulkOptions, $options) = self::extractBulkWriteOptions($options);
-        $model = new DeleteOne($filter, $options);
-        $bulkWriteResult = $this->bulkWrite([$model], $bulkOptions);
+        $model = new InsertOne($document);
+        $bulkWriteResult = $this->bulkWrite([$model], $options);
 
-        return new DeleteResult($bulkWriteResult);
-    }
-
-    /**
-     * @param array|object $filter
-     * @param array $options
-     * @return DeleteResult
-     */
-    public function deleteMany($filter, array $options = [])
-    {
-        list($bulkOptions, $options) = self::extractBulkWriteOptions($options);
-        $model = new DeleteMany($filter, $options);
-        $bulkWriteResult = $this->bulkWrite([$model], $bulkOptions);
-
-        return new DeleteResult($bulkWriteResult);
+        return new InsertOneResult($bulkWriteResult);
     }
 
     /**
@@ -316,21 +332,21 @@ class Collection
     public function listIndexes()
     {
         $command = new ListIndexes($this->databaseName, $this->collectionName);
-        $cursor = $command->execute($this->manager);
+        $cursor = $this->executeCommand($command);
 
         return iterator_to_array($cursor);
     }
 
     /**
      * @param array|object $filter
-     * @param $update
+     * @param array|object $replacement
      * @param array $options
      * @return UpdateResult
      */
-    public function updateOne($filter, $update, array $options = [])
+    public function replaceOne($filter, $replacement, array $options = [])
     {
         list($bulkOptions, $options) = self::extractBulkWriteOptions($options);
-        $model = new UpdateOne($filter, $update, $options);
+        $model = new ReplaceOne($filter, $replacement, $options);
 
         $bulkWriteResult = $this->bulkWrite([$model], $bulkOptions);
 
@@ -355,14 +371,14 @@ class Collection
 
     /**
      * @param array|object $filter
-     * @param array|object $replacement
+     * @param $update
      * @param array $options
      * @return UpdateResult
      */
-    public function replaceOne($filter, $replacement, array $options = [])
+    public function updateOne($filter, $update, array $options = [])
     {
         list($bulkOptions, $options) = self::extractBulkWriteOptions($options);
-        $model = new ReplaceOne($filter, $replacement, $options);
+        $model = new UpdateOne($filter, $update, $options);
 
         $bulkWriteResult = $this->bulkWrite([$model], $bulkOptions);
 

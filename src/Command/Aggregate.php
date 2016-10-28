@@ -4,7 +4,6 @@ namespace Tequila\MongoDB\Command;
 
 use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
-use MongoDB\Driver\WriteConcern;
 use Symfony\Component\OptionsResolver\Options;
 use Tequila\MongoDB\Options\WritingCommandOptions;
 use Tequila\MongoDB\Command\Traits\ConvertWriteConcernToDocumentTrait;
@@ -13,16 +12,23 @@ use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\Options\TypeMapOptions;
 use Tequila\MongoDB\Options\OptionsResolver;
 use Tequila\MongoDB\ServerInfo;
+use Tequila\MongoDB\Traits\CachedResolverTrait;
 use Tequila\MongoDB\Traits\EnsureCollationOptionSupportedTrait;
 use Tequila\MongoDB\Traits\EnsureReadConcernOptionSupported;
 use Tequila\MongoDB\Traits\EnsureWriteConcernOptionSupported;
 
 class Aggregate implements CommandInterface
 {
+    use CachedResolverTrait;
     use ConvertWriteConcernToDocumentTrait;
     use EnsureCollationOptionSupportedTrait;
     use EnsureWriteConcernOptionSupported;
     use EnsureReadConcernOptionSupported;
+
+    /**
+     * @var string
+     */
+    private $collectionName;
 
     /**
      * @var array
@@ -32,7 +38,7 @@ class Aggregate implements CommandInterface
     /**
      * @var array
      */
-    private $options;
+    private $compiledOptions;
 
     /**
      * @var ReadPreference|null
@@ -56,11 +62,9 @@ class Aggregate implements CommandInterface
      */
     public function __construct($collectionName, array $pipeline, array $options = [])
     {
+        $this->collectionName = $collectionName;
         $this->pipeline = $pipeline;
-        $this->options = [
-                'aggregate' => $collectionName,
-                'pipeline' => $this->pipeline
-            ] + $this->resolve($options);
+        $this->compileOptions($options);
     }
 
     /**
@@ -68,19 +72,19 @@ class Aggregate implements CommandInterface
      */
     public function getOptions(ServerInfo $serverInfo)
     {
-        if (array_key_exists('collation', $this->options)) {
+        if (array_key_exists('collation', $this->compiledOptions)) {
             $this->ensureCollationOptionSupported($serverInfo);
         }
 
-        if (array_key_exists('writeConcern', $this->options)) {
+        if (array_key_exists('writeConcern', $this->compiledOptions)) {
             $this->ensureWriteConcernOptionSupported($serverInfo);
         }
 
-        if (array_key_exists('readConcern', $this->options)) {
+        if (array_key_exists('readConcern', $this->compiledOptions)) {
             $this->ensureReadConcernOptionSupported($serverInfo);
         }
 
-        return $this->options;
+        return $this->compiledOptions;
     }
 
     /**
@@ -116,14 +120,13 @@ class Aggregate implements CommandInterface
     }
 
     /**
+     * Validates input options and compiles them to format, acceptable by the low-level driver
+     *
      * @param array $options
-     * @return array
      */
-    private function resolve(array $options)
+    private function compileOptions(array $options)
     {
-        $resolver = new OptionsResolver();
-        $this->configureOptions($resolver);
-        $options = $resolver->resolve($options);
+        $options = self::resolve($options);
 
         if (isset($options['readConcern'])) {
             /** @var ReadConcern $readConcern */
@@ -135,7 +138,17 @@ class Aggregate implements CommandInterface
             }
         }
 
-        $this->readPreference = isset($this->options['readPreference']) ? $this->options['readPreference'] : null;
+        if (isset($options['writeConcern'])) {
+            if (!$this->hasOutStage()) {
+                throw new InvalidArgumentException(
+                    'Options "writeConcern" is meaningless until aggregation pipeline has $out stage'
+                );
+            }
+
+            $options['writeConcern'] = $this->convertWriteConcernToDocument($options['writeConcern']);
+        }
+
+        $this->readPreference = isset($options['readPreference']) ? $options['readPreference'] : null;
         unset($options['readPreference']);
 
         if (isset($options['typeMap'])) {
@@ -155,10 +168,15 @@ class Aggregate implements CommandInterface
             }
         }
 
-        return $options;
+        $cmd = [
+            'aggregate' => $this->collectionName,
+            'pipeline' => $this->pipeline
+        ];
+
+        $this->compiledOptions = $cmd + $options;
     }
 
-    private function configureOptions(OptionsResolver $resolver)
+    private static function configureOptions(OptionsResolver $resolver)
     {
         WritingCommandOptions::configureOptions($resolver);
 
@@ -205,16 +223,6 @@ class Aggregate implements CommandInterface
             }
 
             return TypeMapOptions::resolve($typeMap);
-        });
-
-        $resolver->setNormalizer('writeConcern', function (Options $options, WriteConcern $writeConcern) {
-            if (!$this->hasOutStage()) {
-                throw new InvalidArgumentException(
-                    'Options "writeConcern" is meaningless until aggregation pipeline has $out stage'
-                );
-            }
-
-            return self::convertWriteConcernToDocument($writeConcern);
         });
     }
 

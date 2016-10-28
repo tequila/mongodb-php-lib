@@ -1,31 +1,37 @@
 <?php
 
-namespace Tequila\MongoDB\Operation;
+namespace Tequila\MongoDB;
 
-use MongoDB\Driver\Manager;
-use MongoDB\Driver\Query;
 use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
+use Symfony\Component\OptionsResolver\Options;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
-use Tequila\MongoDB\Options\Driver\DriverOptions;
 use Tequila\MongoDB\Options\OptionsResolver;
+use Tequila\MongoDB\Options\TypeMapOptions;
+use Tequila\MongoDB\Traits\CachedResolverTrait;
+use Tequila\MongoDB\Traits\EnsureCollationOptionSupportedTrait;
+use Tequila\MongoDB\Traits\EnsureReadConcernOptionSupported;
 use Tequila\MongoDB\Util\TypeUtil;
 
-class Find
+class FindQuery implements QueryInterface
 {
+    use CachedResolverTrait;
+    use EnsureCollationOptionSupportedTrait;
+    use EnsureReadConcernOptionSupported;
+
     const CURSOR_TYPE_NON_TAILABLE = 1;
     const CURSOR_TYPE_TAILABLE = 2;
     const CURSOR_TYPE_TAILABLE_AWAIT = 3;
 
     /**
-     * @var array|object
+     * @var array
      */
     private $filter;
 
     /**
      * @var array
      */
-    private $options;
+    private $compiledOptions;
 
     /**
      * @var ReadPreference
@@ -53,40 +59,62 @@ class Find
         }
 
         $this->filter = $filter;
-        $this->options = $this->resolve($options);
+        $this->compileOptions($options);
     }
 
     /**
-     * @param Manager $manager
-     * @param string $databaseName
-     * @param string $collectionName
-     * @return \MongoDB\Driver\Cursor
-     */
-    public function execute(Manager $manager, $databaseName, $collectionName)
-    {
-        $query = new Query($this->filter, $this->options);
-
-        $cursor = $manager->executeQuery(
-            $databaseName . '.' . $collectionName,
-            $query,
-            $this->readPreference
-        );
-        $cursor->setTypeMap($this->typeMap);
-
-        return $cursor;
-    }
-
-    /**
-     * @param array $options
      * @return array
      */
-    private function resolve(array $options)
+    public function getFilter()
     {
-        $resolver = new OptionsResolver();
-        $this->configureOptions($resolver);
-        $options = $resolver->resolve($options);
+        return $this->filter;
+    }
 
-        $this->readPreference = isset($this->options['readPreference']) ? $this->options['readPreference'] : null;
+    /**
+     * @inheritdoc
+     */
+    public function getOptions(ServerInfo $serverInfo)
+    {
+        if (array_key_exists('collation', $this->compiledOptions)) {
+            $this->ensureCollationOptionSupported($serverInfo);
+        }
+
+        if (array_key_exists('readConcern', $this->compiledOptions)) {
+            $this->ensureReadConcernOptionSupported($serverInfo);
+        }
+
+        return $this->compiledOptions;
+    }
+
+    /**
+     * @return ReadPreference|null
+     */
+    public function getReadPreference()
+    {
+        return $this->readPreference;
+    }
+
+    /**
+     * @return array
+     */
+    public function getTypeMap()
+    {
+        return $this->typeMap;
+    }
+
+    /**
+     * Validates Find operation input options and compiles them to format,
+     * acceptable by the low-level driver
+     *
+     * @param array $options
+     */
+    private function compileOptions(array $options)
+    {
+        // Validate input options
+        $options = self::resolve($options);
+
+        // Compile $options to server-acceptable format
+        $this->readPreference = isset($options['readPreference']) ? $options['readPreference'] : null;
         unset($options['readPreference']);
 
         $this->typeMap = $options['typeMap'];
@@ -125,13 +153,11 @@ class Find
             unset($options['modifiers']);
         }
 
-        return $options;
+        $this->compiledOptions = $options;
     }
 
-    private function configureOptions(OptionsResolver $resolver)
+    private static function configureOptions(OptionsResolver $resolver)
     {
-        DriverOptions::configureOptions($resolver);
-
         $resolver->setDefined([
             'allowPartialResults',
             'awaitData',
@@ -150,6 +176,7 @@ class Find
             'readPreference',
             'skip',
             'sort',
+            'typeMap',
         ]);
 
         $documentTypes = ['array', 'object'];
@@ -169,7 +196,8 @@ class Find
             ->setAllowedTypes('readConcern', ReadConcern::class)
             ->setAllowedTypes('readPreference', ReadPreference::class)
             ->setAllowedTypes('skip', 'integer')
-            ->setAllowedTypes('sort', ['array', 'object']);
+            ->setAllowedTypes('sort', ['array', 'object'])
+            ->setAllowedTypes('typeMap', 'array');
 
         $resolver->setAllowedValues('cursorType', [
             self::CURSOR_TYPE_NON_TAILABLE,
@@ -177,6 +205,14 @@ class Find
             self::CURSOR_TYPE_TAILABLE_AWAIT,
         ]);
 
-        $resolver->setDefault('modifiers', []);
+        $resolver
+            ->setDefault('modifiers', [])
+            ->setDefault('typeMap', function (Options $options) {
+                return [];
+            });
+
+        $resolver->setNormalizer('typeMap', function(Options $options, $typeMap) {
+            return TypeMapOptions::resolve($typeMap);
+        });
     }
 }
