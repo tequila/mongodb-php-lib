@@ -27,7 +27,7 @@ class CreateCollection implements CommandInterface
      */
     public function __construct($collectionName, array $options = [])
     {
-        $this->options = ['create' => (string)$collectionName] + self::resolve($options);
+        $this->options = ['create' => (string)$collectionName] + self::compileOptions($options);
     }
 
     /**
@@ -36,6 +36,19 @@ class CreateCollection implements CommandInterface
     public function getOptions(ServerInfo $serverInfo)
     {
         return $this->options;
+    }
+
+    private static function compileOptions(array $options)
+    {
+        $options = self::resolve($options);
+
+        if (!isset($options['size']) && isset($options['capped']) && true === $options['capped']) {
+            throw new InvalidArgumentException(
+                'The option "size" is required for capped collections'
+            );
+        }
+
+        return $options;
     }
 
     /**
@@ -75,27 +88,22 @@ class CreateCollection implements CommandInterface
             ])
             ->setAllowedTypes('indexOptionDefaults', ['array', 'object']);
 
-        $resolver->setDefault('size', function(Options $options) {
-            if (isset($options['capped']) && true === $options['capped']) {
-                throw new InvalidArgumentException(
-                    'The option "size" is required for capped collections'
-                );
-            }
+        $sizeAndMaxOptionsNormalizerFactory = function($optionName) {
+            return function(Options $options, $value) use($optionName) {
+                if ($value && (!isset($options['capped']) || false === $options['capped'])) {
+                    throw new InvalidArgumentException(
+                        sprintf(
+                            'The "%s" option is meaningless until "capped" option has been set to true',
+                            $optionName
+                        )
+                    );
+                }
 
-            return 0;
-        });
-
-        $sizeAndMaxOptionsNormalizer = function(Options $options, $value) {
-            if ($value && isset($options['capped']) && false === $options['capped']) {
-                throw new InvalidArgumentException(
-                    'The "size" and "max" options are meaningless until "capped" option has been set to true'
-                );
-            }
-
-            return $value;
+                return $value;
+            };
         };
 
-        $resolver->setNormalizer('size', $sizeAndMaxOptionsNormalizer);
-        $resolver->setNormalizer('max', $sizeAndMaxOptionsNormalizer);
+        $resolver->setNormalizer('size', $sizeAndMaxOptionsNormalizerFactory('size'));
+        $resolver->setNormalizer('max', $sizeAndMaxOptionsNormalizerFactory('max'));
     }
 }

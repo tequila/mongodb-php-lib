@@ -47,7 +47,6 @@ class Database
      */
     public function __construct(ManagerInterface $manager, $databaseName, array $options = [])
     {
-
         $this->manager = $manager;
         $this->databaseName = $databaseName;
 
@@ -62,14 +61,6 @@ class Database
         $this->readConcern = $options['readConcern'];
         $this->readPreference = $options['readPreference'];
         $this->writeConcern = $options['writeConcern'];
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getDatabaseName()
-    {
-        return $this->databaseName;
     }
 
     /**
@@ -108,6 +99,14 @@ class Database
         $cursor = $this->executeCommand($command);
 
         return current(iterator_to_array($cursor));
+    }
+
+    /**
+     * @return string
+     */
+    public function getDatabaseName()
+    {
+        return $this->databaseName;
     }
 
     /**
