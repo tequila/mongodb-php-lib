@@ -2,46 +2,25 @@
 
 namespace Tequila\MongoDB\Tests;
 
-use MongoDB\Driver\ReadConcern;
-use MongoDB\Driver\ReadPreference;
 use MongoDB\Driver\WriteConcern;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
-use Prophecy\Prophecy\ObjectProphecy;
 use Tequila\MongoDB\Client;
 use Tequila\MongoDB\Collection;
 use Tequila\MongoDB\Command\DropDatabase;
-use Tequila\MongoDB\CursorInterface;
 use Tequila\MongoDB\Database;
 use Tequila\MongoDB\ManagerInterface;
-use Tequila\MongoDB\ServerInfo;
-use Tequila\MongoDB\Tests\Traits\GetDatabaseAndCollectionNamesTrait;
+use Tequila\MongoDB\Tests\Traits\CursorTrait;
+use Tequila\MongoDB\Tests\Traits\DatabaseAndCollectionNamesTrait;
+use Tequila\MongoDB\Tests\Traits\ManagerProphecyTrait;
+use Tequila\MongoDB\Tests\Traits\ServerInfoTrait;
 
 class ClientTest extends TestCase
 {
-    use GetDatabaseAndCollectionNamesTrait;
-
-    /**
-     * @var ObjectProphecy
-     */
-    private $managerProphecy;
-
-    /**
-     * @var ServerInfo
-     */
-    private $serverInfo;
-
-    /**
-     * @var CursorInterface
-     */
-    private $cursor;
-
-    public function setUp()
-    {
-        $this->managerProphecy = $this->prophesize(ManagerInterface::class);
-        $this->serverInfo = $this->prophesize(ServerInfo::class)->reveal();
-        $this->cursor = $this->prophesize(CursorInterface::class)->reveal();
-    }
+    use CursorTrait;
+    use DatabaseAndCollectionNamesTrait;
+    use ManagerProphecyTrait;
+    use ServerInfoTrait;
 
     /**
      * @covers Client::__construct()
@@ -56,15 +35,16 @@ class ClientTest extends TestCase
      */
     public function testDropDatabaseWithDefaultOptions()
     {
-        $this->managerProphecy
+        $this
+            ->getManagerProphecy()
             ->executeCommand(
                 $this->getDatabaseName(),
                 Argument::that(function(DropDatabase $command) {
-                    return $command->getOptions($this->serverInfo) === ['dropDatabase' => 1];
+                    return $command->getOptions($this->getServerInfo()) === ['dropDatabase' => 1];
                 }),
                 null
             )
-            ->willReturn($this->cursor)
+            ->willReturn($this->getCursor())
             ->shouldBeCalled();
 
         $this->getClient()->dropDatabase($this->getDatabaseName());
@@ -75,11 +55,12 @@ class ClientTest extends TestCase
      */
     public function testDropDatabaseWithWriteConcern()
     {
-        $this->managerProphecy
+        $this
+            ->getManagerProphecy()
             ->executeCommand(
                 $this->getDatabaseName(),
                 Argument::that(function(DropDatabase $command) {
-                    $options = $command->getOptions($this->serverInfo);
+                    $options = $command->getOptions($this->getServerInfo());
 
                     if (2 !== count($options)) {
                         return false;
@@ -103,7 +84,7 @@ class ClientTest extends TestCase
                 }),
                 null
             )
-            ->willReturn($this->cursor)
+            ->willReturn($this->getCursor())
             ->shouldBeCalled();
 
         $this->getClient()->dropDatabase(
@@ -117,8 +98,6 @@ class ClientTest extends TestCase
      */
     public function testSelectCollectionWithDefaultOptions()
     {
-        $this->managerStubReturnsReadPreferenceAndConcerns();
-
         $client = $this->getClient();
         $collection = $client->selectCollection($this->getDatabaseName(), $this->getCollectionName());
         $this->assertInstanceOf(Collection::class, $collection);
@@ -131,8 +110,6 @@ class ClientTest extends TestCase
      */
     public function testSelectDatabaseWithDefaultOptions()
     {
-        $this->managerStubReturnsReadPreferenceAndConcerns();
-
         $client = $this->getClient();
         $database = $client->selectDatabase($this->getDatabaseName());
         $this->assertInstanceOf(Database::class, $database);
@@ -145,23 +122,8 @@ class ClientTest extends TestCase
     private function getClient()
     {
         /** @var ManagerInterface $manager */
-        $manager = $this->managerProphecy->reveal();
+        $manager = $this->getManagerProphecy()->reveal();
 
         return new Client($manager);
-    }
-
-    private function managerStubReturnsReadPreferenceAndConcerns()
-    {
-        $this->managerProphecy
-            ->getReadConcern()
-            ->willReturn(new ReadConcern());
-
-        $this->managerProphecy
-            ->getReadPreference()
-            ->willReturn(new ReadPreference(ReadPreference::RP_PRIMARY));
-
-        $this->managerProphecy
-            ->getWriteConcern()
-            ->willReturn(new WriteConcern(1));
     }
 }

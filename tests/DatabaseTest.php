@@ -2,44 +2,23 @@
 
 namespace Tequila\MongoDB\Tests;
 
-use MongoDB\Driver\ReadConcern;
-use MongoDB\Driver\ReadPreference;
-use MongoDB\Driver\WriteConcern;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
-use Prophecy\Prophecy\ObjectProphecy;
 use Tequila\MongoDB\Command\CreateCollection;
-use Tequila\MongoDB\CursorInterface;
+use Tequila\MongoDB\Command\DropDatabase;
 use Tequila\MongoDB\Database;
 use Tequila\MongoDB\ManagerInterface;
-use Tequila\MongoDB\ServerInfo;
-use Tequila\MongoDB\Tests\Traits\GetDatabaseAndCollectionNamesTrait;
+use Tequila\MongoDB\Tests\Traits\CursorTrait;
+use Tequila\MongoDB\Tests\Traits\DatabaseAndCollectionNamesTrait;
+use Tequila\MongoDB\Tests\Traits\ManagerProphecyTrait;
+use Tequila\MongoDB\Tests\Traits\ServerInfoTrait;
 
 class DatabaseTest extends TestCase
 {
-    use GetDatabaseAndCollectionNamesTrait;
-
-    /**
-     * @var ObjectProphecy
-     */
-    private $managerProphecy;
-
-    /**
-     * @var ServerInfo
-     */
-    private $serverInfo;
-
-    /**
-     * @var CursorInterface
-     */
-    private $cursor;
-
-    public function setUp()
-    {
-        $this->managerProphecy = $this->prophesize(ManagerInterface::class);
-        $this->serverInfo = $this->prophesize(ServerInfo::class)->reveal();
-        $this->cursor = $this->prophesize(CursorInterface::class)->reveal();
-    }
+    use CursorTrait;
+    use DatabaseAndCollectionNamesTrait;
+    use ManagerProphecyTrait;
+    use ServerInfoTrait;
 
     /**
      * @covers Database::__construct()
@@ -54,45 +33,49 @@ class DatabaseTest extends TestCase
      */
     public function testCreateCollectionWithDefaultOptions()
     {
-        $this->managerStubReturnsReadPreferenceAndConcerns();
-        $this->managerProphecy
+        $this
+            ->getManagerProphecy()
             ->executeCommand(
                 $this->getDatabaseName(),
                 Argument::that(function(CreateCollection $command) {
                     $expected = ['create' => $this->getCollectionName()];
-                    $actual = $command->getOptions($this->serverInfo);
+                    $actual = $command->getOptions($this->getServerInfo());
 
                     return $expected === $actual;
                 }),
                 null
             )
-            ->willReturn($this->cursor)
+            ->willReturn($this->getCursor())
             ->shouldBeCalled();
 
         $this->getDatabase()->createCollection($this->getCollectionName());
     }
 
-    private function getDatabase()
+    /**
+     * @covers Database::drop()
+     */
+    public function testDropWithDefaultOptions()
     {
-        $this->managerStubReturnsReadPreferenceAndConcerns();
-        /** @var ManagerInterface $manager */
-        $manager = $this->managerProphecy->reveal();
+        $this
+            ->getManagerProphecy()
+            ->executeCommand(
+                $this->getDatabaseName(),
+                Argument::that(function(DropDatabase $command) {
+                    return $command->getOptions($this->getServerInfo()) === ['dropDatabase' => 1];
+                }),
+                null
+            )
+            ->willReturn($this->getCursor())
+            ->shouldBeCalled();
 
-        return new Database($manager, $this->getDatabaseName());
+        $this->getDatabase()->drop();
     }
 
-    private function managerStubReturnsReadPreferenceAndConcerns()
+    private function getDatabase()
     {
-        $this->managerProphecy
-            ->getReadConcern()
-            ->willReturn(new ReadConcern());
+        /** @var ManagerInterface $manager */
+        $manager = $this->getManagerProphecy()->reveal();
 
-        $this->managerProphecy
-            ->getReadPreference()
-            ->willReturn(new ReadPreference(ReadPreference::RP_PRIMARY));
-
-        $this->managerProphecy
-            ->getWriteConcern()
-            ->willReturn(new WriteConcern(1));
+        return new Database($manager, $this->getDatabaseName());
     }
 }

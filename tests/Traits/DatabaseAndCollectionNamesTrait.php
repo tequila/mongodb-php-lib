@@ -2,7 +2,7 @@
 
 namespace Tequila\MongoDB\Tests\Traits;
 
-trait GetDatabaseAndCollectionNamesTrait
+trait DatabaseAndCollectionNamesTrait
 {
     protected function getDatabaseName()
     {
