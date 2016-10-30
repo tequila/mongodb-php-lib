@@ -4,7 +4,9 @@ namespace Tequila\MongoDB\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
+use Tequila\MongoDB\Collection;
 use Tequila\MongoDB\Command\CreateCollection;
+use Tequila\MongoDB\Command\DropCollection;
 use Tequila\MongoDB\Command\DropDatabase;
 use Tequila\MongoDB\Database;
 use Tequila\MongoDB\ManagerInterface;
@@ -61,7 +63,7 @@ class DatabaseTest extends TestCase
             ->executeCommand(
                 $this->getDatabaseName(),
                 Argument::that(function(DropDatabase $command) {
-                    return $command->getOptions($this->getServerInfo()) === ['dropDatabase' => 1];
+                    return ['dropDatabase' => 1] === $command->getOptions($this->getServerInfo());
                 }),
                 null
             )
@@ -69,6 +71,39 @@ class DatabaseTest extends TestCase
             ->shouldBeCalled();
 
         $this->getDatabase()->drop();
+    }
+
+    /**
+     * @covers Database::dropCollection()
+     */
+    public function testDropCollectionWithDefaultOptions()
+    {
+        $this
+            ->getManagerProphecy()
+            ->executeCommand(
+                $this->getDatabaseName(),
+                Argument::that(function(DropCollection $command) {
+                    $actual = $command->getOptions($this->getServerInfo());
+
+                    return ['drop' => $this->getCollectionName()] === $actual;
+                }),
+                null
+            )
+            ->willReturn($this->getCursor())
+            ->shouldBeCalled();
+
+        $this->getDatabase()->dropCollection($this->getCollectionName());
+    }
+
+    /**
+     * @covers Database::selectCollection()
+     */
+    public function testSelectCollectionWithDefaultOptions()
+    {
+        $collection = $this->getDatabase()->selectCollection($this->getCollectionName());
+        $this->assertInstanceOf(Collection::class, $collection);
+        $this->assertEquals($this->getDatabaseName(), $collection->getDatabaseName());
+        $this->assertEquals($this->getCollectionName(), $collection->getCollectionName());
     }
 
     private function getDatabase()

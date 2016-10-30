@@ -40,7 +40,7 @@ class ClientTest extends TestCase
             ->executeCommand(
                 $this->getDatabaseName(),
                 Argument::that(function(DropDatabase $command) {
-                    return $command->getOptions($this->getServerInfo()) === ['dropDatabase' => 1];
+                    return ['dropDatabase' => 1] === $command->getOptions($this->getServerInfo());
                 }),
                 null
             )
