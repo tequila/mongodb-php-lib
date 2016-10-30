@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "da1a6140e862e55bdd9b763a630aa213",
-    "content-hash": "d45d0d53ee16e2896ebfcd7566588625",
+    "hash": "aa52f8c7d950dc9e237af69db3a54aac",
+    "content-hash": "42396c8c5172ae1dee5ee735d7821388",
     "packages": [
         {
             "name": "symfony/options-resolver",
@@ -63,16 +63,16 @@
         },
         {
             "name": "tequila/mongodb-driver-wrapper",
-            "version": "v0.4.1",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/tequila/mongodb-driver-wrapper.git",
-                "reference": "ee9e3bc49829a825928e79e431c399780ac78480"
+                "reference": "2003dbe90752db723e182c189b07a2761e30dde4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tequila/mongodb-driver-wrapper/zipball/ee9e3bc49829a825928e79e431c399780ac78480",
-                "reference": "ee9e3bc49829a825928e79e431c399780ac78480",
+                "url": "https://api.github.com/repos/tequila/mongodb-driver-wrapper/zipball/2003dbe90752db723e182c189b07a2761e30dde4",
+                "reference": "2003dbe90752db723e182c189b07a2761e30dde4",
                 "shasum": ""
             },
             "require": {
@@ -104,7 +104,7 @@
                 "mongodb",
                 "php"
             ],
-            "time": "2016-10-28 00:40:36"
+            "time": "2016-10-29 21:31:57"
         }
     ],
     "packages-dev": [
@@ -1419,7 +1419,9 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "tequila/mongodb-driver-wrapper": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {

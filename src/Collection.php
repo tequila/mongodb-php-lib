@@ -2,7 +2,6 @@
 
 namespace Tequila\MongoDB;
 
-use MongoDB\Driver\Cursor;
 use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
 use MongoDB\Driver\WriteConcern;
@@ -91,7 +90,7 @@ class Collection
     /**
      * @param array $pipeline
      * @param array $options
-     * @return Cursor
+     * @return CursorInterface
      */
     public function aggregate(array $pipeline, array $options = [])
     {
@@ -234,7 +233,7 @@ class Collection
      * @param CommandInterface $command
      * @param ReadPreference|null $readPreference
      * @param array $typeMap
-     * @return Cursor
+     * @return CursorInterface
      */
     public function executeCommand(
         CommandInterface $command,
@@ -251,7 +250,7 @@ class Collection
     /**
      * @param array $filter
      * @param array $options
-     * @return Cursor
+     * @return CursorInterface
      */
     public function find(array $filter = [], array $options = [])
     {

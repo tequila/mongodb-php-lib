@@ -6,7 +6,7 @@
         "php": ">=5.6",
         "ext-mongodb": ">=1.1.0",
         "symfony/options-resolver": ">=2.8",
-        "tequila/mongodb-driver-wrapper": "^0.4.0"
+        "tequila/mongodb-driver-wrapper": "dev-master"
     },
     "autoload": {
         "psr-4": { "Tequila\\MongoDB\\": "src/" }

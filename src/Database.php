@@ -114,7 +114,7 @@ class Database
      * @param CommandInterface $command
      * @param ReadPreference $readPreference
      * @param array $typeMap
-     * @return \MongoDB\Driver\Cursor
+     * @return CursorInterface
      */
     public function executeCommand(
         CommandInterface $command,

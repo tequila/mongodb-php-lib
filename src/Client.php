@@ -31,7 +31,7 @@ class Client
      */
     public function dropDatabase($databaseName, array $options = [])
     {
-        $command = new DropDatabase($databaseName, $options);
+        $command = new DropDatabase($options);
         $cursor = $this->executeCommand($databaseName, $command);
 
         return current(iterator_to_array($cursor));
@@ -61,7 +61,7 @@ class Client
      * @param CommandInterface $command
      * @param ReadPreference $readPreference
      * @param array $typeMap
-     * @return \MongoDB\Driver\Cursor
+     * @return CursorInterface
      */
     public function executeCommand(
         $databaseName,

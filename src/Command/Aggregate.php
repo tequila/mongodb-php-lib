@@ -6,7 +6,6 @@ use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
 use Symfony\Component\OptionsResolver\Options;
 use Tequila\MongoDB\Options\WritingCommandOptions;
-use Tequila\MongoDB\Command\Traits\ConvertWriteConcernToDocumentTrait;
 use Tequila\MongoDB\CommandInterface;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\Options\TypeMapOptions;
@@ -20,7 +19,6 @@ use Tequila\MongoDB\Traits\EnsureWriteConcernOptionSupported;
 class Aggregate implements CommandInterface
 {
     use CachedResolverTrait;
-    use ConvertWriteConcernToDocumentTrait;
     use EnsureCollationOptionSupportedTrait;
     use EnsureWriteConcernOptionSupported;
     use EnsureReadConcernOptionSupported;
@@ -141,11 +139,9 @@ class Aggregate implements CommandInterface
         if (isset($options['writeConcern'])) {
             if (!$this->hasOutStage()) {
                 throw new InvalidArgumentException(
-                    'Options "writeConcern" is meaningless until aggregation pipeline has $out stage'
+                    'Option "writeConcern" is meaningless until aggregation pipeline has $out stage'
                 );
             }
-
-            $options['writeConcern'] = $this->convertWriteConcernToDocument($options['writeConcern']);
         }
 
         $this->readPreference = isset($options['readPreference']) ? $options['readPreference'] : null;

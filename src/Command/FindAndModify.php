@@ -2,10 +2,8 @@
 
 namespace Tequila\MongoDB\Command;
 
-use MongoDB\Driver\WriteConcern;
 use Symfony\Component\OptionsResolver\Options;
 use Tequila\MongoDB\Options\WritingCommandOptions;
-use Tequila\MongoDB\Command\Traits\ConvertWriteConcernToDocumentTrait;
 use Tequila\MongoDB\Command\Traits\PrimaryServerTrait;
 use Tequila\MongoDB\CommandInterface;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
@@ -16,7 +14,6 @@ use Tequila\MongoDB\ServerInfo;
 class FindAndModify implements CommandInterface
 {
     use CachedResolverTrait;
-    use ConvertWriteConcernToDocumentTrait;
     use PrimaryServerTrait;
 
     const RETURN_DOCUMENT_BEFORE = 'before';
@@ -96,10 +93,6 @@ class FindAndModify implements CommandInterface
                     );
                 }
             }
-        });
-
-        $resolver->setNormalizer('writeConcern', function (Options $options, WriteConcern $writeConcern) {
-            return self::convertWriteConcernToDocument($writeConcern);
         });
     }
 }

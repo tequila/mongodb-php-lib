@@ -2,13 +2,15 @@
 
 namespace Tequila\MongoDB\Tests;
 
-use MongoDB\Driver\Command;
-use MongoDB\Driver\Manager;
-use MongoDB\Driver\ReadPreference;
+use MongoDB\Driver\WriteConcern;
 use PHPUnit\Framework\TestCase;
+use Prophecy\Argument;
+use Prophecy\Prophecy\ObjectProphecy;
 use Tequila\MongoDB\Client;
-use Tequila\MongoDB\Collection;
-use Tequila\MongoDB\Database;
+use Tequila\MongoDB\Command\DropDatabase;
+use Tequila\MongoDB\CursorInterface;
+use Tequila\MongoDB\ManagerInterface;
+use Tequila\MongoDB\ServerInfo;
 use Tequila\MongoDB\Tests\Traits\GetDatabaseAndCollectionNamesTrait;
 
 class ClientTest extends TestCase
@@ -16,85 +18,104 @@ class ClientTest extends TestCase
     use GetDatabaseAndCollectionNamesTrait;
 
     /**
+     * @var ObjectProphecy
+     */
+    private $managerProphecy;
+
+    /**
+     * @var ServerInfo
+     */
+    private $serverInfo;
+
+    /**
+     * @var CursorInterface
+     */
+    private $cursor;
+
+    public function setUp()
+    {
+        $this->managerProphecy = $this->prophesize(ManagerInterface::class);
+        $this->serverInfo = $this->prophesize(ServerInfo::class)->reveal();
+        $this->cursor = $this->prophesize(CursorInterface::class)->reveal();
+    }
+
+    /**
      * @covers Client::__construct()
      */
-    public function testConstructorWithoutArguments()
+    public function testConstructorWithManagerInterface()
     {
-        $manager = $this->prophesize(Manager::class);
-        return new Client();
+        $this->getClient();
     }
 
     /**
-     * @depends testConstructorWithoutArguments
-     * @covers  Client::dropDatabase()
-     *
-     * @param Client $client
+     * @covers Client::dropDatabase()
      */
-    public function testDropDatabaseDropsDatabase(Client $client)
+    public function testDropDatabaseWithDefaultOptions()
     {
-        $result = $client->dropDatabase($this->getDatabaseName());
-        $this->assertEquals(1.0, $result['ok']);
+        $this->managerProphecy
+            ->executeCommand(
+                $this->getDatabaseName(),
+                Argument::that(function(DropDatabase $command) {
+                    return $command->getOptions($this->serverInfo) === ['dropDatabase' => 1];
+                }),
+                null
+            )
+            ->willReturn($this->cursor)
+            ->shouldBeCalled();
+
+        $this->getClient()->dropDatabase($this->getDatabaseName());
     }
 
     /**
-     * @covers  Client::listDatabases()
-     * @depends testConstructorWithoutArguments
-     *
-     * @param Client $client
+     * @covers Client::dropDatabase()
      */
-    public function testListDatabases(Client $client)
+    public function testDropDatabaseWithWriteConcern()
     {
-        $manager = new Manager();
-        $createCollectionCommand = new Command(['create' => $this->getCollectionName()]);
-        $manager->executeCommand(
+        $this->managerProphecy
+            ->executeCommand(
+                $this->getDatabaseName(),
+                Argument::that(function(DropDatabase $command) {
+                    $options = $command->getOptions($this->serverInfo);
+
+                    if (2 !== count($options)) {
+                        return false;
+                    }
+
+                    if ('dropDatabase' !== key($options) || 1 !== current($options)) {
+                        return false;
+                    }
+
+                    if (!isset($options['writeConcern'])) {
+                        return false;
+                    }
+
+                    $writeConcern = (array)$options['writeConcern'];
+                    $expectedWriteConcern = [
+                        'w' => WriteConcern::MAJORITY,
+                        'wtimeout' => 1000,
+                    ];
+
+                    return $writeConcern === $expectedWriteConcern;
+                }),
+                null
+            )
+            ->willReturn($this->cursor)
+            ->shouldBeCalled();
+
+        $this->getClient()->dropDatabase(
             $this->getDatabaseName(),
-            $createCollectionCommand,
-            new ReadPreference(ReadPreference::RP_PRIMARY)
+            ['writeConcern' => new WriteConcern(WriteConcern::MAJORITY, 1000)]
         );
-
-        $result = $client->listDatabases();
-        foreach ($result as $dbInfo) {
-            if ($dbInfo->getName() === $this->getDatabaseName()) {
-                return;
-            }
-        }
-
-        throw new \LogicException('Method Client::listDatabases() did not return expected database');
     }
 
     /**
-     * @covers  Client::selectCollection()
-     * @depends testConstructorWithoutArguments
-     *
-     * @param Client $client
-     * @return Collection
+     * @return Client
      */
-    public function testSelectCollectionWithDefaultOptions(Client $client)
+    private function getClient()
     {
-        $collectionName = $this->getCollectionName();
-        $collection = $client->selectCollection($this->getDatabaseName(), $collectionName);
+        /** @var ManagerInterface $manager */
+        $manager = $this->managerProphecy->reveal();
 
-        $this->assertInstanceOf(Collection::class, $collection);
-        $this->assertEquals($this->getDatabaseName(), $collection->getDatabaseName());
-        $this->assertEquals($collectionName, $collection->getCollectionName());
-
-        return $collection;
-    }
-
-    /**
-     * @covers  Client::selectDatabase()
-     * @depends testConstructorWithoutArguments
-     *
-     * @param Client $client
-     * @return Database
-     */
-    public function testSelectDatabaseWithDefaultOptions(Client $client)
-    {
-        $database = $client->selectDatabase($this->getDatabaseName());
-
-        $this->assertInstanceOf(Database::class, $database);
-        $this->assertEquals($this->getDatabaseName(), $database->getDatabaseName());
-
-        return $database;
+        return new Client($manager);
     }
 }
