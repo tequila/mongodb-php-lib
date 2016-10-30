@@ -14,7 +14,7 @@ trait GetDatabaseAndCollectionNamesTrait
 
     public function getCollectionName()
     {
-        return uniqid();
+        return strtolower((new \ReflectionObject($this))->getShortName());
     }
 
     public function getNamespace()
