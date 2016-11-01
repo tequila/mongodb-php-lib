@@ -196,31 +196,25 @@ class Aggregate implements CommandInterface
 
         $resolver->setDefault('useCursor', true);
 
-        $resolver->setNormalizer(
-            'batchSize',
-            function (Options $options, $batchSize) {
-                if (!isset($options['useCursor']) || false === $options['useCursor']) {
-                    throw new InvalidArgumentException(
-                        'Option "batchSize" is meaningless unless option "useCursor" is set to true'
-                    );
-                }
-
-                return $batchSize;
+        $resolver->setNormalizer('batchSize', function (Options $options, $batchSize) {
+            if (!isset($options['useCursor']) || false === $options['useCursor']) {
+                throw new InvalidArgumentException(
+                    'Option "batchSize" is meaningless unless option "useCursor" is set to true'
+                );
             }
-        );
 
-        $resolver->setNormalizer(
-            'typeMap',
-            function (Options $options, array $typeMap) {
-                if (false === $options['useCursor']) {
-                    throw new InvalidArgumentException(
-                        'Option "typeMap" will not get applied when option "useCursor" is set to false'
-                    );
-                }
+            return $batchSize;
+        });
 
-                return TypeMapOptions::resolve($typeMap);
+        $resolver->setNormalizer('typeMap', function (Options $options, array $typeMap) {
+            if (false === $options['useCursor']) {
+                throw new InvalidArgumentException(
+                    'Option "typeMap" is not allowed when option "useCursor" is set to false'
+                );
             }
-        );
+
+            return TypeMapOptions::resolve($typeMap);
+        });
     }
 
     /**

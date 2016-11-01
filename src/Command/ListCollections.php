@@ -52,9 +52,9 @@ class ListCollections implements CommandInterface
                 'options.storageEngine',
             ]);
 
-            $value = $filterResolver->resolve($filter);
+            $filter = $filterResolver->resolve($filter);
 
-            return (object)$value;
+            return (object)$filter;
         });
     }
 }

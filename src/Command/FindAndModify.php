@@ -101,6 +101,8 @@ class FindAndModify implements CommandInterface
                     );
                 }
             }
+
+            return $remove;
         });
     }
 }
