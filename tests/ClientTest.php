@@ -51,49 +51,6 @@ class ClientTest extends TestCase
     }
 
     /**
-     * @covers Client::dropDatabase()
-     */
-    public function testDropDatabaseWithWriteConcern()
-    {
-        $this
-            ->getManagerProphecy()
-            ->executeCommand(
-                $this->getDatabaseName(),
-                Argument::that(function(DropDatabase $command) {
-                    $options = $command->getOptions($this->getServerInfo());
-
-                    if (2 !== count($options)) {
-                        return false;
-                    }
-
-                    if ('dropDatabase' !== key($options) || 1 !== current($options)) {
-                        return false;
-                    }
-
-                    if (!isset($options['writeConcern'])) {
-                        return false;
-                    }
-
-                    $writeConcern = (array)$options['writeConcern'];
-                    $expectedWriteConcern = [
-                        'w' => WriteConcern::MAJORITY,
-                        'wtimeout' => 1000,
-                    ];
-
-                    return $writeConcern === $expectedWriteConcern;
-                }),
-                null
-            )
-            ->willReturn($this->getCursor())
-            ->shouldBeCalled();
-
-        $this->getClient()->dropDatabase(
-            $this->getDatabaseName(),
-            ['writeConcern' => new WriteConcern(WriteConcern::MAJORITY, 1000)]
-        );
-    }
-
-    /**
      * @covers Client::selectCollection()
      */
     public function testSelectCollectionWithDefaultOptions()

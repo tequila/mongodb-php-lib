@@ -6,18 +6,15 @@ use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
 use Symfony\Component\OptionsResolver\Options;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
+use Tequila\MongoDB\Options\CompatibilityResolver;
 use Tequila\MongoDB\Options\OptionsResolver;
 use Tequila\MongoDB\Options\TypeMapOptions;
 use Tequila\MongoDB\Traits\CachedResolverTrait;
-use Tequila\MongoDB\Traits\EnsureCollationOptionSupportedTrait;
-use Tequila\MongoDB\Traits\EnsureReadConcernOptionSupported;
 use Tequila\MongoDB\Util\TypeUtil;
 
 class FindQuery implements QueryInterface
 {
     use CachedResolverTrait;
-    use EnsureCollationOptionSupportedTrait;
-    use EnsureReadConcernOptionSupported;
 
     const CURSOR_TYPE_NON_TAILABLE = 1;
     const CURSOR_TYPE_TAILABLE = 2;
@@ -75,15 +72,11 @@ class FindQuery implements QueryInterface
      */
     public function getOptions(ServerInfo $serverInfo)
     {
-        if (array_key_exists('collation', $this->compiledOptions)) {
-            $this->ensureCollationOptionSupported($serverInfo);
-        }
-
-        if (array_key_exists('readConcern', $this->compiledOptions)) {
-            $this->ensureReadConcernOptionSupported($serverInfo);
-        }
-
-        return $this->compiledOptions;
+        return CompatibilityResolver::getInstance(
+            $serverInfo,
+            $this->compiledOptions,
+            ['collation', 'readConcern']
+        )->resolve();
     }
 
     /**
