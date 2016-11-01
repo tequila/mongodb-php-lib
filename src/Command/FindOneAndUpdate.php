@@ -2,6 +2,7 @@
 
 namespace Tequila\MongoDB\Command;
 
+use Tequila\MongoDB\Options\CollationOptions;
 use Tequila\MongoDB\Options\WritingCommandOptions;
 use Tequila\MongoDB\Command\Traits\PrimaryServerTrait;
 use Tequila\MongoDB\CommandInterface;
@@ -13,6 +14,9 @@ class FindOneAndUpdate implements CommandInterface
 {
     use CachedResolverTrait;
     use PrimaryServerTrait;
+
+    const RETURN_DOCUMENT_BEFORE = 'before';
+    const RETURN_DOCUMENT_AFTER = 'after';
 
     /**
      * @var FindAndModify
@@ -33,7 +37,7 @@ class FindOneAndUpdate implements CommandInterface
             unset($options['projection']);
         }
 
-        if (FindAndModify::RETURN_DOCUMENT_AFTER === $options['returnDocument']) {
+        if (self::RETURN_DOCUMENT_AFTER === $options['returnDocument']) {
             $options['new'] = true;
         }
 
@@ -56,6 +60,7 @@ class FindOneAndUpdate implements CommandInterface
 
     private static function configureOptions(OptionsResolver $resolver)
     {
+        CollationOptions::configureOptions($resolver);
         WritingCommandOptions::configureOptions($resolver);
 
         $resolver->setDefined([
@@ -65,17 +70,16 @@ class FindOneAndUpdate implements CommandInterface
             'returnDocument',
             'sort',
             'upsert',
-            'collation',
         ]);
 
         $resolver->setAllowedValues(
             'returnDocument',
             [
-                FindAndModify::RETURN_DOCUMENT_BEFORE,
-                FindAndModify::RETURN_DOCUMENT_AFTER,
+                self::RETURN_DOCUMENT_BEFORE,
+                self::RETURN_DOCUMENT_AFTER,
             ]
         );
 
-        $resolver->setDefault('returnDocument', FindAndModify::RETURN_DOCUMENT_BEFORE);
+        $resolver->setDefault('returnDocument', self::RETURN_DOCUMENT_BEFORE);
     }
 }

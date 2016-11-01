@@ -5,6 +5,8 @@ namespace Tequila\MongoDB\Command;
 use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
 use Symfony\Component\OptionsResolver\Options;
+use Tequila\MongoDB\Options\CollationOptions;
+use Tequila\MongoDB\Options\CompatibilityResolver;
 use Tequila\MongoDB\Options\WritingCommandOptions;
 use Tequila\MongoDB\CommandInterface;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
@@ -12,16 +14,10 @@ use Tequila\MongoDB\Options\TypeMapOptions;
 use Tequila\MongoDB\Options\OptionsResolver;
 use Tequila\MongoDB\ServerInfo;
 use Tequila\MongoDB\Traits\CachedResolverTrait;
-use Tequila\MongoDB\Traits\EnsureCollationOptionSupportedTrait;
-use Tequila\MongoDB\Traits\EnsureReadConcernOptionSupported;
-use Tequila\MongoDB\Traits\EnsureWriteConcernOptionSupported;
 
 class Aggregate implements CommandInterface
 {
     use CachedResolverTrait;
-    use EnsureCollationOptionSupportedTrait;
-    use EnsureWriteConcernOptionSupported;
-    use EnsureReadConcernOptionSupported;
 
     /**
      * @var string
@@ -70,19 +66,15 @@ class Aggregate implements CommandInterface
      */
     public function getOptions(ServerInfo $serverInfo)
     {
-        if (array_key_exists('collation', $this->compiledOptions)) {
-            $this->ensureCollationOptionSupported($serverInfo);
-        }
-
-        if (array_key_exists('writeConcern', $this->compiledOptions)) {
-            $this->ensureWriteConcernOptionSupported($serverInfo);
-        }
-
-        if (array_key_exists('readConcern', $this->compiledOptions)) {
-            $this->ensureReadConcernOptionSupported($serverInfo);
-        }
-
-        return $this->compiledOptions;
+        return CompatibilityResolver::getInstance(
+            $serverInfo,
+            $this->compiledOptions,
+            [
+                'collation',
+                'writeConcern',
+                'readConcern',
+            ]
+        )->resolve();
     }
 
     /**
@@ -129,7 +121,9 @@ class Aggregate implements CommandInterface
         if (isset($options['readConcern'])) {
             /** @var ReadConcern $readConcern */
             $readConcern = $options['readConcern'];
-            if (null === $readConcern->getLevel() || ($this->hasOutStage() && ReadConcern::MAJORITY === $readConcern->getLevel())) {
+            if (null === $readConcern->getLevel() || ($this->hasOutStage(
+                    ) && ReadConcern::MAJORITY === $readConcern->getLevel())
+            ) {
                 unset($options['readConcern']);
             } else {
                 $options['readConcern'] = ['level' => $readConcern->getLevel()];
@@ -166,7 +160,7 @@ class Aggregate implements CommandInterface
 
         $cmd = [
             'aggregate' => $this->collectionName,
-            'pipeline' => $this->pipeline
+            'pipeline' => $this->pipeline,
         ];
 
         $this->compiledOptions = $cmd + $options;
@@ -174,25 +168,26 @@ class Aggregate implements CommandInterface
 
     private static function configureOptions(OptionsResolver $resolver)
     {
+        CollationOptions::configureOptions($resolver);
         WritingCommandOptions::configureOptions($resolver);
 
-        $resolver->setDefined([
-            'allowDiskUse',
-            'batchSize',
-            'bypassDocumentValidation',
-            'collation',
-            'maxTimeMS',
-            'readConcern',
-            'readPreference',
-            'typeMap',
-            'useCursor',
-        ]);
+        $resolver->setDefined(
+            [
+                'allowDiskUse',
+                'batchSize',
+                'bypassDocumentValidation',
+                'maxTimeMS',
+                'readConcern',
+                'readPreference',
+                'typeMap',
+                'useCursor',
+            ]
+        );
 
         $resolver
             ->setAllowedTypes('allowDiskUse', 'bool')
             ->setAllowedTypes('batchSize', 'integer')
             ->setAllowedTypes('bypassDocumentValidation', 'bool')
-            ->setAllowedTypes('collation', ['array', 'object'])
             ->setAllowedTypes('maxTimeMS', 'integer')
             ->setAllowedTypes('readConcern', ReadConcern::class)
             ->setAllowedTypes('readPreference', ReadPreference::class)
@@ -201,25 +196,31 @@ class Aggregate implements CommandInterface
 
         $resolver->setDefault('useCursor', true);
 
-        $resolver->setNormalizer('batchSize', function (Options $options, $batchSize) {
-            if (!isset($options['useCursor']) || false === $options['useCursor']) {
-                throw new InvalidArgumentException(
-                    'Option "batchSize" is meaningless unless option "useCursor" is set to true'
-                );
+        $resolver->setNormalizer(
+            'batchSize',
+            function (Options $options, $batchSize) {
+                if (!isset($options['useCursor']) || false === $options['useCursor']) {
+                    throw new InvalidArgumentException(
+                        'Option "batchSize" is meaningless unless option "useCursor" is set to true'
+                    );
+                }
+
+                return $batchSize;
             }
+        );
 
-            return $batchSize;
-        });
+        $resolver->setNormalizer(
+            'typeMap',
+            function (Options $options, array $typeMap) {
+                if (false === $options['useCursor']) {
+                    throw new InvalidArgumentException(
+                        'Option "typeMap" will not get applied when option "useCursor" is set to false'
+                    );
+                }
 
-        $resolver->setNormalizer('typeMap', function (Options $options, array $typeMap) {
-            if (false === $options['useCursor']) {
-                throw new InvalidArgumentException(
-                    'Option "typeMap" will not get applied when option "useCursor" is set to false'
-                );
+                return TypeMapOptions::resolve($typeMap);
             }
-
-            return TypeMapOptions::resolve($typeMap);
-        });
+        );
     }
 
     /**

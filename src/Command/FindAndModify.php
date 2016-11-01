@@ -3,6 +3,8 @@
 namespace Tequila\MongoDB\Command;
 
 use Symfony\Component\OptionsResolver\Options;
+use Tequila\MongoDB\Options\CollationOptions;
+use Tequila\MongoDB\Options\CompatibilityResolver;
 use Tequila\MongoDB\Options\WritingCommandOptions;
 use Tequila\MongoDB\Command\Traits\PrimaryServerTrait;
 use Tequila\MongoDB\CommandInterface;
@@ -15,9 +17,6 @@ class FindAndModify implements CommandInterface
 {
     use CachedResolverTrait;
     use PrimaryServerTrait;
-
-    const RETURN_DOCUMENT_BEFORE = 'before';
-    const RETURN_DOCUMENT_AFTER = 'after';
 
     /**
      * @var array
@@ -42,11 +41,20 @@ class FindAndModify implements CommandInterface
      */
     public function getOptions(ServerInfo $serverInfo)
     {
-        return $this->options;
+        return CompatibilityResolver::getInstance(
+            $serverInfo,
+            $this->options,
+            [
+                'bypassDocumentValidation',
+                'collation',
+                'writeConcern',
+            ]
+        )->resolve();
     }
 
     private static function configureOptions(OptionsResolver $resolver)
     {
+        CollationOptions::configureOptions($resolver);
         WritingCommandOptions::configureOptions($resolver);
 
         $resolver->setDefined([

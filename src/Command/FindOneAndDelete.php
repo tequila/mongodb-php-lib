@@ -2,6 +2,7 @@
 
 namespace Tequila\MongoDB\Command;
 
+use Tequila\MongoDB\Options\CollationOptions;
 use Tequila\MongoDB\Options\WritingCommandOptions;
 use Tequila\MongoDB\Command\Traits\PrimaryServerTrait;
 use Tequila\MongoDB\CommandInterface;
@@ -49,13 +50,13 @@ class FindOneAndDelete implements CommandInterface
 
     private static function configureOptions(OptionsResolver $resolver)
     {
+        CollationOptions::configureOptions($resolver);
         WritingCommandOptions::configureOptions($resolver);
 
         $resolver->setDefined([
             'maxTimeMS',
             'projection',
             'sort',
-            'collation',
         ]);
     }
 }

@@ -3,6 +3,7 @@
 namespace Tequila\MongoDB\Command;
 
 use Symfony\Component\OptionsResolver\Options;
+use Tequila\MongoDB\Options\CompatibilityResolver;
 use Tequila\MongoDB\Options\WritingCommandOptions;
 use Tequila\MongoDB\Command\Traits\PrimaryServerTrait;
 use Tequila\MongoDB\CommandInterface;
@@ -35,7 +36,11 @@ class CreateCollection implements CommandInterface
      */
     public function getOptions(ServerInfo $serverInfo)
     {
-        return $this->options;
+        return CompatibilityResolver::getInstance(
+            $serverInfo,
+            $this->options,
+            ['writeConcern']
+        )->resolve();
     }
 
     private static function compileOptions(array $options)
@@ -58,17 +63,19 @@ class CreateCollection implements CommandInterface
     {
         WritingCommandOptions::configureOptions($resolver);
 
-        $resolver->setDefined([
-            'capped',
-            'size',
-            'max',
-            'flags',
-            'storageEngine',
-            'validator',
-            'validationLevel',
-            'validationAction',
-            'indexOptionDefaults',
-        ]);
+        $resolver->setDefined(
+            [
+                'capped',
+                'size',
+                'max',
+                'flags',
+                'storageEngine',
+                'validator',
+                'validationLevel',
+                'validationAction',
+                'indexOptionDefaults',
+            ]
+        );
 
         $resolver
             ->setAllowedTypes('capped', 'bool')
@@ -77,19 +84,25 @@ class CreateCollection implements CommandInterface
             ->setAllowedTypes('flags', 'integer')
             ->setAllowedTypes('storageEngine', ['array', 'object'])
             ->setAllowedTypes('validator', ['array', 'object'])
-            ->setAllowedValues('validationLevel', [
-                'off',
-                'strict',
-                'moderate',
-            ])
-            ->setAllowedValues('validationAction', [
-                'error',
-                'warn',
-            ])
+            ->setAllowedValues(
+                'validationLevel',
+                [
+                    'off',
+                    'strict',
+                    'moderate',
+                ]
+            )
+            ->setAllowedValues(
+                'validationAction',
+                [
+                    'error',
+                    'warn',
+                ]
+            )
             ->setAllowedTypes('indexOptionDefaults', ['array', 'object']);
 
-        $sizeAndMaxOptionsNormalizerFactory = function($optionName) {
-            return function(Options $options, $value) use($optionName) {
+        $sizeAndMaxOptionsNormalizerFactory = function ($optionName) {
+            return function (Options $options, $value) use ($optionName) {
                 if ($value && (!isset($options['capped']) || false === $options['capped'])) {
                     throw new InvalidArgumentException(
                         sprintf(

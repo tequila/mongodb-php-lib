@@ -2,6 +2,7 @@
 
 namespace Tequila\MongoDB\Command;
 
+use Tequila\MongoDB\Options\CompatibilityResolver;
 use Tequila\MongoDB\Options\WritingCommandOptions;
 use Tequila\MongoDB\Command\Traits\PrimaryServerTrait;
 use Tequila\MongoDB\CommandInterface;
@@ -30,6 +31,10 @@ class DropCollection implements CommandInterface
      */
     public function getOptions(ServerInfo $serverInfo)
     {
-        return $this->options;
+        return CompatibilityResolver::getInstance(
+            $serverInfo,
+            $this->options,
+            ['writeConcern']
+        )->resolve();
     }
 }
