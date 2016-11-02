@@ -56,7 +56,11 @@ class Aggregate implements CommandInterface
      */
     public function __construct($collectionName, array $pipeline, array $options = [])
     {
-        $this->collectionName = $collectionName;
+        if (empty($pipeline)) {
+            throw new InvalidArgumentException('$pipeline cannot be empty');
+        }
+
+        $this->collectionName = (string)$collectionName;
         $this->pipeline = $pipeline;
         $this->compileOptions($options);
     }
