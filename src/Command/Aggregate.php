@@ -125,8 +125,7 @@ class Aggregate implements CommandInterface
         if (isset($options['readConcern'])) {
             /** @var ReadConcern $readConcern */
             $readConcern = $options['readConcern'];
-            if (null === $readConcern->getLevel() || ($this->hasOutStage(
-                    ) && ReadConcern::MAJORITY === $readConcern->getLevel())
+            if (null === $readConcern->getLevel() || ($this->hasOutStage() && ReadConcern::MAJORITY === $readConcern->getLevel())
             ) {
                 unset($options['readConcern']);
             } else {
@@ -175,18 +174,16 @@ class Aggregate implements CommandInterface
         CollationOptions::configureOptions($resolver);
         WritingCommandOptions::configureOptions($resolver);
 
-        $resolver->setDefined(
-            [
-                'allowDiskUse',
-                'batchSize',
-                'bypassDocumentValidation',
-                'maxTimeMS',
-                'readConcern',
-                'readPreference',
-                'typeMap',
-                'useCursor',
-            ]
-        );
+        $resolver->setDefined([
+            'allowDiskUse',
+            'batchSize',
+            'bypassDocumentValidation',
+            'maxTimeMS',
+            'readConcern',
+            'readPreference',
+            'typeMap',
+            'useCursor',
+        ]);
 
         $resolver
             ->setAllowedTypes('allowDiskUse', 'bool')
