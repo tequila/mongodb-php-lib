@@ -67,12 +67,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tequila/mongodb-driver-wrapper.git",
-                "reference": "74cac0b4c9d1a2d1e173deeb874122f2c0c08ebd"
+                "reference": "8503ad0959592fab16c02ce23ecbd0b25a4ab6c0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tequila/mongodb-driver-wrapper/zipball/74cac0b4c9d1a2d1e173deeb874122f2c0c08ebd",
-                "reference": "74cac0b4c9d1a2d1e173deeb874122f2c0c08ebd",
+                "url": "https://api.github.com/repos/tequila/mongodb-driver-wrapper/zipball/8503ad0959592fab16c02ce23ecbd0b25a4ab6c0",
+                "reference": "8503ad0959592fab16c02ce23ecbd0b25a4ab6c0",
                 "shasum": ""
             },
             "require": {
@@ -104,7 +104,7 @@
                 "mongodb",
                 "php"
             ],
-            "time": "2016-10-30 11:50:05"
+            "time": "2016-11-06 22:35:03"
         }
     ],
     "packages-dev": [
