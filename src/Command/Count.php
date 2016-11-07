@@ -8,7 +8,7 @@ use Tequila\MongoDB\CommandInterface;
 use Tequila\MongoDB\Index;
 use Tequila\MongoDB\Options\CompatibilityResolver;
 use Tequila\MongoDB\Options\OptionsResolver;
-use Tequila\MongoDB\ServerInfo;
+use Tequila\MongoDB\Server;
 use Tequila\MongoDB\Traits\CachedResolverTrait;
 
 class Count implements CommandInterface
@@ -38,13 +38,11 @@ class Count implements CommandInterface
     /**
      * @inheritdoc
      */
-    public function getOptions(ServerInfo $serverInfo)
+    public function getOptions(Server $server)
     {
-        return CompatibilityResolver::getInstance(
-            $serverInfo,
-            $this->options,
-            ['readConcern']
-        )->resolve();
+        return CompatibilityResolver::getInstance($server, $this->options)
+            ->checkReadConcern()
+            ->resolve();
     }
 
     /**

@@ -71,6 +71,7 @@ class Database
     public function createCollection($collectionName, array $options = [])
     {
         $command = new CreateCollection($collectionName, $options);
+        $command->setWriteConcern($this->writeConcern);
         $cursor = $this->executeCommand($command);
 
         return current(iterator_to_array($cursor));

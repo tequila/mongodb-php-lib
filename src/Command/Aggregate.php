@@ -5,6 +5,8 @@ namespace Tequila\MongoDB\Command;
 use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
 use Symfony\Component\OptionsResolver\Options;
+use Tequila\MongoDB\Command\Traits\ReadConcernTrait;
+use Tequila\MongoDB\Command\Traits\WriteConcernTrait;
 use Tequila\MongoDB\Options\CollationOptions;
 use Tequila\MongoDB\Options\CompatibilityResolver;
 use Tequila\MongoDB\Options\WritingCommandOptions;
@@ -12,12 +14,14 @@ use Tequila\MongoDB\CommandInterface;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\Options\TypeMapOptions;
 use Tequila\MongoDB\Options\OptionsResolver;
-use Tequila\MongoDB\ServerInfo;
+use Tequila\MongoDB\Server;
 use Tequila\MongoDB\Traits\CachedResolverTrait;
 
 class Aggregate implements CommandInterface
 {
     use CachedResolverTrait;
+    use ReadConcernTrait;
+    use WriteConcernTrait;
 
     /**
      * @var string
@@ -32,7 +36,7 @@ class Aggregate implements CommandInterface
     /**
      * @var array
      */
-    private $compiledOptions;
+    private $options;
 
     /**
      * @var ReadPreference|null
@@ -54,31 +58,32 @@ class Aggregate implements CommandInterface
      * @param array $pipeline
      * @param array $options
      */
-    public function __construct($collectionName, array $pipeline, array $options = [])
-    {
+    public function __construct(
+        $collectionName,
+        array $pipeline,
+        array $options = []
+    ) {
         if (empty($pipeline)) {
             throw new InvalidArgumentException('$pipeline cannot be empty');
         }
 
         $this->collectionName = (string)$collectionName;
         $this->pipeline = $pipeline;
-        $this->compileOptions($options);
+        $this->options = self::resolve($options);
     }
 
     /**
      * @inheritdoc
      */
-    public function getOptions(ServerInfo $serverInfo)
+    public function getOptions(Server $server)
     {
-        return CompatibilityResolver::getInstance(
-            $serverInfo,
-            $this->compiledOptions,
-            [
-                'collation',
-                'writeConcern',
-                'readConcern',
-            ]
-        )->resolve();
+        $options = $this->compileOptions($server);
+
+        return CompatibilityResolver::getInstance($server, $options)
+            ->checkCollation()
+            ->checkReadConcern()
+            ->checkWriteConcern()
+            ->resolve();
     }
 
     /**
@@ -114,31 +119,59 @@ class Aggregate implements CommandInterface
     }
 
     /**
-     * Validates input options and compiles them to format, acceptable by the low-level driver
-     *
-     * @param array $options
+     * @return bool
      */
-    private function compileOptions(array $options)
+    public function hasOutStage()
     {
-        $options = self::resolve($options);
+        $lastStage = end($this->pipeline);
 
-        if (isset($options['readConcern'])) {
+        return '$out' === key($lastStage);
+    }
+
+    /**
+     * Compiled input options to format, acceptable by the low-level driver
+     * @param Server $server
+     * @return array
+     */
+    private function compileOptions(Server $server)
+    {
+        $options = $this->options;
+
+        if (
+            !isset($options['readConcern'])
+            && $this->readConcern
+            && !($this->hasOutStage() && ReadConcern::MAJORITY === $this->readConcern->getLevel())
+            && $server->supportsReadConcern()
+        ) {
+            $options['readConcern'] = $this->readConcern;
+        }
+
+        if (isset($options['readConcern']) && $readConcern = $options['readConcern']) {
             /** @var ReadConcern $readConcern */
-            $readConcern = $options['readConcern'];
-            if (null === $readConcern->getLevel() || ($this->hasOutStage() && ReadConcern::MAJORITY === $readConcern->getLevel())
-            ) {
+            if ($this->hasOutStage() && ReadConcern::MAJORITY === $readConcern->getLevel()) {
+                throw new InvalidArgumentException(
+                    'Specifying "readConcern" option with "majority" level is prohibited when pipeline has $out stage'
+                );
+            }
+
+            if (null === $readConcern->getLevel()) {
                 unset($options['readConcern']);
-            } else {
-                $options['readConcern'] = ['level' => $readConcern->getLevel()];
             }
         }
 
-        if (isset($options['writeConcern'])) {
-            if (!$this->hasOutStage()) {
-                throw new InvalidArgumentException(
-                    'Option "writeConcern" is meaningless until aggregation pipeline has $out stage'
-                );
-            }
+        if (
+            !isset($options['writeConcern'])
+            && $this->writeConcern
+            && $this->hasOutStage()
+            && $server->supportsWriteConcern()
+        ) {
+            $options['writeConcern'] = $this->writeConcern;
+        }
+
+        if (isset($options['writeConcern']) && !$this->hasOutStage()) {
+            throw new InvalidArgumentException(
+                'Option "writeConcern" is meaningless until aggregation pipeline has $out stage'
+            );
         }
 
         $this->readPreference = isset($options['readPreference']) ? $options['readPreference'] : null;
@@ -166,7 +199,7 @@ class Aggregate implements CommandInterface
             'pipeline' => $this->pipeline,
         ];
 
-        $this->compiledOptions = $cmd + $options;
+        return $cmd + $options;
     }
 
     private static function configureOptions(OptionsResolver $resolver)
@@ -216,15 +249,5 @@ class Aggregate implements CommandInterface
 
             return TypeMapOptions::resolve($typeMap);
         });
-    }
-
-    /**
-     * @return bool
-     */
-    private function hasOutStage()
-    {
-        $lastStage = end($this->pipeline);
-
-        return '$out' === key($lastStage);
     }
 }

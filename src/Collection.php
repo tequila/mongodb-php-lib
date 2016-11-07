@@ -95,14 +95,16 @@ class Collection
     public function aggregate(array $pipeline, array $options = [])
     {
         $defaults = [
-            'readConcern' => $this->readConcern,
             'readPreference' => $this->readPreference,
             'typeMap' => $this->typeMap,
         ];
 
         $options += $defaults;
-
         $command = new Aggregate($this->collectionName, $pipeline, $options);
+        $command
+            ->setReadConcern($this->readConcern)
+            ->setWriteConcern($this->writeConcern);
+
         $cursor = $this->manager->executeCommand(
             $this->databaseName,
             $command,

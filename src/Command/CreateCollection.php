@@ -3,19 +3,26 @@
 namespace Tequila\MongoDB\Command;
 
 use Symfony\Component\OptionsResolver\Options;
+use Tequila\MongoDB\Command\Traits\WriteConcernTrait;
 use Tequila\MongoDB\Options\CompatibilityResolver;
 use Tequila\MongoDB\Options\WritingCommandOptions;
 use Tequila\MongoDB\Command\Traits\PrimaryServerTrait;
 use Tequila\MongoDB\CommandInterface;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\Options\OptionsResolver;
+use Tequila\MongoDB\Server;
 use Tequila\MongoDB\Traits\CachedResolverTrait;
-use Tequila\MongoDB\ServerInfo;
 
 class CreateCollection implements CommandInterface
 {
     use CachedResolverTrait;
     use PrimaryServerTrait;
+    use WriteConcernTrait;
+
+    /**
+     * @var string
+     */
+    private $collectionName;
 
     /**
      * @var array
@@ -28,24 +35,23 @@ class CreateCollection implements CommandInterface
      */
     public function __construct($collectionName, array $options = [])
     {
-        $this->options = ['create' => (string)$collectionName] + self::compileOptions($options);
+        $this->collectionName = (string)$collectionName;
+        $this->options = self::resolve($options);
     }
 
     /**
      * @inheritdoc
      */
-    public function getOptions(ServerInfo $serverInfo)
+    public function getOptions(Server $server)
     {
-        return CompatibilityResolver::getInstance(
-            $serverInfo,
-            $this->options,
-            ['writeConcern']
-        )->resolve();
+        return CompatibilityResolver::getInstance($server, $this->compileOptions($server))
+            ->checkWriteConcern()
+            ->resolve();
     }
 
-    private static function compileOptions(array $options)
+    private function compileOptions(Server $server)
     {
-        $options = self::resolve($options);
+        $options = $this->options;
 
         if (!isset($options['size']) && isset($options['capped']) && true === $options['capped']) {
             throw new InvalidArgumentException(
@@ -53,7 +59,11 @@ class CreateCollection implements CommandInterface
             );
         }
 
-        return $options;
+        if (!isset($options['writeConcern']) && $this->writeConcern && $server->supportsWriteConcern()) {
+            $options['writeConcern'] = $this->writeConcern;
+        }
+
+        return ['create' => (string)$this->collectionName] + $options;
     }
 
     /**

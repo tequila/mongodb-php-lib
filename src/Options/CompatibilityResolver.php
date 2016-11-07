@@ -2,16 +2,16 @@
 
 namespace Tequila\MongoDB\Options;
 
-use Tequila\MongoDB\Exception\InvalidArgumentException;
+use MongoDB\Driver\ReadConcern;
 use Tequila\MongoDB\Exception\UnsupportedException;
-use Tequila\MongoDB\ServerInfo;
+use Tequila\MongoDB\Server;
 
 class CompatibilityResolver
 {
     /**
-     * @var ServerInfo
+     * @var Server
      */
-    private $serverInfo;
+    private $server;
 
     /**
      * @var array
@@ -19,43 +19,23 @@ class CompatibilityResolver
     private $options;
 
     /**
-     * @var array
-     */
-    private $optionsToCheck;
-
-    /**
-     * @param ServerInfo $serverInfo
+     * @param Server $server
      * @param array $options
-     * @param array $optionsToCheck
      */
-    public function __construct(ServerInfo $serverInfo, array $options, array $optionsToCheck)
+    public function __construct(Server $server, array $options)
     {
-        $this->serverInfo = $serverInfo;
+        $this->server = $server;
         $this->options = $options;
-
-        foreach ($optionsToCheck as $optionName) {
-            if (!method_exists($this, $optionName)) {
-                throw new InvalidArgumentException(
-                    sprintf(
-                        'Unknown option "%s" in $optionsToCheck',
-                        $optionName
-                    )
-                );
-            }
-        }
-
-        $this->optionsToCheck = $optionsToCheck;
     }
 
     /**
-     * @param ServerInfo $serverInfo
+     * @param Server $server
      * @param array $options
-     * @param array $optionsToCheck
      * @return static
      */
-    public static function getInstance(ServerInfo $serverInfo, array $options, array $optionsToCheck)
+    public static function getInstance(Server $server, array $options)
     {
-        return new static($serverInfo, $options, $optionsToCheck);
+        return new static($server, $options);
     }
 
     /**
@@ -63,50 +43,69 @@ class CompatibilityResolver
      */
     public function resolve()
     {
-        foreach ($this->optionsToCheck as $optionName) {
-            if (array_key_exists($optionName, $this->options)) {
-                call_user_func([$this, $optionName]);
-            }
-        }
-
         return $this->options;
     }
 
-    private function bypassDocumentValidation()
+    /**
+     * Checks whether the server supports document validation. Throws an UnsupportedException otherwise
+     * @throws UnsupportedException
+     * @return $this
+     */
+    public function checkDocumentValidation()
     {
-        $wireVersion = 4;
-
-        if (!$this->serverInfo->supportsFeature($wireVersion)) {
+        if (array_key_exists('bypassDocumentValidation', $this->options) && !$this->server->supportsDocumentValidation()) {
             throw new UnsupportedException(
                 'Option "bypassDocumentValidation" is not supported by the server'
             );
         }
+
+        return $this;
     }
 
-    private function collation()
+    /**
+     * Checks whether the server supports "collation" option. Throws an UnsupportedException otherwise
+     * @throws UnsupportedException
+     * @return $this
+     */
+    public function checkCollation()
     {
-        $wireVersion = 5;
-
-        if (!$this->serverInfo->supportsFeature($wireVersion)) {
+        if (array_key_exists('collation', $this->options) && !$this->server->supportsCollation()) {
             throw new UnsupportedException('Option "collation" is not supported by the server');
         }
+
+        return $this;
     }
 
-    private function readConcern()
+    /**
+     * Checks whether the server supports "readConcern" option. Throws an UnsupportedException otherwise
+     * @throws UnsupportedException
+     * @return $this
+     */
+    public function checkReadConcern()
     {
-        $wireVersion = 4;
-
-        if (!$this->serverInfo->supportsFeature($wireVersion)) {
-            unset($this->options['readConcern']);
+        if (
+            array_key_exists('readConcern', $this->options)
+            && !$this->server->supportsReadConcern()
+            && !in_array($this->options['readConcern']->getLevel(), [ReadConcern::LOCAL, null], true)
+        ) {
+            throw new UnsupportedException(
+                'Option "readConcern" is not supported by the server'
+            );
         }
+
+        return $this;
     }
 
-    private function writeConcern()
+    /**
+     * Checks whether the server supports "writeConcern" option. Throws an UnsupportedException otherwise
+     * @return $this
+     */
+    public function checkWriteConcern()
     {
-        $wireVersion = 5;
-
-        if (!$this->serverInfo->supportsFeature($wireVersion)) {
+        if (array_key_exists('writeConcern', $this->options) && !$this->server->supportsWriteConcern()) {
             unset($this->options['writeConcern']);
         }
+
+        return $this;
     }
 }
