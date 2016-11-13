@@ -4,7 +4,7 @@ namespace Tequila\MongoDB\Command;
 
 use Symfony\Component\OptionsResolver\Options;
 use Tequila\MongoDB\Command\Traits\WriteConcernTrait;
-use Tequila\MongoDB\Options\CompatibilityResolver;
+use Tequila\MongoDB\Util\CompatibilityChecker;
 use Tequila\MongoDB\Options\WritingCommandOptions;
 use Tequila\MongoDB\Command\Traits\PrimaryServerTrait;
 use Tequila\MongoDB\CommandInterface;
@@ -44,7 +44,7 @@ class CreateCollection implements CommandInterface
      */
     public function getOptions(Server $server)
     {
-        return CompatibilityResolver::getInstance($server, $this->compileOptions($server))
+        return CompatibilityChecker::getInstance($server, $this->compileOptions($server))
             ->checkWriteConcern()
             ->resolve();
     }

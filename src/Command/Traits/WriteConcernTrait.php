@@ -15,7 +15,7 @@ trait WriteConcernTrait
      * @param WriteConcern $writeConcern
      * @return $this
      */
-    public function setWriteConcern(WriteConcern $writeConcern)
+    public function setDefaultWriteConcern(WriteConcern $writeConcern)
     {
         $this->writeConcern = $writeConcern;
 

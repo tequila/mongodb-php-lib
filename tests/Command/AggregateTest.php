@@ -2,20 +2,24 @@
 
 namespace Tequila\MongoDB\Tests\Command;
 
+use MongoDB\Driver\ReadConcern;
 use PHPUnit\Framework\TestCase;
+use Prophecy\Argument;
 use Tequila\MongoDB\Command\Aggregate;
-use Tequila\MongoDB\Exception\InvalidArgumentException;
+use Tequila\MongoDB\ServerInfo;
 use Tequila\MongoDB\Tests\Traits\DatabaseAndCollectionNamesTrait;
 use Tequila\MongoDB\Tests\Traits\InvalidValuesTrait;
+use Tequila\MongoDB\Tests\Traits\ServerInfoTrait;
 
 class AggregateTest extends TestCase
 {
     use DatabaseAndCollectionNamesTrait;
     use InvalidValuesTrait;
+    use ServerInfoTrait;
 
     /**
      * @covers Aggregate::__construct()
-     * @expectedException InvalidArgumentException
+     * @expectedException \Tequila\MongoDB\Exception\InvalidArgumentException
      * @expectedExceptionMessage $pipeline cannot be empty
      */
     public function testConstructorWithEmptyPipeline()
@@ -26,13 +30,46 @@ class AggregateTest extends TestCase
     /**
      * @covers Aggregate::__construct()
      * @dataProvider getInvalidOptions
-     * @expectedException InvalidArgumentException
+     * @expectedException \Tequila\MongoDB\Exception\InvalidArgumentException
      *
      * @param array $invalidOptions
      */
     public function testConstructorWithInvalidOptions(array $invalidOptions)
     {
         new Aggregate($this->getCollectionName(), $this->getPipeline(), $invalidOptions);
+    }
+
+    /**
+     * @covers Aggregate::getOptions()
+     */
+    public function testReadConcernOptionDeletedWhenReadConcernLevelIsNull()
+    {
+        $command = new Aggregate(
+            $this->getCollectionName(),
+            $this->getPipeline(),
+            ['readConcern' => new ReadConcern()]
+        );
+
+        $options = $command->getOptions($this->getServerInfoSupportingAllFeatures());
+        $this->assertArrayNotHasKey('readConcern', $options);
+    }
+
+    /**
+     * @covers Aggregate::getOptions()
+     */
+    public function testReadConcernOptionDeletedWhenReadConcernLevelIsMajorityAndPipelineHasOutStage()
+    {
+        $pipeline = $this->getPipeline();
+        $pipeline[] = ['$out' => 'foo'];
+
+        $command = new Aggregate(
+            $this->getCollectionName(),
+            $pipeline,
+            ['readConcern' => new ReadConcern(ReadConcern::MAJORITY)]
+        );
+
+        $options = $command->getOptions($this->getServerInfoSupportingAllFeatures());
+        $this->assertArrayNotHasKey('readConcern', $options);
     }
 
     /**
@@ -128,5 +165,13 @@ class AggregateTest extends TestCase
                 ]
             ]
         ];
+    }
+
+    private function getServerInfoSupportingAllFeatures()
+    {
+        $serverInfoProphecy = $this->prophesize(ServerInfo::class);
+        $serverInfoProphecy->supportsFeature(Argument::type('integer'))->willReturn(true);
+
+        return $serverInfoProphecy->reveal();
     }
 }

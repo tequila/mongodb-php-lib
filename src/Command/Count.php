@@ -3,10 +3,12 @@
 namespace Tequila\MongoDB\Command;
 
 use MongoDB\Driver\ReadConcern;
+use MongoDB\Driver\ReadPreference;
 use Symfony\Component\OptionsResolver\Options;
+use Tequila\MongoDB\Command\Traits\ReadConcernTrait;
 use Tequila\MongoDB\CommandInterface;
 use Tequila\MongoDB\Index;
-use Tequila\MongoDB\Options\CompatibilityResolver;
+use Tequila\MongoDB\Util\CompatibilityChecker;
 use Tequila\MongoDB\Options\OptionsResolver;
 use Tequila\MongoDB\Server;
 use Tequila\MongoDB\Traits\CachedResolverTrait;
@@ -14,6 +16,7 @@ use Tequila\MongoDB\Traits\CachedResolverTrait;
 class Count implements CommandInterface
 {
     use CachedResolverTrait;
+    use ReadConcernTrait;
 
     /**
      * @var array
@@ -24,6 +27,11 @@ class Count implements CommandInterface
      * @var array
      */
     private $options;
+
+    /**
+     * @var ReadPreference
+     */
+    private $readPreference;
 
     /**
      * @param array $filter
@@ -40,7 +48,7 @@ class Count implements CommandInterface
      */
     public function getOptions(Server $server)
     {
-        return CompatibilityResolver::getInstance($server, $this->options)
+        return CompatibilityChecker::getInstance($server, $this->options)
             ->checkReadConcern()
             ->resolve();
     }
@@ -61,6 +69,7 @@ class Count implements CommandInterface
             'skip',
             'hint',
             'readConcern',
+            'readPreference',
         ]);
 
         $resolver
@@ -68,7 +77,8 @@ class Count implements CommandInterface
             ->setAllowedTypes('limit', 'integer')
             ->setAllowedTypes('skip', 'integer')
             ->setAllowedTypes('hint', ['string', 'array', 'object'])
-            ->setAllowedTypes('readConcern', ReadConcern::class);
+            ->setAllowedTypes('readConcern', ReadConcern::class)
+            ->setAllowedTypes('readPreference', ReadPreference::class);
 
         $resolver->setNormalizer('hint', function(Options $options, $hint) {
             if (is_array($hint) || is_object($hint)) {
@@ -76,6 +86,10 @@ class Count implements CommandInterface
             }
 
             return $hint;
+        });
+
+        $resolver->setNormalizer('readPreference', function(Options $options, $readPreference) {
+            $this->readPreference = $readPreference;
         });
     }
 }

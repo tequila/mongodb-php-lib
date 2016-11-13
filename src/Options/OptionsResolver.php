@@ -4,6 +4,7 @@ namespace Tequila\MongoDB\Options;
 
 use Symfony\Component\OptionsResolver\Exception\InvalidArgumentException as OptionsResolverException;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
+use Tequila\MongoDB\Server;
 
 class OptionsResolver extends \Symfony\Component\OptionsResolver\OptionsResolver
 {
@@ -14,5 +15,9 @@ class OptionsResolver extends \Symfony\Component\OptionsResolver\OptionsResolver
         } catch (OptionsResolverException $e) {
             throw new InvalidArgumentException($e->getMessage());
         }
+    }
+
+    public function runtimeResolve(Server $server, array $options)
+    {
     }
 }

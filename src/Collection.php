@@ -6,6 +6,7 @@ use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
 use MongoDB\Driver\WriteConcern;
 use Tequila\MongoDB\Command\Aggregate;
+use Tequila\MongoDB\Command\Count;
 use Tequila\MongoDB\Command\CreateIndexes;
 use Tequila\MongoDB\Command\DropCollection;
 use Tequila\MongoDB\Command\DropIndexes;
@@ -102,8 +103,8 @@ class Collection
         $options += $defaults;
         $command = new Aggregate($this->collectionName, $pipeline, $options);
         $command
-            ->setReadConcern($this->readConcern)
-            ->setWriteConcern($this->writeConcern);
+            ->setDefaultReadConcern($this->readConcern)
+            ->setDefaultWriteConcern($this->writeConcern);
 
         $cursor = $this->manager->executeCommand(
             $this->databaseName,
@@ -131,6 +132,14 @@ class Collection
         $bulk = $builder->getBulk($options);
 
         return $this->manager->executeBulkWrite($this->getNamespace(), $bulk, $writeConcern);
+    }
+
+    public function count(array $filter = [], array $options = [])
+    {
+        $command = new Count($filter, $options);
+        $command->setDefaultReadConcern($this->readConcern);
+
+        return $this->manager->executeCommand($this->databaseName, $command);
     }
 
     /**

@@ -5,22 +5,23 @@ namespace Tequila\MongoDB\Command;
 use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
 use Symfony\Component\OptionsResolver\Options;
+use Tequila\MongoDB\Command\Traits\CachedInstanceTrait;
 use Tequila\MongoDB\Command\Traits\ReadConcernTrait;
+use Tequila\MongoDB\Command\Traits\ReadPreferenceTrait;
 use Tequila\MongoDB\Command\Traits\WriteConcernTrait;
 use Tequila\MongoDB\Options\CollationOptions;
-use Tequila\MongoDB\Options\CompatibilityResolver;
+use Tequila\MongoDB\Util\CompatibilityChecker;
 use Tequila\MongoDB\Options\WritingCommandOptions;
-use Tequila\MongoDB\CommandInterface;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\Options\TypeMapOptions;
 use Tequila\MongoDB\Options\OptionsResolver;
 use Tequila\MongoDB\Server;
-use Tequila\MongoDB\Traits\CachedResolverTrait;
 
-class Aggregate implements CommandInterface
+class Aggregate extends OptionsResolver implements ReadConcernAwareInterface, WriteConcernAwareInterface, ReadPreferenceAwareInterface
 {
-    use CachedResolverTrait;
+    use CachedInstanceTrait;
     use ReadConcernTrait;
+    use ReadPreferenceTrait;
     use WriteConcernTrait;
 
     /**
@@ -62,7 +63,8 @@ class Aggregate implements CommandInterface
         $collectionName,
         array $pipeline,
         array $options = []
-    ) {
+    )
+    {
         if (empty($pipeline)) {
             throw new InvalidArgumentException('$pipeline cannot be empty');
         }
@@ -79,7 +81,7 @@ class Aggregate implements CommandInterface
     {
         $options = $this->compileOptions($server);
 
-        return CompatibilityResolver::getInstance($server, $options)
+        return CompatibilityChecker::getInstance($server, $options)
             ->checkCollation()
             ->checkReadConcern()
             ->checkWriteConcern()
@@ -207,16 +209,18 @@ class Aggregate implements CommandInterface
         CollationOptions::configureOptions($resolver);
         WritingCommandOptions::configureOptions($resolver);
 
-        $resolver->setDefined([
-            'allowDiskUse',
-            'batchSize',
-            'bypassDocumentValidation',
-            'maxTimeMS',
-            'readConcern',
-            'readPreference',
-            'typeMap',
-            'useCursor',
-        ]);
+        $resolver->setDefined(
+            [
+                'allowDiskUse',
+                'batchSize',
+                'bypassDocumentValidation',
+                'maxTimeMS',
+                'readConcern',
+                'readPreference',
+                'typeMap',
+                'useCursor',
+            ]
+        );
 
         $resolver
             ->setAllowedTypes('allowDiskUse', 'bool')
@@ -230,24 +234,30 @@ class Aggregate implements CommandInterface
 
         $resolver->setDefault('useCursor', true);
 
-        $resolver->setNormalizer('batchSize', function (Options $options, $batchSize) {
-            if (!isset($options['useCursor']) || false === $options['useCursor']) {
-                throw new InvalidArgumentException(
-                    'Option "batchSize" is meaningless unless option "useCursor" is set to true'
-                );
+        $resolver->setNormalizer(
+            'batchSize',
+            function (Options $options, $batchSize) {
+                if (!isset($options['useCursor']) || false === $options['useCursor']) {
+                    throw new InvalidArgumentException(
+                        'Option "batchSize" is meaningless unless option "useCursor" is set to true'
+                    );
+                }
+
+                return $batchSize;
             }
+        );
 
-            return $batchSize;
-        });
+        $resolver->setNormalizer(
+            'typeMap',
+            function (Options $options, array $typeMap) {
+                if (false === $options['useCursor']) {
+                    throw new InvalidArgumentException(
+                        'Option "typeMap" is not allowed when option "useCursor" is set to false'
+                    );
+                }
 
-        $resolver->setNormalizer('typeMap', function (Options $options, array $typeMap) {
-            if (false === $options['useCursor']) {
-                throw new InvalidArgumentException(
-                    'Option "typeMap" is not allowed when option "useCursor" is set to false'
-                );
+                return TypeMapOptions::resolve($typeMap);
             }
-
-            return TypeMapOptions::resolve($typeMap);
-        });
+        );
     }
 }

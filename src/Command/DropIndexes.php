@@ -2,7 +2,7 @@
 
 namespace Tequila\MongoDB\Command;
 
-use Tequila\MongoDB\Options\CompatibilityResolver;
+use Tequila\MongoDB\Util\CompatibilityChecker;
 use Tequila\MongoDB\Options\WritingCommandOptions;
 use Tequila\MongoDB\Command\Traits\PrimaryServerTrait;
 use Tequila\MongoDB\CommandInterface;
@@ -35,7 +35,7 @@ class DropIndexes implements CommandInterface
      */
     public function getOptions(ServerInfo $serverInfo)
     {
-        return CompatibilityResolver::getInstance(
+        return CompatibilityChecker::getInstance(
             $serverInfo,
             $this->options,
             ['writeConcern']
