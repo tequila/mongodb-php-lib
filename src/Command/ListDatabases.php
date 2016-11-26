@@ -4,12 +4,12 @@ namespace Tequila\MongoDB\Command;
 
 use Tequila\MongoDB\Command\Traits\PrimaryServerTrait;
 use Tequila\MongoDB\CommandInterface;
+use Tequila\MongoDB\Options\CompatibilityResolverInterface;
+use Tequila\MongoDB\Options\OptionsResolver;
 use Tequila\MongoDB\ServerInfo;
 
-class ListDatabases implements CommandInterface
+class ListDatabases extends OptionsResolver implements CompatibilityResolverInterface
 {
-    use PrimaryServerTrait;
-
     /**
      * @inheritdoc
      */

@@ -10,8 +10,6 @@ use Tequila\MongoDB\ServerInfo;
 
 class DropDatabase implements CommandInterface
 {
-    use PrimaryServerTrait;
-
     /**
      * @var array
      */

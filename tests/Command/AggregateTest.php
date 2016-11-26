@@ -5,7 +5,7 @@ namespace Tequila\MongoDB\Tests\Command;
 use MongoDB\Driver\ReadConcern;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
-use Tequila\MongoDB\Command\Aggregate;
+use Tequila\MongoDB\Command\AggregateResolver;
 use Tequila\MongoDB\ServerInfo;
 use Tequila\MongoDB\Tests\Traits\DatabaseAndCollectionNamesTrait;
 use Tequila\MongoDB\Tests\Traits\InvalidValuesTrait;
@@ -18,17 +18,17 @@ class AggregateTest extends TestCase
     use ServerInfoTrait;
 
     /**
-     * @covers Aggregate::__construct()
+     * @covers AggregateResolver::__construct()
      * @expectedException \Tequila\MongoDB\Exception\InvalidArgumentException
      * @expectedExceptionMessage $pipeline cannot be empty
      */
     public function testConstructorWithEmptyPipeline()
     {
-        new Aggregate($this->getCollectionName(), []);
+        new AggregateResolver($this->getCollectionName(), []);
     }
 
     /**
-     * @covers Aggregate::__construct()
+     * @covers AggregateResolver::__construct()
      * @dataProvider getInvalidOptions
      * @expectedException \Tequila\MongoDB\Exception\InvalidArgumentException
      *
@@ -36,15 +36,15 @@ class AggregateTest extends TestCase
      */
     public function testConstructorWithInvalidOptions(array $invalidOptions)
     {
-        new Aggregate($this->getCollectionName(), $this->getPipeline(), $invalidOptions);
+        new AggregateResolver($this->getCollectionName(), $this->getPipeline(), $invalidOptions);
     }
 
     /**
-     * @covers Aggregate::getOptions()
+     * @covers AggregateResolver::getOptions()
      */
     public function testReadConcernOptionDeletedWhenReadConcernLevelIsNull()
     {
-        $command = new Aggregate(
+        $command = new AggregateResolver(
             $this->getCollectionName(),
             $this->getPipeline(),
             ['readConcern' => new ReadConcern()]
@@ -55,14 +55,14 @@ class AggregateTest extends TestCase
     }
 
     /**
-     * @covers Aggregate::getOptions()
+     * @covers AggregateResolver::getOptions()
      */
     public function testReadConcernOptionDeletedWhenReadConcernLevelIsMajorityAndPipelineHasOutStage()
     {
         $pipeline = $this->getPipeline();
         $pipeline[] = ['$out' => 'foo'];
 
-        $command = new Aggregate(
+        $command = new AggregateResolver(
             $this->getCollectionName(),
             $pipeline,
             ['readConcern' => new ReadConcern(ReadConcern::MAJORITY)]

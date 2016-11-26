@@ -14,11 +14,7 @@ class TypeMapOptions
 
     public static function configureOptions(OptionsResolver $resolver)
     {
-        $resolver->setDefaults([
-            'root' => 'array',
-            'document' => 'array',
-            'array' => 'array',
-        ]);
+        $resolver->setDefaults(self::getDefault());
 
         $resolver
             ->setAllowedTypes('array', 'string')
@@ -29,6 +25,15 @@ class TypeMapOptions
             ->setNormalizer('array', self::getNormalizer('array'))
             ->setNormalizer('document', self::getNormalizer('document'))
             ->setNormalizer('root', self::getNormalizer('root'));
+    }
+
+    public static function getDefault()
+    {
+        return [
+            'root' => 'array',
+            'document' => 'array',
+            'array' => 'array',
+        ];
     }
 
     public static function resolve(array $options)

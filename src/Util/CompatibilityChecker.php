@@ -13,7 +13,7 @@ class CompatibilityChecker
      * @throws UnsupportedException
      * @return $this
      */
-    public function checkDocumentValidation(Server $s)
+    public function checkDocumentValidation()
     {
         if (array_key_exists('bypassDocumentValidation', $this->options) && !$this->server->supportsDocumentValidation()) {
             throw new UnsupportedException(

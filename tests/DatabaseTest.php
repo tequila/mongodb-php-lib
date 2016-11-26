@@ -5,7 +5,7 @@ namespace Tequila\MongoDB\Tests;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Tequila\MongoDB\Collection;
-use Tequila\MongoDB\Command\CreateCollection;
+use Tequila\MongoDB\Command\CreateCollectionResolver;
 use Tequila\MongoDB\Command\DropCollection;
 use Tequila\MongoDB\Command\DropDatabase;
 use Tequila\MongoDB\Database;
@@ -39,7 +39,7 @@ class DatabaseTest extends TestCase
             ->getManagerProphecy()
             ->executeCommand(
                 $this->getDatabaseName(),
-                Argument::that(function(CreateCollection $command) {
+                Argument::that(function(CreateCollectionResolver $command) {
                     $expected = ['create' => $this->getCollectionName()];
                     $actual = $command->getOptions($this->getServerInfo());
 

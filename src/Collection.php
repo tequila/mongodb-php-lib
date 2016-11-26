@@ -2,18 +2,18 @@
 
 namespace Tequila\MongoDB;
 
-use MongoDB\Driver\ReadConcern;
-use MongoDB\Driver\ReadPreference;
-use MongoDB\Driver\WriteConcern;
-use Tequila\MongoDB\Command\Aggregate;
-use Tequila\MongoDB\Command\Count;
+use Tequila\MongoDB\Command\AggregateResolver;
+use Tequila\MongoDB\Command\CountResolver;
 use Tequila\MongoDB\Command\CreateIndexes;
 use Tequila\MongoDB\Command\DropCollection;
 use Tequila\MongoDB\Command\DropIndexes;
 use Tequila\MongoDB\Command\ListIndexes;
+use Tequila\MongoDB\Exception\InvalidArgumentException;
+use Tequila\MongoDB\Exception\UnexpectedResultException;
 use Tequila\MongoDB\Options\CollectionOptions;
-use Tequila\MongoDB\Options\TypeMapOptions;
 use Tequila\MongoDB\Options\BulkWriteOptions;
+use Tequila\MongoDB\Options\TypeMapOptions;
+use Tequila\MongoDB\Traits\CommandBuilderTrait;
 use Tequila\MongoDB\Write\Model\DeleteMany;
 use Tequila\MongoDB\Write\Model\DeleteOne;
 use Tequila\MongoDB\Write\Model\InsertOne;
@@ -28,6 +28,8 @@ use Tequila\MongoDB\Write\Result\UpdateResult;
 
 class Collection
 {
+    use CommandBuilderTrait;
+
     /**
      * @var ManagerInterface
      */
@@ -44,26 +46,6 @@ class Collection
     private $collectionName;
 
     /**
-     * @var ReadConcern|null
-     */
-    private $readConcern;
-
-    /**
-     * @var ReadPreference|null
-     */
-    private $readPreference;
-
-    /**
-     * @var WriteConcern|null
-     */
-    private $writeConcern;
-
-    /**
-     * @var array
-     */
-    private $typeMap;
-
-    /**
      * @param ManagerInterface $manager
      * @param string $databaseName
      * @param string $collectionName
@@ -72,8 +54,8 @@ class Collection
     public function __construct(ManagerInterface $manager, $databaseName, $collectionName, array $options = [])
     {
         $this->manager = $manager;
-        $this->databaseName = (string)$databaseName;
-        $this->collectionName = (string)$collectionName;
+        $this->databaseName = $databaseName;
+        $this->collectionName = $collectionName;
 
         $options += [
             'readConcern' => $this->manager->getReadConcern(),
@@ -85,7 +67,6 @@ class Collection
         $this->readConcern = $options['readConcern'];
         $this->readPreference = $options['readPreference'];
         $this->writeConcern = $options['writeConcern'];
-        $this->typeMap = $options['typeMap'];
     }
 
     /**
@@ -95,26 +76,15 @@ class Collection
      */
     public function aggregate(array $pipeline, array $options = [])
     {
-        $defaults = [
-            'readPreference' => $this->readPreference,
-            'typeMap' => $this->typeMap,
-        ];
+        if (array_key_exists('pipeline', $options)) {
+            throw new InvalidArgumentException('Option "pipeline" is not allowed, use $pipeline argument.');
+        }
 
-        $options += $defaults;
-        $command = new Aggregate($this->collectionName, $pipeline, $options);
-        $command
-            ->setDefaultReadConcern($this->readConcern)
-            ->setDefaultWriteConcern($this->writeConcern);
-
-        $cursor = $this->manager->executeCommand(
-            $this->databaseName,
-            $command,
-            $command->getReadPreference()
+        return $this->executeCommand(
+            ['aggregate' => $this->collectionName],
+            ['pipeline' => $pipeline] + $pipeline,
+            AggregateResolver::class
         );
-
-        $cursor->setTypeMap($command->getTypeMap());
-
-        return $cursor;
     }
 
     /**
@@ -134,12 +104,30 @@ class Collection
         return $this->manager->executeBulkWrite($this->getNamespace(), $bulk, $writeConcern);
     }
 
+    /**
+     * @param array $filter
+     * @param array $options
+     * @return int
+     */
     public function count(array $filter = [], array $options = [])
     {
-        $command = new Count($filter, $options);
-        $command->setDefaultReadConcern($this->readConcern);
+        if (array_key_exists('query', $options)) {
+            throw new InvalidArgumentException('Option "query" is not allowed, use $filter argument.');
+        }
 
-        return $this->manager->executeCommand($this->databaseName, $command);
+        $cursor = $this->executeCommand(
+            ['count' => $this->collectionName],
+            ['query' => $filter] + $options,
+            CountResolver::class
+        );
+
+        $cursor->setTypeMap(TypeMapOptions::getDefault());
+        $result = $cursor->current();
+        if (!isset($result['n'])) {
+            throw new UnexpectedResultException('Command "count" did not return expected "n" field.');
+        }
+
+        return (int)$result['n'];
     }
 
     /**
@@ -238,24 +226,6 @@ class Collection
         $cursor = $this->executeCommand($command);
 
         return current(iterator_to_array($cursor));
-    }
-
-    /**
-     * @param CommandInterface $command
-     * @param ReadPreference|null $readPreference
-     * @param array $typeMap
-     * @return CursorInterface
-     */
-    public function executeCommand(
-        CommandInterface $command,
-        ReadPreference $readPreference = null,
-        array $typeMap = []
-    ) {
-        $cursor = $this->manager->executeCommand($this->databaseName, $command, $readPreference);
-        $typeMap = TypeMapOptions::resolve($typeMap);
-        $cursor->setTypeMap($typeMap);
-
-        return $cursor;
     }
 
     /**

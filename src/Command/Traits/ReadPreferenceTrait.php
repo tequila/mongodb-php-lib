@@ -7,15 +7,12 @@ use MongoDB\Driver\ReadPreference;
 trait ReadPreferenceTrait
 {
     /**
-     * @var ReadPreference
+     * @param array $options
+     * @param ReadPreference $defaultReadPreference
+     * @return ReadPreference
      */
-    private $readPreference;
-
-    /**
-     * @param ReadPreference $readPreference
-     */
-    public function setDefaultReadPreference(ReadPreference $readPreference)
+    public function resolveReadPreference(array $options, ReadPreference $defaultReadPreference)
     {
-        $this->readPreference = $readPreference;
+        return isset($options['readPreference']) ? $options['readPreference'] : $defaultReadPreference;
     }
 }
