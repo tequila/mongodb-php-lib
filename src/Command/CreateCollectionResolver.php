@@ -3,14 +3,18 @@
 namespace Tequila\MongoDB\Command;
 
 use Symfony\Component\OptionsResolver\Options;
+use Tequila\MongoDB\Command\Traits\WriteConcernCompatibilityTrait;
 use Tequila\MongoDB\Command\Traits\WriteConcernTrait;
-use Tequila\MongoDB\Options\ServerCompatibleOptions;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
+use Tequila\MongoDB\Options\CompatibilityResolverInterface;
 use Tequila\MongoDB\Options\OptionsResolver;
 
-class CreateCollectionResolver extends OptionsResolver implements WriteConcernAwareInterface
+class CreateCollectionResolver extends OptionsResolver implements
+    WriteConcernAwareInterface,
+    CompatibilityResolverInterface
 {
     use WriteConcernTrait;
+    use WriteConcernCompatibilityTrait;
 
     /**
      * @inheritdoc
@@ -79,13 +83,5 @@ class CreateCollectionResolver extends OptionsResolver implements WriteConcernAw
         }
         
         return $options;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function resolveCompatibilities(ServerCompatibleOptions $options)
-    {
-        $options->checkWriteConcern($this->writeConcern);
     }
 }

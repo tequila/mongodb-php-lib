@@ -9,6 +9,7 @@ use Tequila\MongoDB\Command\ReadConcernAwareInterface;
 use Tequila\MongoDB\Command\ReadPreferenceResolverInterface;
 use Tequila\MongoDB\Command\WriteConcernAwareInterface;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
+use Tequila\MongoDB\Options\CompatibilityResolverInterface;
 use Tequila\MongoDB\Options\Configurator\ReadConcernConfigurator;
 use Tequila\MongoDB\Options\Configurator\ReadPreferenceConfigurator;
 use Tequila\MongoDB\Options\Configurator\WriteConcernConfigurator;
@@ -56,6 +57,10 @@ class CommandBuilder implements CommandBuilderInterface
 
         if (null !== $readPreference) {
             $command->setReadPreference($readPreference);
+        }
+
+        if ($resolver instanceof CompatibilityResolverInterface) {
+            $command->setCompatibilityResolver($resolver);
         }
 
         return $command;

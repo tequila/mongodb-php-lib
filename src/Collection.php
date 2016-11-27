@@ -4,7 +4,7 @@ namespace Tequila\MongoDB;
 
 use Tequila\MongoDB\Command\AggregateResolver;
 use Tequila\MongoDB\Command\CountResolver;
-use Tequila\MongoDB\Command\CreateIndexes;
+use Tequila\MongoDB\Command\CreateIndexesResolver;
 use Tequila\MongoDB\Command\DropCollection;
 use Tequila\MongoDB\Command\DropIndexes;
 use Tequila\MongoDB\Command\ListIndexes;
@@ -149,8 +149,27 @@ class Collection
      */
     public function createIndexes(array $indexes, array $options = [])
     {
-        $command = new CreateIndexes($this->collectionName, $indexes, $options);
-        $this->executeCommand($command);
+        if (empty($indexes)) {
+            throw new InvalidArgumentException('$indexes array cannot be empty');
+        }
+
+        if (array_key_exists('indexes', $options)) {
+            throw new InvalidArgumentException(
+                'Option "indexes" is not allowed, use $indexes argument'
+            );
+        }
+
+        $compiledIndexes = array_map(function (Index $index) {
+            return $index->toArray();
+        }, $indexes);
+
+        $options += ['indexes' => $compiledIndexes];
+
+        $this->executeCommand(
+            ['createIndexes' => $this->collectionName],
+            $options,
+            CreateIndexesResolver::class
+        );
 
         return array_map(function(Index $index) {
             return $index->getName();
@@ -376,5 +395,22 @@ class Collection
         $operationOptions = array_diff_key($options, $bulkWriteOptions);
 
         return [$bulkWriteOptions, $operationOptions];
+    }
+
+    /**
+     * @param array $command
+     * @param array $options
+     * @param $resolverClass
+     * @return CursorInterface
+     */
+    private function executeCommand(array $command, array $options, $resolverClass)
+    {
+        $cursor = $this->commandBuilder
+            ->createCommand($command, $options, $resolverClass)
+            ->execute($this->manager, $this->databaseName);
+
+        $cursor->setTypeMap(TypeMapOptions::getDefault());
+
+        return $cursor;
     }
 }

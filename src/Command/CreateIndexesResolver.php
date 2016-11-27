@@ -1,0 +1,23 @@
+<?php
+
+namespace Tequila\MongoDB\Command;
+
+use Tequila\MongoDB\Command\Traits\WriteConcernCompatibilityTrait;
+use Tequila\MongoDB\Command\Traits\WriteConcernTrait;
+use Tequila\MongoDB\Options\CompatibilityResolverInterface;
+use Tequila\MongoDB\Options\OptionsResolver;
+
+class CreateIndexesResolver extends OptionsResolver implements
+    WriteConcernAwareInterface,
+    CompatibilityResolverInterface
+{
+    use WriteConcernTrait;
+    use WriteConcernCompatibilityTrait;
+
+    public function configureOptions()
+    {
+        $this
+            ->setDefined('indexes')
+            ->setAllowedTypes('indexes', 'array');
+    }
+}

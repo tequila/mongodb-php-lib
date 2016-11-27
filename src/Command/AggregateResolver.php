@@ -16,10 +16,10 @@ use Tequila\MongoDB\Options\ServerCompatibleOptions;
 class AggregateResolver
     extends OptionsResolver
     implements
+    CompatibilityResolverInterface,
     ReadConcernAwareInterface,
     WriteConcernAwareInterface,
-    ReadPreferenceResolverInterface,
-    CompatibilityResolverInterface
+    ReadPreferenceResolverInterface
 {
     use ReadConcernTrait;
     use WriteConcernTrait;

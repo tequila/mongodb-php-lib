@@ -7,7 +7,7 @@ use MongoDB\Driver\ReadPreference;
 use MongoDB\Driver\WriteConcern;
 use Tequila\MongoDB\Command\CreateCollectionResolver;
 use Tequila\MongoDB\Command\DropCollection;
-use Tequila\MongoDB\Command\DropDatabase;
+use Tequila\MongoDB\Command\DropDatabaseResolver;
 use Tequila\MongoDB\Command\ListCollections;
 use Tequila\MongoDB\Command\Result\CollectionInfo;
 use Tequila\MongoDB\Options\DatabaseOptions;
@@ -88,10 +88,13 @@ class Database
      */
     public function drop(array $options = [])
     {
-        $command = new DropDatabase($options);
-        $cursor = $this->runCommand($command);
+        $cursor = $this->executeCommand(
+            ['dropDatabase' => 1],
+            $options,
+            DropDatabaseResolver::class
+        );
 
-        return current(iterator_to_array($cursor));
+        return $cursor->current();
     }
 
     /**

@@ -6,10 +6,14 @@ use Symfony\Component\OptionsResolver\Options;
 use Tequila\MongoDB\Command\Traits\ReadConcernTrait;
 use Tequila\MongoDB\Command\Traits\ReadPreferenceTrait;
 use Tequila\MongoDB\Index;
+use Tequila\MongoDB\Options\CompatibilityResolverInterface;
 use Tequila\MongoDB\Options\OptionsResolver;
 use Tequila\MongoDB\Options\ServerCompatibleOptions;
 
-class CountResolver extends OptionsResolver implements ReadConcernAwareInterface, ReadPreferenceResolverInterface
+class CountResolver extends OptionsResolver implements
+    ReadConcernAwareInterface,
+    ReadPreferenceResolverInterface,
+    CompatibilityResolverInterface
 {
     use ReadConcernTrait;
     use ReadPreferenceTrait;

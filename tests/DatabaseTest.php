@@ -7,7 +7,7 @@ use Prophecy\Argument;
 use Tequila\MongoDB\Collection;
 use Tequila\MongoDB\Command\CreateCollectionResolver;
 use Tequila\MongoDB\Command\DropCollection;
-use Tequila\MongoDB\Command\DropDatabase;
+use Tequila\MongoDB\Command\DropDatabaseResolver;
 use Tequila\MongoDB\Database;
 use Tequila\MongoDB\ManagerInterface;
 use Tequila\MongoDB\Tests\Traits\CursorTrait;
@@ -62,7 +62,7 @@ class DatabaseTest extends TestCase
             ->getManagerProphecy()
             ->executeCommand(
                 $this->getDatabaseName(),
-                Argument::that(function(DropDatabase $command) {
+                Argument::that(function(DropDatabaseResolver $command) {
                     return ['dropDatabase' => 1] === $command->getOptions($this->getServerInfo());
                 }),
                 null
