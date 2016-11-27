@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Tequila\MongoDB\Collection;
 use Tequila\MongoDB\Command\CreateCollectionResolver;
-use Tequila\MongoDB\Command\DropCollection;
+use Tequila\MongoDB\Command\DropCollectionResolver;
 use Tequila\MongoDB\Command\DropDatabaseResolver;
 use Tequila\MongoDB\Database;
 use Tequila\MongoDB\ManagerInterface;
@@ -82,7 +82,7 @@ class DatabaseTest extends TestCase
             ->getManagerProphecy()
             ->executeCommand(
                 $this->getDatabaseName(),
-                Argument::that(function(DropCollection $command) {
+                Argument::that(function(DropCollectionResolver $command) {
                     $actual = $command->getOptions($this->getServerInfo());
 
                     return ['drop' => $this->getCollectionName()] === $actual;

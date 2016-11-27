@@ -5,7 +5,7 @@ namespace Tequila\MongoDB;
 use Tequila\MongoDB\Command\AggregateResolver;
 use Tequila\MongoDB\Command\CountResolver;
 use Tequila\MongoDB\Command\CreateIndexesResolver;
-use Tequila\MongoDB\Command\DropCollection;
+use Tequila\MongoDB\Command\DropCollectionResolver;
 use Tequila\MongoDB\Command\DropIndexes;
 use Tequila\MongoDB\Command\ListIndexes;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
@@ -121,7 +121,6 @@ class Collection
             CountResolver::class
         );
 
-        $cursor->setTypeMap(TypeMapOptions::getDefault());
         $result = $cursor->current();
         if (!isset($result['n'])) {
             throw new UnexpectedResultException('Command "count" did not return expected "n" field.');
@@ -155,7 +154,7 @@ class Collection
 
         if (array_key_exists('indexes', $options)) {
             throw new InvalidArgumentException(
-                'Option "indexes" is not allowed, use $indexes argument'
+                'Option "indexes" is not allowed, use $indexes argument.'
             );
         }
 
@@ -210,10 +209,13 @@ class Collection
      */
     public function drop(array $options = [])
     {
-        $command = new DropCollection($this->collectionName, $options);
-        $cursor = $this->executeCommand($command);
+        $cursor = $this->executeCommand(
+            ['drop' => $this->collectionName],
+            $options,
+            DropCollectionResolver::class
+        );
 
-        return current(iterator_to_array($cursor));
+        return $cursor->current();
     }
 
     /**
