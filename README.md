@@ -24,7 +24,7 @@ The library works on PHP 5.6.0 or higher, PHP 7.0 or higher, MongoDB 3.2 or high
 The library is under an active development and is NOT ready for production use right now. 
 All public API for now is stable, but it does not have enough tests. You can support this project by writing tests,
 testing the library with the MongoDB server and reporting bugs.
-The first release is planned for November 15, 2016.
+The first release is planned for December, 3, 2016.
 Contributions are appreciated.
 
 #### Todo before the first release:
