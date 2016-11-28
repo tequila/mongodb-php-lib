@@ -121,16 +121,16 @@ class CommandBuilder implements CommandBuilderInterface
             $resolver = new $resolverClass;
             if ($resolver instanceof ReadConcernAwareInterface && $this->readConcern) {
                 $resolver->setDefaultReadConcern($this->readConcern);
-                ReadConcernConfigurator::configureOptions($resolver);
+                ReadConcernConfigurator::configure($resolver);
             }
 
             if ($resolver instanceof WriteConcernAwareInterface && $this->writeConcern) {
                 $resolver->setDefaultWriteConcern($this->writeConcern);
-                WriteConcernConfigurator::configureOptions($resolver);
+                WriteConcernConfigurator::configure($resolver);
             }
 
             if ($resolver instanceof ReadPreferenceResolverInterface) {
-                ReadPreferenceConfigurator::configureOptions($resolver);
+                ReadPreferenceConfigurator::configure($resolver);
             }
 
             $resolver->configureOptions();

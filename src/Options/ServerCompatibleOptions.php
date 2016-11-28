@@ -21,7 +21,7 @@ class ServerCompatibleOptions extends \ArrayObject
      * @throws UnsupportedException
      * @return $this
      */
-    public function checkDocumentValidation()
+    public function resolveDocumentValidation()
     {
         if (isset($this['bypassDocumentValidation'])) {
             if (!$this->getServer()->supportsDocumentValidation()) {
@@ -40,7 +40,7 @@ class ServerCompatibleOptions extends \ArrayObject
      * @throws UnsupportedException
      * @return $this
      */
-    public function checkCollation()
+    public function resolveCollation()
     {
         if (isset($this['collation']) && !$this->server->supportsCollation()) {
             throw new UnsupportedException('Option "collation" is not supported by the server');
@@ -55,7 +55,7 @@ class ServerCompatibleOptions extends \ArrayObject
      * @param ReadConcern|null $defaultValue
      * @return $this
      */
-    public function checkReadConcern(ReadConcern $defaultValue = null)
+    public function resolveReadConcern(ReadConcern $defaultValue = null)
     {
         $server = $this->getServer();
 
@@ -87,14 +87,14 @@ class ServerCompatibleOptions extends \ArrayObject
      * @param WriteConcern|null $defaultValue
      * @return $this
      */
-    public function checkWriteConcern(WriteConcern $defaultValue = null)
+    public function resolveWriteConcern(WriteConcern $defaultValue = null)
     {
-        if (isset($this['writeConcern']) && !$this->getServer()->supportsWriteConcern()) {
-            unset($this['writeConcern']);
-        }
-
         if (!isset($this['writeConcern']) && $this->getServer()->supportsWriteConcern() && $defaultValue) {
             $this['writeConcern'] = $defaultValue;
+        }
+
+        if (isset($this['writeConcern']) && !$this->getServer()->supportsWriteConcern()) {
+            unset($this['writeConcern']);
         }
 
         // Write concern in "findAndModify" command is a special case and requires a different wire version

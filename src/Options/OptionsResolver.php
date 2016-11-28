@@ -17,5 +17,7 @@ abstract class OptionsResolver extends BaseResolver
         }
     }
 
-    abstract public function configureOptions();
+    public function configureOptions()
+    {
+    }
 }

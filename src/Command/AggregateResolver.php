@@ -24,46 +24,9 @@ class AggregateResolver
     use ReadConcernTrait;
     use WriteConcernTrait;
 
-    /**
-     * @inheritdoc
-     */
-    public function resolve(array $options = array())
-    {
-        $options = parent::resolve($options);
-
-        return $this->compile($options);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function resolveCompatibilities(ServerCompatibleOptions $options)
-    {
-        $options
-            ->checkReadConcern($this->readConcern)
-            ->checkCollation()
-            ->checkDocumentValidation();
-
-        if ($this->hasOutStage($options)) {
-            $options->checkWriteConcern($this->writeConcern);
-        }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function resolveReadPreference(array $options, ReadPreference $defaultReadPreference)
-    {
-        if ($this->hasOutStage($options)) {
-            return new ReadPreference(ReadPreference::RP_PRIMARY);
-        }
-
-        return isset($options['readPreference']) ? $options['readPreference'] : $defaultReadPreference;
-    }
-
     public function configureOptions()
     {
-        CollationConfigurator::configureOptions($this);
+        CollationConfigurator::configure($this);
 
         $this
             ->setRequired('pipeline')
@@ -88,6 +51,43 @@ class AggregateResolver
             ->setAllowedTypes('useCursor', 'bool');
 
         $this->setDefault('useCursor', true);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function resolve(array $options = array())
+    {
+        $options = parent::resolve($options);
+
+        return $this->compile($options);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function resolveCompatibilities(ServerCompatibleOptions $options)
+    {
+        $options
+            ->resolveReadConcern($this->readConcern)
+            ->resolveCollation()
+            ->resolveDocumentValidation();
+
+        if ($this->hasOutStage($options)) {
+            $options->resolveWriteConcern($this->writeConcern);
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function resolveReadPreference(array $options, ReadPreference $defaultReadPreference)
+    {
+        if ($this->hasOutStage($options)) {
+            return new ReadPreference(ReadPreference::RP_PRIMARY);
+        }
+
+        return isset($options['readPreference']) ? $options['readPreference'] : $defaultReadPreference;
     }
 
     /**

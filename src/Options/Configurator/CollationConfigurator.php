@@ -7,7 +7,7 @@ use Tequila\MongoDB\Options\OptionsResolver;
 
 class CollationConfigurator
 {
-    public static function configureOptions(OptionsResolver $resolver)
+    public static function configure(OptionsResolver $resolver)
     {
         $resolver
             ->setDefined('collation')

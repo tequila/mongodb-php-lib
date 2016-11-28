@@ -5,7 +5,7 @@ namespace Tequila\MongoDB;
 use MongoDB\Driver\ReadPreference;
 use Tequila\MongoDB\Command\DropDatabaseResolver;
 use Tequila\MongoDB\Exception\UnexpectedResultException;
-use Tequila\MongoDB\Options\TypeMapOptions;
+use Tequila\MongoDB\Options\TypeMapResolver;
 use Tequila\MongoDB\Traits\CommandBuilderTrait;
 
 class Client
@@ -43,7 +43,7 @@ class Client
             )
             ->execute($this->manager, $databaseName);
 
-        $cursor->setTypeMap(TypeMapOptions::getDefault());
+        $cursor->setTypeMap(TypeMapResolver::getDefault());
 
         return $cursor->current();
     }
@@ -77,8 +77,12 @@ class Client
      */
     public function listDatabases()
     {
-        $cursor = $this->runCommand('admin', new SimpleCommand(['listDatabases' => 1]));
-        $cursor->setTypeMap(TypeMapOptions::getDefault());
+        $cursor = $this->runCommand(
+            'admin',
+            new SimpleCommand(['listDatabases' => 1]),
+            new ReadPreference(ReadPreference::RP_PRIMARY)
+        );
+        $cursor->setTypeMap(TypeMapResolver::getDefault());
         $result = $cursor->current();
 
         if (isset($result['databases']) && is_array($result['databases'])) {

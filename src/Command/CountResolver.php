@@ -21,21 +21,15 @@ class CountResolver extends OptionsResolver implements
     public function configureOptions()
     {
         $this->setDefined([
-            'query',
             'limit',
             'skip',
             'hint',
         ]);
 
         $this
-            ->setAllowedTypes('query', ['array', 'object'])
             ->setAllowedTypes('limit', 'integer')
             ->setAllowedTypes('skip', 'integer')
             ->setAllowedTypes('hint', ['string', 'array', 'object']);
-
-        $this->setNormalizer('query', function(Options $options, $query) {
-            return (object)$query;
-        });
 
         $this->setNormalizer('hint', function(Options $options, $hint) {
             if (is_array($hint) || is_object($hint)) {
@@ -51,6 +45,6 @@ class CountResolver extends OptionsResolver implements
      */
     public function resolveCompatibilities(ServerCompatibleOptions $options)
     {
-        $options->checkReadConcern($this->readConcern);
+        $options->resolveReadConcern($this->readConcern);
     }
 }

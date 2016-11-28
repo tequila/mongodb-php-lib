@@ -8,6 +8,6 @@ trait WriteConcernCompatibilityTrait
 {
     public function resolveCompatibilities(ServerCompatibleOptions $options)
     {
-        $options->checkWriteConcern($this->writeConcern);
+        $options->resolveWriteConcern($this->writeConcern);
     }
 }

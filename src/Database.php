@@ -8,7 +8,7 @@ use Tequila\MongoDB\Command\DropCollectionResolver;
 use Tequila\MongoDB\Command\DropDatabaseResolver;
 use Tequila\MongoDB\Command\ListCollectionsResolver;
 use Tequila\MongoDB\Options\DatabaseOptions;
-use Tequila\MongoDB\Options\TypeMapOptions;
+use Tequila\MongoDB\Options\TypeMapResolver;
 use Tequila\MongoDB\Traits\CommandBuilderTrait;
 
 class Database
@@ -154,7 +154,7 @@ class Database
             ->createCommand($command, $options, $resolverClass)
             ->execute($this->manager, $this->databaseName);
 
-        $cursor->setTypeMap(TypeMapOptions::getDefault());
+        $cursor->setTypeMap(TypeMapResolver::getDefault());
 
         return $cursor;
     }

@@ -5,7 +5,7 @@ namespace Tequila\MongoDB;
 use MongoDB\Driver\ReadPreference;
 use Tequila\MongoDB\Options\CompatibilityResolverInterface;
 use Tequila\MongoDB\Options\ServerCompatibleOptions;
-use Tequila\MongoDB\Options\TypeMapOptions;
+use Tequila\MongoDB\Options\TypeMapResolver;
 
 class Command implements CommandInterface, CompiledCommandInterface
 {
