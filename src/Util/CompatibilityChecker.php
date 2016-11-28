@@ -1,51 +1,13 @@
 <?php
 
-namespace Tequila\MongoDB\Options;
+namespace Tequila\MongoDB\Util;
 
 use MongoDB\Driver\ReadConcern;
 use Tequila\MongoDB\Exception\UnsupportedException;
 use Tequila\MongoDB\Server;
 
-class CompatibilityResolver
+class CompatibilityChecker
 {
-    /**
-     * @var Server
-     */
-    private $server;
-
-    /**
-     * @var array
-     */
-    private $options;
-
-    /**
-     * @param Server $server
-     * @param array $options
-     */
-    public function __construct(Server $server, array $options)
-    {
-        $this->server = $server;
-        $this->options = $options;
-    }
-
-    /**
-     * @param Server $server
-     * @param array $options
-     * @return static
-     */
-    public static function getInstance(Server $server, array $options)
-    {
-        return new static($server, $options);
-    }
-
-    /**
-     * @return array
-     */
-    public function resolve()
-    {
-        return $this->options;
-    }
-
     /**
      * Checks whether the server supports document validation. Throws an UnsupportedException otherwise
      * @throws UnsupportedException

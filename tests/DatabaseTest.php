@@ -5,9 +5,9 @@ namespace Tequila\MongoDB\Tests;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Tequila\MongoDB\Collection;
-use Tequila\MongoDB\Command\CreateCollection;
-use Tequila\MongoDB\Command\DropCollection;
-use Tequila\MongoDB\Command\DropDatabase;
+use Tequila\MongoDB\Command\CreateCollectionResolver;
+use Tequila\MongoDB\Command\DropCollectionResolver;
+use Tequila\MongoDB\Command\DropDatabaseResolver;
 use Tequila\MongoDB\Database;
 use Tequila\MongoDB\ManagerInterface;
 use Tequila\MongoDB\Tests\Traits\CursorTrait;
@@ -39,7 +39,7 @@ class DatabaseTest extends TestCase
             ->getManagerProphecy()
             ->executeCommand(
                 $this->getDatabaseName(),
-                Argument::that(function(CreateCollection $command) {
+                Argument::that(function(CreateCollectionResolver $command) {
                     $expected = ['create' => $this->getCollectionName()];
                     $actual = $command->getOptions($this->getServerInfo());
 
@@ -62,7 +62,7 @@ class DatabaseTest extends TestCase
             ->getManagerProphecy()
             ->executeCommand(
                 $this->getDatabaseName(),
-                Argument::that(function(DropDatabase $command) {
+                Argument::that(function(DropDatabaseResolver $command) {
                     return ['dropDatabase' => 1] === $command->getOptions($this->getServerInfo());
                 }),
                 null
@@ -82,7 +82,7 @@ class DatabaseTest extends TestCase
             ->getManagerProphecy()
             ->executeCommand(
                 $this->getDatabaseName(),
-                Argument::that(function(DropCollection $command) {
+                Argument::that(function(DropCollectionResolver $command) {
                     $actual = $command->getOptions($this->getServerInfo());
 
                     return ['drop' => $this->getCollectionName()] === $actual;

@@ -9,34 +9,20 @@ trait CachedResolverTrait
     /**
      * @var OptionsResolver
      */
-    private static $cachedResolver;
-
-    /**
-     * @param array $options
-     * @return array
-     */
-    private static function resolve(array $options)
-    {
-        return self::getResolver()->resolve($options);
-    }
-
-    /**
-     * @param OptionsResolver $resolver
-     */
-    private static function configureOptions(OptionsResolver $resolver)
-    {
-    }
+    private static $cachedInstance;
 
     /**
      * @return OptionsResolver
      */
-    private static function getResolver()
+    public static function getCachedInstance()
     {
-        if (!self::$cachedResolver) {
-            self::$cachedResolver = new OptionsResolver();
-            self::configureOptions(self::$cachedResolver);
+        if (!self::$cachedInstance) {
+            self::$cachedInstance = new self;
+            self::configureOptions();
         }
 
-        return self::$cachedResolver;
+        return self::$cachedInstance;
     }
+
+    abstract public function configureOptions();
 }

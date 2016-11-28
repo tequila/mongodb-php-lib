@@ -3,14 +3,15 @@
 namespace Tequila\MongoDB;
 
 use MongoDB\Driver\ReadPreference;
-use Tequila\MongoDB\Command\DropDatabase;
-use Tequila\MongoDB\Command\ListDatabases;
-use Tequila\MongoDB\Command\Result\DatabaseInfo;
+use Tequila\MongoDB\Command\DropDatabaseResolver;
 use Tequila\MongoDB\Exception\UnexpectedResultException;
-use Tequila\MongoDB\Options\TypeMapOptions;
+use Tequila\MongoDB\Options\TypeMapResolver;
+use Tequila\MongoDB\Traits\CommandBuilderTrait;
 
 class Client
 {
+    use CommandBuilderTrait;
+
     /**
      * @var ManagerInterface
      */
@@ -22,6 +23,9 @@ class Client
     public function __construct(ManagerInterface $manager)
     {
         $this->manager = $manager;
+        $this->readConcern = $manager->getReadConcern();
+        $this->readPreference = $manager->getReadPreference();
+        $this->writeConcern = $manager->getWriteConcern();
     }
 
     /**
@@ -31,49 +35,77 @@ class Client
      */
     public function dropDatabase($databaseName, array $options = [])
     {
-        $command = new DropDatabase($options);
-        $cursor = $this->executeCommand($databaseName, $command);
+        $cursor = $this->commandBuilder
+            ->createCommand(
+                ['dropDatabase' => 1],
+                $options,
+                DropDatabaseResolver::class
+            )
+            ->execute($this->manager, $databaseName);
 
-        return current(iterator_to_array($cursor));
+        $cursor->setTypeMap(TypeMapResolver::getDefault());
+
+        return $cursor->current();
     }
 
     /**
-     * @return DatabaseInfo[]
+     * @return \MongoDB\Driver\ReadConcern
+     */
+    public function getReadConcern()
+    {
+        return $this->readConcern;
+    }
+
+    /**
+     * @return ReadPreference
+     */
+    public function getReadPreference()
+    {
+        return $this->readPreference;
+    }
+
+    /**
+     * @return \MongoDB\Driver\WriteConcern
+     */
+    public function getWriteConcern()
+    {
+        return $this->writeConcern;
+    }
+
+    /**
+     * @return array
      */
     public function listDatabases()
     {
-        $cursor = $this->executeCommand('admin', new ListDatabases());
-        $result = current(iterator_to_array($cursor));
+        $cursor = $this->runCommand(
+            'admin',
+            new SimpleCommand(['listDatabases' => 1]),
+            new ReadPreference(ReadPreference::RP_PRIMARY)
+        );
+        $cursor->setTypeMap(TypeMapResolver::getDefault());
+        $result = $cursor->current();
 
         if (isset($result['databases']) && is_array($result['databases'])) {
-            return array_map(function (array $dbInfo) {
-                return new DatabaseInfo($dbInfo);
-            }, $result['databases']);
+            throw new UnexpectedResultException(
+                'Command "listDatabases" did not return expected "databases" array'
+            );
         }
 
-        throw new UnexpectedResultException(
-            'Command "listDatabases" did not return expected "databases" array'
-        );
+        return $result;
     }
 
     /**
      * @param string $databaseName
      * @param CommandInterface $command
      * @param ReadPreference $readPreference
-     * @param array $typeMap
      * @return CursorInterface
      */
-    public function executeCommand(
+    public function runCommand(
         $databaseName,
         CommandInterface $command,
-        ReadPreference $readPreference = null,
-        array $typeMap = []
+        ReadPreference $readPreference = null
     ) {
-        $cursor = $this->manager->executeCommand($databaseName, $command, $readPreference);
-        $typeMap = TypeMapOptions::resolve($typeMap);
-        $cursor->setTypeMap($typeMap);
-
-        return $cursor;
+        return $this->manager->executeCommand($databaseName, $command, $readPreference);
     }
 
     /**

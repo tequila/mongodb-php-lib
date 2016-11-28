@@ -15,7 +15,7 @@ trait ReadConcernTrait
      * @param ReadConcern $readConcern
      * @return $this
      */
-    public function setReadConcern(ReadConcern $readConcern)
+    public function setDefaultReadConcern(ReadConcern $readConcern)
     {
         $this->readConcern = $readConcern;
 

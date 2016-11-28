@@ -6,34 +6,32 @@ use Symfony\Component\OptionsResolver\Options;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\Traits\CachedResolverTrait;
 
-class TypeMapOptions
+class TypeMapResolver extends OptionsResolver
 {
-    use CachedResolverTrait {
-        resolve as privateResolve;
-    }
+    use CachedResolverTrait;
 
-    public static function configureOptions(OptionsResolver $resolver)
+    public function configureOptions()
     {
-        $resolver->setDefaults([
-            'root' => 'array',
-            'document' => 'array',
-            'array' => 'array',
-        ]);
+        $this->setDefaults(self::getDefault());
 
-        $resolver
+        $this
             ->setAllowedTypes('array', 'string')
             ->setAllowedTypes('document', 'string')
             ->setAllowedTypes('root', 'string');
 
-        $resolver
+        $this
             ->setNormalizer('array', self::getNormalizer('array'))
             ->setNormalizer('document', self::getNormalizer('document'))
             ->setNormalizer('root', self::getNormalizer('root'));
     }
 
-    public static function resolve(array $options)
+    public static function getDefault()
     {
-        return self::privateResolve($options);
+        return [
+            'root' => 'array',
+            'document' => 'array',
+            'array' => 'array',
+        ];
     }
 
     /**

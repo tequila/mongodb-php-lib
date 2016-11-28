@@ -6,9 +6,9 @@ use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
 use Symfony\Component\OptionsResolver\Options;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
-use Tequila\MongoDB\Options\CompatibilityResolver;
+use Tequila\MongoDB\Util\CompatibilityChecker;
 use Tequila\MongoDB\Options\OptionsResolver;
-use Tequila\MongoDB\Options\TypeMapOptions;
+use Tequila\MongoDB\Options\TypeMapResolver;
 use Tequila\MongoDB\Traits\CachedResolverTrait;
 use Tequila\MongoDB\Util\TypeUtil;
 
@@ -72,7 +72,7 @@ class FindQuery implements QueryInterface
      */
     public function getOptions(ServerInfo $serverInfo)
     {
-        return CompatibilityResolver::getInstance(
+        return CompatibilityChecker::getInstance(
             $serverInfo,
             $this->compiledOptions,
             ['collation', 'readConcern']
@@ -205,7 +205,7 @@ class FindQuery implements QueryInterface
             });
 
         $resolver->setNormalizer('typeMap', function(Options $options, $typeMap) {
-            return TypeMapOptions::resolve($typeMap);
+            return TypeMapResolver::getCachedInstance()->resolve($typeMap);
         });
     }
 }

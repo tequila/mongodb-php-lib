@@ -2,19 +2,19 @@
 
 namespace Tequila\MongoDB;
 
-use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
-use MongoDB\Driver\WriteConcern;
-use Tequila\MongoDB\Command\CreateCollection;
-use Tequila\MongoDB\Command\DropCollection;
-use Tequila\MongoDB\Command\DropDatabase;
-use Tequila\MongoDB\Command\ListCollections;
-use Tequila\MongoDB\Command\Result\CollectionInfo;
+use Tequila\MongoDB\Command\CreateCollectionResolver;
+use Tequila\MongoDB\Command\DropCollectionResolver;
+use Tequila\MongoDB\Command\DropDatabaseResolver;
+use Tequila\MongoDB\Command\ListCollectionsResolver;
 use Tequila\MongoDB\Options\DatabaseOptions;
-use Tequila\MongoDB\Options\TypeMapOptions;
+use Tequila\MongoDB\Options\TypeMapResolver;
+use Tequila\MongoDB\Traits\CommandBuilderTrait;
 
 class Database
 {
+    use CommandBuilderTrait;
+
     /**
      * @var ManagerInterface
      */
@@ -24,21 +24,6 @@ class Database
      * @var string
      */
     private $databaseName;
-
-    /**
-     * @var ReadConcern|null
-     */
-    private $readConcern;
-
-    /**
-     * @var ReadPreference|null
-     */
-    private $readPreference;
-
-    /**
-     * @var WriteConcern|null
-     */
-    private $writeConcern;
 
     /**
      * @param ManagerInterface $manager
@@ -70,11 +55,13 @@ class Database
      */
     public function createCollection($collectionName, array $options = [])
     {
-        $command = new CreateCollection($collectionName, $options);
-        $command->setWriteConcern($this->writeConcern);
-        $cursor = $this->executeCommand($command);
+        $cursor = $this->executeCommand(
+            ['create' => $collectionName],
+            $options,
+            CreateCollectionResolver::class
+        );
 
-        return current(iterator_to_array($cursor));
+        return $cursor->current();
     }
 
     /**
@@ -83,10 +70,13 @@ class Database
      */
     public function drop(array $options = [])
     {
-        $command = new DropDatabase($options);
-        $cursor = $this->executeCommand($command);
+        $cursor = $this->executeCommand(
+            ['dropDatabase' => 1],
+            $options,
+            DropDatabaseResolver::class
+        );
 
-        return current(iterator_to_array($cursor));
+        return $cursor->current();
     }
 
     /**
@@ -96,10 +86,13 @@ class Database
      */
     public function dropCollection($collectionName, array $options = [])
     {
-        $command = new DropCollection($collectionName, $options);
-        $cursor = $this->executeCommand($command);
+        $cursor = $this->executeCommand(
+            ['drop' => $collectionName],
+            $options,
+            DropCollectionResolver::class
+        );
 
-        return current(iterator_to_array($cursor));
+        return $cursor->current();
     }
 
     /**
@@ -111,35 +104,26 @@ class Database
     }
 
     /**
-     * @param CommandInterface $command
-     * @param ReadPreference $readPreference
-     * @param array $typeMap
-     * @return CursorInterface
-     */
-    public function executeCommand(
-        CommandInterface $command,
-        ReadPreference $readPreference = null,
-        array $typeMap = []
-    ) {
-        $cursor = $this->manager->executeCommand($this->databaseName, $command, $readPreference);
-        $typeMap = TypeMapOptions::resolve($typeMap);
-        $cursor->setTypeMap($typeMap);
-
-        return $cursor;
-    }
-
-    /**
      * @param array $options
-     * @return CollectionInfo[]
+     * @return CursorInterface
      */
     public function listCollections(array $options = [])
     {
-        $command = new ListCollections($options);
-        $cursor = $this->executeCommand($command);
+        return $this->executeCommand(
+            ['listCollections' => 1],
+            $options,
+            ListCollectionsResolver::class
+        );
+    }
 
-        return array_map(function(array $collectionInfo) {
-            return new CollectionInfo($collectionInfo);
-        }, iterator_to_array($cursor));
+    /**
+     * @param CommandInterface $command
+     * @param ReadPreference|null $readPreference
+     * @return CursorInterface
+     */
+    public function runCommand(CommandInterface $command, ReadPreference $readPreference = null)
+    {
+        return $this->manager->executeCommand($this->databaseName, $command, $readPreference);
     }
 
     /**
@@ -156,5 +140,22 @@ class Database
         ];
 
         return new Collection($this->manager, $this->databaseName, $collectionName, $options);
+    }
+
+    /**
+     * @param array $command
+     * @param array $options
+     * @param $resolverClass
+     * @return CursorInterface
+     */
+    private function executeCommand(array $command, array $options, $resolverClass)
+    {
+        $cursor = $this->commandBuilder
+            ->createCommand($command, $options, $resolverClass)
+            ->execute($this->manager, $this->databaseName);
+
+        $cursor->setTypeMap(TypeMapResolver::getDefault());
+
+        return $cursor;
     }
 }
