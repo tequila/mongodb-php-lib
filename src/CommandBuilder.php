@@ -5,23 +5,18 @@ namespace Tequila\MongoDB;
 use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
 use MongoDB\Driver\WriteConcern;
-use Tequila\MongoDB\Command\ReadConcernAwareInterface;
-use Tequila\MongoDB\Command\ReadPreferenceResolverInterface;
-use Tequila\MongoDB\Command\WriteConcernAwareInterface;
-use Tequila\MongoDB\Exception\InvalidArgumentException;
-use Tequila\MongoDB\Options\CompatibilityResolverInterface;
-use Tequila\MongoDB\Options\Configurator\ReadConcernConfigurator;
-use Tequila\MongoDB\Options\Configurator\ReadPreferenceConfigurator;
-use Tequila\MongoDB\Options\Configurator\WriteConcernConfigurator;
-use Tequila\MongoDB\Options\OptionsResolver;
+use Tequila\MongoDB\OptionsResolver\Command\ReadConcernAwareInterface;
+use Tequila\MongoDB\OptionsResolver\Command\ReadPreferenceResolverInterface;
+use Tequila\MongoDB\OptionsResolver\Command\WriteConcernAwareInterface;
+use Tequila\MongoDB\OptionsResolver\Command\CompatibilityResolverInterface;
+use Tequila\MongoDB\OptionsResolver\Configurator\ReadConcernConfigurator;
+use Tequila\MongoDB\OptionsResolver\Configurator\ReadPreferenceConfigurator;
+use Tequila\MongoDB\OptionsResolver\Configurator\WriteConcernConfigurator;
+use Tequila\MongoDB\OptionsResolver\OptionsResolver;
+use Tequila\MongoDB\OptionsResolver\ResolverFactory;
 
 class CommandBuilder implements CommandBuilderInterface
 {
-    /**
-     * @var OptionsResolver[]
-     */
-    private static $cache = [];
-
     /**
      * @var ReadConcern
      */
@@ -96,48 +91,21 @@ class CommandBuilder implements CommandBuilderInterface
      */
     private function getResolver($resolverClass)
     {
-        if (!is_string($resolverClass)) {
-            throw new InvalidArgumentException('$resolverClass must be a string');
+        $resolver = clone ResolverFactory::get($resolverClass);
+        if ($resolver instanceof ReadConcernAwareInterface && $this->readConcern) {
+            $resolver->setDefaultReadConcern($this->readConcern);
+            ReadConcernConfigurator::configure($resolver);
         }
 
-        if (!array_key_exists($resolverClass, self::$cache)) {
-            if (!class_exists($resolverClass)) {
-                throw new InvalidArgumentException(
-                    sprintf('Resolver class "%s" is not found', $resolverClass)
-                );
-            }
-
-            if (!is_subclass_of($resolverClass, OptionsResolver::class)) {
-                throw new InvalidArgumentException(
-                    sprintf(
-                        'Resolver class "%s" must extend "%s"',
-                        $resolverClass,
-                        OptionsResolver::class
-                    )
-                );
-            }
-
-            /** @var OptionsResolver $resolver */
-            $resolver = new $resolverClass;
-            if ($resolver instanceof ReadConcernAwareInterface && $this->readConcern) {
-                $resolver->setDefaultReadConcern($this->readConcern);
-                ReadConcernConfigurator::configure($resolver);
-            }
-
-            if ($resolver instanceof WriteConcernAwareInterface && $this->writeConcern) {
-                $resolver->setDefaultWriteConcern($this->writeConcern);
-                WriteConcernConfigurator::configure($resolver);
-            }
-
-            if ($resolver instanceof ReadPreferenceResolverInterface) {
-                ReadPreferenceConfigurator::configure($resolver);
-            }
-
-            $resolver->configureOptions();
-
-            self::$cache[$resolverClass] = new $resolverClass;
+        if ($resolver instanceof WriteConcernAwareInterface && $this->writeConcern) {
+            $resolver->setDefaultWriteConcern($this->writeConcern);
+            WriteConcernConfigurator::configure($resolver);
         }
 
-        return self::$cache[$resolverClass];
+        if ($resolver instanceof ReadPreferenceResolverInterface) {
+            ReadPreferenceConfigurator::configure($resolver);
+        }
+
+        return $resolver;
     }
 }

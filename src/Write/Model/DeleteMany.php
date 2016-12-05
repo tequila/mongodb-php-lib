@@ -14,7 +14,7 @@ class DeleteMany implements WriteModelInterface
      */
     public function __construct(array $filter, array $options = [])
     {
-        $options = ['limit' => 0] + self::resolve($options);
+        $options = ['limit' => 0] + $options;
         $this->delete = new Delete($filter, $options);
     }
 }

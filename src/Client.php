@@ -3,9 +3,9 @@
 namespace Tequila\MongoDB;
 
 use MongoDB\Driver\ReadPreference;
-use Tequila\MongoDB\Command\DropDatabaseResolver;
+use Tequila\MongoDB\OptionsResolver\Command\DropDatabaseResolver;
 use Tequila\MongoDB\Exception\UnexpectedResultException;
-use Tequila\MongoDB\Options\TypeMapResolver;
+use Tequila\MongoDB\OptionsResolver\TypeMapResolver;
 use Tequila\MongoDB\Traits\CommandBuilderTrait;
 
 class Client

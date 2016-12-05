@@ -2,7 +2,7 @@
 
 namespace Tequila\MongoDB\Traits;
 
-use Tequila\MongoDB\Options\OptionsResolver;
+use Tequila\MongoDB\OptionsResolver\OptionsResolver;
 
 trait CachedResolverTrait
 {
@@ -18,7 +18,7 @@ trait CachedResolverTrait
     {
         if (!self::$cachedInstance) {
             self::$cachedInstance = new self;
-            self::configureOptions();
+            self::$cachedInstance->configureOptions();
         }
 
         return self::$cachedInstance;

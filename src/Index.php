@@ -3,7 +3,7 @@
 namespace Tequila\MongoDB;
 
 use Tequila\MongoDB\Exception\InvalidArgumentException;
-use Tequila\MongoDB\Options\OptionsResolver;
+use Tequila\MongoDB\OptionsResolver\OptionsResolver;
 use Tequila\MongoDB\Traits\CachedResolverTrait;
 
 class Index

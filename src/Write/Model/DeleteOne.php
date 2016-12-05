@@ -14,7 +14,7 @@ class DeleteOne implements WriteModelInterface
      */
     public function __construct(array $filter, array $options = [])
     {
-        $options = ['limit' => 1] + self::resolve($options);
+        $options = ['limit' => 1] + $options;
         $this->delete = new Delete($filter, $options);
     }
 }

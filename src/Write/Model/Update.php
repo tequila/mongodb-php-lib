@@ -3,13 +3,13 @@
 namespace Tequila\MongoDB\Write\Model;
 
 use Tequila\MongoDB\BulkWrite;
-use Tequila\MongoDB\Options\CollationOptions;
-use Tequila\MongoDB\Options\OptionsResolver;
-use Tequila\MongoDB\Traits\CachedResolverTrait;
+use Tequila\MongoDB\OptionsResolver\BulkWrite\UpdateResolver;
+use Tequila\MongoDB\Server;
+use Tequila\MongoDB\Write\Model\Traits\CheckCompatibilityTrait;
 
 class Update implements WriteModelInterface
 {
-    use CachedResolverTrait;
+    use CheckCompatibilityTrait;
 
     /**
      * @var array
@@ -35,27 +35,16 @@ class Update implements WriteModelInterface
     {
         $this->filter = $filter;
         $this->update = $update;
-        $this->options = self::resolve($options);
+        $this->options = UpdateResolver::getCachedInstance()->resolve($options);
     }
 
     /**
      * @inheritdoc
      */
-    public function writeToBulk(BulkWrite $bulk)
+    public function writeToBulk(BulkWrite $bulk, Server $server)
     {
+        $this->checkCompatibility($this->options, $server);
+
         $bulk->update($this->filter, $this->update, $this->options);
-    }
-
-    private static function configureOptions(OptionsResolver $resolver)
-    {
-        CollationOptions::configureOptions($resolver);
-
-        $resolver->setDefined([
-            'upsert',
-            'multi',
-        ]);
-
-        $resolver->setAllowedTypes('upsert', 'bool');
-        $resolver->setAllowedTypes('multi', 'bool');
     }
 }

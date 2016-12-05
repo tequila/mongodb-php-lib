@@ -4,13 +4,12 @@ namespace Tequila\MongoDB\Write\Model;
 
 use Tequila\MongoDB\BulkWrite;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
+use Tequila\MongoDB\Server;
 use Tequila\MongoDB\Util\TypeUtil;
-use Tequila\MongoDB\Traits\EnsureValidDocumentTrait;
+use function Tequila\MongoDB\ensureValidDocument;
 
 class InsertOne implements WriteModelInterface
 {
-    use EnsureValidDocumentTrait;
-
     /**
      * @var array|object
      */
@@ -30,11 +29,18 @@ class InsertOne implements WriteModelInterface
             );
         }
 
-        $this->ensureValidDocument($document);
+        try {
+            ensureValidDocument($document);
+        } catch(InvalidArgumentException $e) {
+            throw new InvalidArgumentException(
+                sprintf('Invalid $document: %s', $e->getMessage())
+            );
+        }
+
         $this->document = $document;
     }
 
-    public function writeToBulk(BulkWrite $bulk)
+    public function writeToBulk(BulkWrite $bulk, Server $server)
     {
         $bulk->insert($this->document);
     }

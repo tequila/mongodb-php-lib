@@ -3,9 +3,7 @@
 namespace Tequila\MongoDB;
 
 use MongoDB\Driver\ReadPreference;
-use Tequila\MongoDB\Options\CompatibilityResolverInterface;
-use Tequila\MongoDB\Options\ServerCompatibleOptions;
-use Tequila\MongoDB\Options\TypeMapResolver;
+use Tequila\MongoDB\OptionsResolver\Command\CompatibilityResolverInterface;
 
 class Command implements CommandInterface, CompiledCommandInterface
 {
@@ -38,11 +36,11 @@ class Command implements CommandInterface, CompiledCommandInterface
     public function getOptions(Server $server)
     {
         if (null !== $this->resolver) {
-            $options = new ServerCompatibleOptions($this->options);
+            $options = new CommandOptions($this->options);
             $options->setServer($server);
             $this->resolver->resolveCompatibilities($options);
 
-            return $options->toArray();
+            $this->options = $options->toArray();
         }
 
         return $this->options;

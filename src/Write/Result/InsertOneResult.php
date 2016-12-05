@@ -3,12 +3,12 @@
 namespace Tequila\MongoDB\Write\Result;
 
 use Tequila\MongoDB\Exception\UnexpectedResultException;
-use Tequila\MongoDB\Traits\WriteResultDecoratorTrait;
+use Tequila\MongoDB\Write\Result\WriteResultDecoratorTrait;
 use Tequila\MongoDB\WriteResult;
 
 class InsertOneResult
 {
-    use WriteResultDecoratorTrait;
+    use Tequila\MongoDB\Write\Result\WriteResultDecoratorTrait;
 
     public function getInsertedId()
     {

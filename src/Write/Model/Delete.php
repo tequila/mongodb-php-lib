@@ -3,13 +3,14 @@
 namespace Tequila\MongoDB\Write\Model;
 
 use Tequila\MongoDB\BulkWrite;
-use Tequila\MongoDB\Options\CollationOptions;
-use Tequila\MongoDB\Options\OptionsResolver;
-use Tequila\MongoDB\Traits\CachedResolverTrait;
+use Tequila\MongoDB\OptionsResolver\BulkWrite\DeleteResolver;
+use Tequila\MongoDB\OptionsResolver\ResolverFactory;
+use Tequila\MongoDB\Server;
+use Tequila\MongoDB\Write\Model\Traits\CheckCompatibilityTrait;
 
 class Delete implements WriteModelInterface
 {
-    use CachedResolverTrait;
+    use CheckCompatibilityTrait;
 
     /**
      * @var array
@@ -28,23 +29,18 @@ class Delete implements WriteModelInterface
     public function __construct(array $filter, array $options = [])
     {
         $this->filter = $filter;
-        $this->options = self::resolve($options);
+        $this->options = ResolverFactory::get(DeleteResolver::class)->resolve($options);
     }
 
     /**
      * @inheritdoc
      */
-    public function writeToBulk(BulkWrite $bulk)
+    public function writeToBulk(BulkWrite $bulk, Server $server)
     {
+        $this->checkCompatibility($this->options, $server);
+
         $bulk->delete($this->filter, $this->options);
     }
 
-    private static function configureOptions(OptionsResolver $resolver)
-    {
-        CollationOptions::configureOptions($resolver);
 
-        $resolver
-            ->setDefined('limit')
-            ->setAllowedValues('limit', [0, 1]);
-    }
 }
