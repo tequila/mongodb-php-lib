@@ -6,9 +6,10 @@ use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
 use Symfony\Component\OptionsResolver\Options;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
+use Tequila\MongoDB\OptionsResolver\ResolverFactory;
 use Tequila\MongoDB\Util\CompatibilityChecker;
-use Tequila\MongoDB\Options\OptionsResolver;
-use Tequila\MongoDB\Options\TypeMapResolver;
+use Tequila\MongoDB\OptionsResolver\OptionsResolver;
+use Tequila\MongoDB\OptionsResolver\TypeMapResolver;
 use Tequila\MongoDB\Traits\CachedResolverTrait;
 use Tequila\MongoDB\Util\TypeUtil;
 
@@ -205,7 +206,7 @@ class FindQuery implements QueryInterface
             });
 
         $resolver->setNormalizer('typeMap', function(Options $options, $typeMap) {
-            return TypeMapResolver::getCachedInstance()->resolve($typeMap);
+            return ResolverFactory::get(TypeMapResolver::class)->resolve($typeMap);
         });
     }
 }

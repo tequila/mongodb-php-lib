@@ -2,13 +2,12 @@
 
 namespace Tequila\MongoDB\Write\Model;
 
-use Tequila\MongoDB\Traits\EnsureValidUpdateTrait;
+use Tequila\MongoDB\OptionsResolver\BulkWrite\UpdateDocumentResolver;
 use Tequila\MongoDB\Write\Model\Traits\BulkUpdateTrait;
 
 class UpdateOne implements WriteModelInterface
 {
     use BulkUpdateTrait;
-    use EnsureValidUpdateTrait;
 
     /**
      * @param array $filter
@@ -17,8 +16,8 @@ class UpdateOne implements WriteModelInterface
      */
     public function __construct(array $filter, array $update, array $options = [])
     {
-        $this->ensureValidUpdate($update);
-        $options = ['multi' => false] + self::resolve($options);
+        $update = UpdateDocumentResolver::getCachedInstance()->resolve($update);
+        $options = ['multi' => false] + $options;
 
         $this->update = new Update($filter, $update, $options);
     }

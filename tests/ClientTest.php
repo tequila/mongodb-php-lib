@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Tequila\MongoDB\Client;
 use Tequila\MongoDB\Collection;
-use Tequila\MongoDB\Command\DropDatabaseResolver;
+use Tequila\MongoDB\OptionsResolver\Command\DropDatabaseResolver;
 use Tequila\MongoDB\Database;
 use Tequila\MongoDB\ManagerInterface;
 use Tequila\MongoDB\Tests\Traits\CursorTrait;

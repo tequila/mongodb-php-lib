@@ -2,11 +2,11 @@
 
 namespace Tequila\MongoDB\Write\Result;
 
-use Tequila\MongoDB\Traits\WriteResultDecoratorTrait;
+use Tequila\MongoDB\Write\Result\WriteResultDecoratorTrait;
 
 class DeleteResult
 {
-    use WriteResultDecoratorTrait;
+    use Tequila\MongoDB\Write\Result\WriteResultDecoratorTrait;
 
     public function getDeletedCount()
     {

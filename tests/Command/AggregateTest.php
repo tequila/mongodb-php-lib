@@ -5,7 +5,7 @@ namespace Tequila\MongoDB\Tests\Command;
 use MongoDB\Driver\ReadConcern;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
-use Tequila\MongoDB\Command\AggregateResolver;
+use Tequila\MongoDB\OptionsResolver\Command\AggregateResolver;
 use Tequila\MongoDB\ServerInfo;
 use Tequila\MongoDB\Tests\Traits\DatabaseAndCollectionNamesTrait;
 use Tequila\MongoDB\Tests\Traits\InvalidValuesTrait;

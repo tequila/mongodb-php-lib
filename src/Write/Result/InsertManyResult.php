@@ -2,11 +2,11 @@
 
 namespace Tequila\MongoDB\Write\Result;
 
-use Tequila\MongoDB\Traits\WriteResultDecoratorTrait;
+use Tequila\MongoDB\Write\Result\WriteResultDecoratorTrait;
 
 class InsertManyResult
 {
-    use WriteResultDecoratorTrait;
+    use Tequila\MongoDB\Write\Result\WriteResultDecoratorTrait;
 
     /**
      * @return int

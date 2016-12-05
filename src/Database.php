@@ -3,12 +3,12 @@
 namespace Tequila\MongoDB;
 
 use MongoDB\Driver\ReadPreference;
-use Tequila\MongoDB\Command\CreateCollectionResolver;
-use Tequila\MongoDB\Command\DropCollectionResolver;
-use Tequila\MongoDB\Command\DropDatabaseResolver;
-use Tequila\MongoDB\Command\ListCollectionsResolver;
-use Tequila\MongoDB\Options\DatabaseOptions;
-use Tequila\MongoDB\Options\TypeMapResolver;
+use Tequila\MongoDB\OptionsResolver\Command\CreateCollectionResolver;
+use Tequila\MongoDB\OptionsResolver\Command\DropCollectionResolver;
+use Tequila\MongoDB\OptionsResolver\Command\DropDatabaseResolver;
+use Tequila\MongoDB\OptionsResolver\Command\ListCollectionsResolver;
+use Tequila\MongoDB\OptionsResolver\DatabaseOptionsResolver;
+use Tequila\MongoDB\OptionsResolver\TypeMapResolver;
 use Tequila\MongoDB\Traits\CommandBuilderTrait;
 
 class Database
@@ -41,7 +41,7 @@ class Database
             'writeConcern' => $this->manager->getWriteConcern(),
         ];
 
-        $options = DatabaseOptions::resolve($options);
+        $options = DatabaseOptionsResolver::resolve($options);
 
         $this->readConcern = $options['readConcern'];
         $this->readPreference = $options['readPreference'];

@@ -9,7 +9,8 @@
         "tequila/mongodb-driver-wrapper": "dev-master"
     },
     "autoload": {
-        "psr-4": { "Tequila\\MongoDB\\": "src/" }
+        "psr-4": { "Tequila\\MongoDB\\": "src/" },
+        "files": [ "src/functions.php" ]
     },
     "autoload-dev": {
         "psr-4": { "Tequila\\MongoDB\\Tests\\": "tests/" }
