@@ -7,11 +7,9 @@ use MongoDB\Driver\ReadPreference;
 use Symfony\Component\OptionsResolver\Options;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\OptionsResolver\ResolverFactory;
-use Tequila\MongoDB\Util\CompatibilityChecker;
 use Tequila\MongoDB\OptionsResolver\OptionsResolver;
 use Tequila\MongoDB\OptionsResolver\TypeMapResolver;
 use Tequila\MongoDB\Traits\CachedResolverTrait;
-use Tequila\MongoDB\Util\TypeUtil;
 
 class FindQuery implements QueryInterface
 {
@@ -51,7 +49,7 @@ class FindQuery implements QueryInterface
             throw new InvalidArgumentException(
                 sprintf(
                     '$filter must be an array or an object, %s given',
-                    TypeUtil::getType($filter)
+                    getType($filter)
                 )
             );
         }
@@ -73,11 +71,7 @@ class FindQuery implements QueryInterface
      */
     public function getOptions(ServerInfo $serverInfo)
     {
-        return CompatibilityChecker::getInstance(
-            $serverInfo,
-            $this->compiledOptions,
-            ['collation', 'readConcern']
-        )->resolve();
+
     }
 
     /**

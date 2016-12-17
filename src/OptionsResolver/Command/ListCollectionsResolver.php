@@ -3,7 +3,6 @@
 namespace Tequila\MongoDB\OptionsResolver\Command;
 
 use Symfony\Component\OptionsResolver\Options;
-use Tequila\MongoDB\OptionsResolver\Command\ListCollectionsFilterResolver;
 use Tequila\MongoDB\OptionsResolver\OptionsResolver;
 use Tequila\MongoDB\OptionsResolver\ResolverFactory;
 

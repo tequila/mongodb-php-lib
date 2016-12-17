@@ -3,6 +3,7 @@
 namespace Tequila\MongoDB\Write\Model;
 
 use Tequila\MongoDB\OptionsResolver\BulkWrite\UpdateDocumentResolver;
+use Tequila\MongoDB\OptionsResolver\ResolverFactory;
 use Tequila\MongoDB\Write\Model\Traits\BulkUpdateTrait;
 
 class UpdateMany implements WriteModelInterface
@@ -16,7 +17,7 @@ class UpdateMany implements WriteModelInterface
      */
     public function __construct(array $filter, array $update, array $options = [])
     {
-        $update = UpdateDocumentResolver::getCachedInstance()->resolve($update);
+        $update = ResolverFactory::get(UpdateDocumentResolver::class)->resolve($update);
         $options = ['multi' => true] + $options;
 
         $this->update = new Update($filter, $update, $options);

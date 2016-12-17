@@ -2,18 +2,22 @@
 
 namespace Tequila\MongoDB;
 
+use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
+use MongoDB\Driver\WriteConcern;
 use Tequila\MongoDB\OptionsResolver\Command\CreateCollectionResolver;
 use Tequila\MongoDB\OptionsResolver\Command\DropCollectionResolver;
 use Tequila\MongoDB\OptionsResolver\Command\DropDatabaseResolver;
 use Tequila\MongoDB\OptionsResolver\Command\ListCollectionsResolver;
 use Tequila\MongoDB\OptionsResolver\DatabaseOptionsResolver;
-use Tequila\MongoDB\OptionsResolver\TypeMapResolver;
+use Tequila\MongoDB\OptionsResolver\ResolverFactory;
 use Tequila\MongoDB\Traits\CommandBuilderTrait;
+use Tequila\MongoDB\Traits\ExecuteCommandTrait;
 
 class Database
 {
     use CommandBuilderTrait;
+    use ExecuteCommandTrait;
 
     /**
      * @var ManagerInterface
@@ -24,6 +28,21 @@ class Database
      * @var string
      */
     private $databaseName;
+
+    /**
+     * @var ReadConcern
+     */
+    private $readConcern;
+
+    /**
+     * @var ReadPreference
+     */
+    private $readPreference;
+
+    /**
+     * @var WriteConcern
+     */
+    private $writeConcern;
 
     /**
      * @param ManagerInterface $manager
@@ -41,7 +60,7 @@ class Database
             'writeConcern' => $this->manager->getWriteConcern(),
         ];
 
-        $options = DatabaseOptionsResolver::resolve($options);
+        $options = ResolverFactory::get(DatabaseOptionsResolver::class)->resolve($options);
 
         $this->readConcern = $options['readConcern'];
         $this->readPreference = $options['readPreference'];
@@ -140,22 +159,5 @@ class Database
         ];
 
         return new Collection($this->manager, $this->databaseName, $collectionName, $options);
-    }
-
-    /**
-     * @param array $command
-     * @param array $options
-     * @param $resolverClass
-     * @return CursorInterface
-     */
-    private function executeCommand(array $command, array $options, $resolverClass)
-    {
-        $cursor = $this->commandBuilder
-            ->createCommand($command, $options, $resolverClass)
-            ->execute($this->manager, $this->databaseName);
-
-        $cursor->setTypeMap(TypeMapResolver::getDefault());
-
-        return $cursor;
     }
 }

@@ -15,7 +15,7 @@ use Tequila\MongoDB\OptionsResolver\Configurator\WriteConcernConfigurator;
 use Tequila\MongoDB\OptionsResolver\OptionsResolver;
 use Tequila\MongoDB\OptionsResolver\ResolverFactory;
 
-class CommandBuilder implements CommandBuilderInterface
+class CommandBuilder
 {
     /**
      * @var ReadConcern

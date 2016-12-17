@@ -5,7 +5,6 @@ namespace Tequila\MongoDB\OptionsResolver;
 use Tequila\MongoDB\OptionsResolver\Configurator\ReadConcernConfigurator;
 use Tequila\MongoDB\OptionsResolver\Configurator\ReadPreferenceConfigurator;
 use Tequila\MongoDB\OptionsResolver\Configurator\WriteConcernConfigurator;
-use Tequila\MongoDB\OptionsResolver\OptionsResolver;
 
 class DatabaseOptionsResolver extends OptionsResolver
 {
