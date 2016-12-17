@@ -6,7 +6,6 @@ use Symfony\Component\OptionsResolver\Options;
 use Tequila\MongoDB\OptionsResolver\Command\Traits\ReadConcernTrait;
 use Tequila\MongoDB\OptionsResolver\Command\Traits\ReadPreferenceTrait;
 use Tequila\MongoDB\Index;
-use Tequila\MongoDB\OptionsResolver\Command\CompatibilityResolverInterface;
 use Tequila\MongoDB\OptionsResolver\OptionsResolver;
 use Tequila\MongoDB\CommandOptions;
 

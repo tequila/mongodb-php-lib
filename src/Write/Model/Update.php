@@ -4,6 +4,7 @@ namespace Tequila\MongoDB\Write\Model;
 
 use Tequila\MongoDB\BulkWrite;
 use Tequila\MongoDB\OptionsResolver\BulkWrite\UpdateResolver;
+use Tequila\MongoDB\OptionsResolver\ResolverFactory;
 use Tequila\MongoDB\Server;
 use Tequila\MongoDB\Write\Model\Traits\CheckCompatibilityTrait;
 
@@ -35,7 +36,7 @@ class Update implements WriteModelInterface
     {
         $this->filter = $filter;
         $this->update = $update;
-        $this->options = UpdateResolver::getCachedInstance()->resolve($options);
+        $this->options = ResolverFactory::get(UpdateResolver::class)->resolve($options);
     }
 
     /**

@@ -6,7 +6,6 @@ use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\Exception\LogicException;
 use Tequila\MongoDB\OptionsResolver\BulkWrite\BulkWriteResolver;
 use Tequila\MongoDB\OptionsResolver\ResolverFactory;
-use Tequila\MongoDB\Util\TypeUtil;
 use Tequila\MongoDB\Write\Model\WriteModelInterface;
 
 class BulkCompiler implements BulkCompilerInterface
@@ -48,7 +47,7 @@ class BulkCompiler implements BulkCompilerInterface
                     sprintf(
                         'Each write model must be an instance of "%s", "%s" given in $writeModels[%d]',
                         WriteModelInterface::class,
-                        TypeUtil::getType($model),
+                        getType($model),
                         $i
                     )
                 );

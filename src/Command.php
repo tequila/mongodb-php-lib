@@ -5,7 +5,7 @@ namespace Tequila\MongoDB;
 use MongoDB\Driver\ReadPreference;
 use Tequila\MongoDB\OptionsResolver\Command\CompatibilityResolverInterface;
 
-class Command implements CommandInterface, CompiledCommandInterface
+class Command implements CommandInterface
 {
     /**
      * @var array
@@ -47,16 +47,11 @@ class Command implements CommandInterface, CompiledCommandInterface
     }
 
     /**
-     * @param ManagerInterface $manager
-     * @param string $databaseName
-     * @return CursorInterface
+     * @return ReadPreference
      */
-    public function execute(ManagerInterface $manager, $databaseName)
+    public function getReadPreference()
     {
-        $readPreference = $this->readPreference ?: new ReadPreference(ReadPreference::RP_PRIMARY);
-        $cursor = $manager->executeCommand($databaseName, $this, $readPreference);
-
-        return $cursor;
+        return $this->readPreference;
     }
 
     /**
@@ -67,6 +62,9 @@ class Command implements CommandInterface, CompiledCommandInterface
         $this->readPreference = $readPreference;
     }
 
+    /**
+     * @param CompatibilityResolverInterface $resolver
+     */
     public function setCompatibilityResolver(CompatibilityResolverInterface $resolver)
     {
         $this->resolver = $resolver;

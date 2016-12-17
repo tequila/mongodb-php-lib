@@ -4,7 +4,6 @@ namespace Tequila\MongoDB\OptionsResolver\Command;
 
 use Tequila\MongoDB\OptionsResolver\Command\Traits\WriteConcernTrait;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
-use Tequila\MongoDB\OptionsResolver\Command\CompatibilityResolverInterface;
 use Tequila\MongoDB\OptionsResolver\Configurator\CollationConfigurator;
 use Tequila\MongoDB\OptionsResolver\Configurator\DocumentValidationConfigurator;
 use Tequila\MongoDB\OptionsResolver\OptionsResolver;

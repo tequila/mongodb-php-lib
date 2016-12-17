@@ -7,7 +7,6 @@ use MongoDB\Driver\ReadPreference;
 use Symfony\Component\OptionsResolver\Options;
 use Tequila\MongoDB\OptionsResolver\Command\Traits\ReadConcernTrait;
 use Tequila\MongoDB\OptionsResolver\Command\Traits\WriteConcernTrait;
-use Tequila\MongoDB\OptionsResolver\Command\CompatibilityResolverInterface;
 use Tequila\MongoDB\OptionsResolver\Configurator\CollationConfigurator;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\OptionsResolver\Configurator\DocumentValidationConfigurator;

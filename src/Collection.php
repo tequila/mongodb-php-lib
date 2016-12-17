@@ -2,6 +2,7 @@
 
 namespace Tequila\MongoDB;
 
+use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
 use MongoDB\Driver\WriteConcern;
 use Tequila\MongoDB\OptionsResolver\Command\AggregateResolver;
@@ -16,10 +17,9 @@ use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\Exception\UnexpectedResultException;
 use Tequila\MongoDB\OptionsResolver\BulkWrite\BulkWriteResolver;
 use Tequila\MongoDB\OptionsResolver\DatabaseOptionsResolver;
-use Tequila\MongoDB\OptionsResolver\TypeMapResolver;
 use Tequila\MongoDB\OptionsResolver\ResolverFactory;
 use Tequila\MongoDB\Traits\CommandBuilderTrait;
-use Tequila\MongoDB\Util\TypeUtil;
+use Tequila\MongoDB\Traits\ExecuteCommandTrait;
 use Tequila\MongoDB\Write\Model\DeleteMany;
 use Tequila\MongoDB\Write\Model\DeleteOne;
 use Tequila\MongoDB\Write\Model\InsertOne;
@@ -35,6 +35,7 @@ use Tequila\MongoDB\Write\Result\UpdateResult;
 class Collection
 {
     use CommandBuilderTrait;
+    use ExecuteCommandTrait;
 
     /**
      * @var ManagerInterface
@@ -50,6 +51,21 @@ class Collection
      * @var string
      */
     private $collectionName;
+
+    /**
+     * @var ReadConcern
+     */
+    private $readConcern;
+
+    /**
+     * @var ReadPreference
+     */
+    private $readPreference;
+
+    /**
+     * @var WriteConcern
+     */
+    private $writeConcern;
 
     /**
      * @param ManagerInterface $manager
@@ -294,7 +310,7 @@ class Collection
             throw new InvalidArgumentException(
                 sprintf(
                     '$replacement must be an array or an object, %s given',
-                    TypeUtil::getType($replacement)
+                    getType($replacement)
                 )
             );
         }
@@ -458,22 +474,5 @@ class Collection
         $operationOptions = array_diff_key($options, $bulkWriteOptions);
 
         return [$bulkWriteOptions, $operationOptions];
-    }
-
-    /**
-     * @param array $command
-     * @param array $options
-     * @param $resolverClass
-     * @return CursorInterface
-     */
-    private function executeCommand(array $command, array $options, $resolverClass)
-    {
-        $cursor = $this->commandBuilder
-            ->createCommand($command, $options, $resolverClass)
-            ->execute($this->manager, $this->databaseName);
-
-        $cursor->setTypeMap(TypeMapResolver::getDefault());
-
-        return $cursor;
     }
 }

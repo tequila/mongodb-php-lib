@@ -2,7 +2,9 @@
 
 namespace Tequila\MongoDB;
 
+use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
+use MongoDB\Driver\WriteConcern;
 use Tequila\MongoDB\OptionsResolver\Command\DropDatabaseResolver;
 use Tequila\MongoDB\Exception\UnexpectedResultException;
 use Tequila\MongoDB\OptionsResolver\TypeMapResolver;
@@ -16,6 +18,21 @@ class Client
      * @var ManagerInterface
      */
     private $manager;
+
+    /**
+     * @var ReadConcern
+     */
+    private $readConcern;
+
+    /**
+     * @var ReadPreference
+     */
+    private $readPreference;
+
+    /**
+     * @var WriteConcern
+     */
+    private $writeConcern;
 
     /**
      * @param ManagerInterface $manager
@@ -35,13 +52,19 @@ class Client
      */
     public function dropDatabase($databaseName, array $options = [])
     {
-        $cursor = $this->commandBuilder
+        $command = $this
+            ->getCommandBuilder()
             ->createCommand(
                 ['dropDatabase' => 1],
                 $options,
                 DropDatabaseResolver::class
-            )
-            ->execute($this->manager, $databaseName);
+            );
+
+        $cursor = $this->manager->executeCommand(
+            $databaseName,
+            $command,
+            $command->getReadPreference()
+        );
 
         $cursor->setTypeMap(TypeMapResolver::getDefault());
 
