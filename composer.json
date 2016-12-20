@@ -1,6 +1,6 @@
 {
     "name": "tequila/mongodb-php-lib",
-    "description": "PHP MongoDB abstraction layer (driver library)",
+    "description": "PHP MongoDB high-level driver library",
     "type": "library",
     "require": {
         "php": ">=5.6",
