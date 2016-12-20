@@ -105,7 +105,7 @@ class Collection
 
         return $this->executeCommand(
             ['aggregate' => $this->collectionName],
-            ['pipeline' => $pipeline] + $pipeline,
+            ['pipeline' => $pipeline] + $options,
             AggregateResolver::class
         );
     }

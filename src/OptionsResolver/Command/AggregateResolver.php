@@ -59,42 +59,6 @@ class AggregateResolver
     {
         $options = parent::resolve($options);
 
-        return $this->compile($options);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function resolveCompatibilities(CommandOptions $options)
-    {
-        $options
-            ->resolveReadConcern($this->readConcern)
-            ->resolveCollation()
-            ->resolveDocumentValidation();
-
-        if ($this->hasOutStage($options)) {
-            $options->resolveWriteConcern($this->writeConcern);
-        }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function resolveReadPreference(array $options, ReadPreference $defaultReadPreference)
-    {
-        if ($this->hasOutStage($options)) {
-            return new ReadPreference(ReadPreference::RP_PRIMARY);
-        }
-
-        return isset($options['readPreference']) ? $options['readPreference'] : $defaultReadPreference;
-    }
-
-    /**
-     * @param array $options
-     * @return array
-     */
-    private function compile(array $options)
-    {
         $hasOutStage = $this->hasOutStage($options);
 
         if (isset($options['readConcern'])) {
@@ -131,12 +95,41 @@ class AggregateResolver
         }
         unset($options['useCursor']);
 
-        $cmd = [
-            'aggregate' => $options['aggregate'],
-            'pipeline' => $options['pipeline'],
-        ];
+        return $options;
+    }
 
-        return $cmd + $options;
+    /**
+     * @inheritdoc
+     */
+    public function resolveCompatibilities(CommandOptions $options)
+    {
+        $options
+            ->resolveCollation()
+            ->resolveDocumentValidation();
+
+        $hasOutStage = $this->hasOutStage($options);
+
+        if ($this->readConcern) {
+            if (!($hasOutStage && ReadConcern::MAJORITY === $this->readConcern->getLevel())) {
+                $options->resolveReadConcern($this->readConcern);
+            }
+        }
+
+        if ($hasOutStage) {
+            $options->resolveWriteConcern($this->writeConcern);
+        }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function resolveReadPreference(array $options, ReadPreference $defaultReadPreference)
+    {
+        if ($this->hasOutStage($options)) {
+            return new ReadPreference(ReadPreference::RP_PRIMARY);
+        }
+
+        return isset($options['readPreference']) ? $options['readPreference'] : $defaultReadPreference;
     }
 
     /**
@@ -145,7 +138,8 @@ class AggregateResolver
      */
     private function hasOutStage($options)
     {
-        $lastStage = end($options['pipeline']);
+        $pipeline = (array)$options['pipeline'];
+        $lastStage = end($pipeline);
 
         return '$out' === key($lastStage);
     }
