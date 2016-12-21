@@ -113,12 +113,26 @@ class Collection
     /**
      * @param WriteModelInterface[] $requests
      * @param array $options
-     * @param WriteConcern|null $writeConcern
      * @return WriteResult
      */
-    public function bulkWrite(array $requests, array $options = [], WriteConcern $writeConcern = null)
+    public function bulkWrite(array $requests, array $options = [])
     {
-        $writeConcern = $writeConcern ?: $this->writeConcern;
+        if (isset($options['writeConcern'])) {
+            if (!$options['writeConcern'] instanceof WriteConcern) {
+                throw new InvalidArgumentException(
+                    sprintf(
+                        'Option "writeConcern" must be an instance of "%s", but is of type "%s".',
+                        WriteConcern::class,
+                        getType($options['writeConcern'])
+                    )
+                );
+            }
+
+            $writeConcern = $options['writeConcern'];
+            unset($options['writeConcern']);
+        } else {
+            $writeConcern = $this->writeConcern;
+        }
 
         $compiler = new BulkCompiler($options);
         $compiler->add($requests);
@@ -475,6 +489,8 @@ class Collection
     private static function extractBulkWriteOptions(array $options)
     {
         $definedOptions = ResolverFactory::get(BulkWriteResolver::class)->getDefinedOptions();
+        array_push($definedOptions, 'writeConcern');
+
         $bulkWriteOptions = array_intersect_key($options, array_flip($definedOptions));
         $operationOptions = array_diff_key($options, $bulkWriteOptions);
 
