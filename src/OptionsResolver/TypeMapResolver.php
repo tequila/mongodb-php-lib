@@ -41,7 +41,7 @@ class TypeMapResolver extends OptionsResolver
             if (!in_array($fieldType, ['array', 'object'], true) && !class_exists($fieldType)) {
                 throw new InvalidArgumentException(
                     sprintf(
-                        'Type map option "%s" must be "array", "object" or an existing class name, "%s" given',
+                        'Type map option "%s" must be "array", "object" or an existing class name, "%s" given.',
                         $fieldName,
                         $fieldType
                     )

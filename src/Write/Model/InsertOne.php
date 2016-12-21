@@ -23,7 +23,7 @@ class InsertOne implements WriteModelInterface
         if (!is_array($document) && !is_object($document)) {
             throw new InvalidArgumentException(
                 sprintf(
-                    '$document must be an array or an object, %s given',
+                    '$document must be an array or an object, %s given.',
                     getType($document)
                 )
             );

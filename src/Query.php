@@ -54,7 +54,7 @@ class Query implements QueryInterface
         if (isset($this->options['readConcern'])) {
             if (!$server->supportsReadConcern()) {
                 throw new InvalidArgumentException(
-                    'Option "readConcern" is not supported by the server'
+                    'Option "readConcern" is not supported by the server.'
                 );
             }
         } elseif ($this->readConcern && $server->supportsReadConcern()) {

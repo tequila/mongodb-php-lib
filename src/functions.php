@@ -16,7 +16,7 @@ function ensureValidDocument($document) {
         if (!preg_match('/^[^$][^\.]*$/', $fieldName)) {
             throw new InvalidArgumentException(
                 sprintf(
-                    'Invalid field name "%s": field names cannot start with a dollar sign ("$") and cannot contain dots',
+                    'Invalid field name "%s": field names cannot start with a dollar sign ("$") and cannot contain dots.',
                     $fieldName
                 )
             );

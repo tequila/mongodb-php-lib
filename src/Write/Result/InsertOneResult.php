@@ -3,12 +3,11 @@
 namespace Tequila\MongoDB\Write\Result;
 
 use Tequila\MongoDB\Exception\UnexpectedResultException;
-use Tequila\MongoDB\Write\Result\WriteResultDecoratorTrait;
 use Tequila\MongoDB\WriteResult;
 
 class InsertOneResult
 {
-    use Tequila\MongoDB\Write\Result\WriteResultDecoratorTrait;
+    use WriteResultDecoratorTrait;
 
     public function getInsertedId()
     {
@@ -18,7 +17,7 @@ class InsertOneResult
 
         throw new UnexpectedResultException(
             sprintf(
-                '%s::getInsertedIds() returned empty array, though there was insert operation',
+                '%s::getInsertedIds() returned empty array, though there was an insert operation.',
                 WriteResult::class
             )
         );

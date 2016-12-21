@@ -10,6 +10,7 @@ use Tequila\MongoDB\OptionsResolver\Command\Traits\WriteConcernTrait;
 use Tequila\MongoDB\OptionsResolver\Configurator\CollationConfigurator;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\OptionsResolver\Configurator\DocumentValidationConfigurator;
+use Tequila\MongoDB\OptionsResolver\Configurator\MaxTimeConfigurator;
 use Tequila\MongoDB\OptionsResolver\OptionsResolver;
 use Tequila\MongoDB\CommandOptions;
 
@@ -28,6 +29,7 @@ class AggregateResolver
     {
         CollationConfigurator::configure($this);
         DocumentValidationConfigurator::configure($this);
+        MaxTimeConfigurator::configure($this);
 
         $this
             ->setRequired('pipeline')
@@ -39,14 +41,12 @@ class AggregateResolver
         $this->setDefined([
             'allowDiskUse',
             'batchSize',
-            'maxTimeMS',
             'useCursor',
         ]);
 
         $this
             ->setAllowedTypes('allowDiskUse', 'bool')
             ->setAllowedTypes('batchSize', 'integer')
-            ->setAllowedTypes('maxTimeMS', 'integer')
             ->setAllowedTypes('useCursor', 'bool');
 
         $this->setDefault('useCursor', true);
@@ -66,14 +66,14 @@ class AggregateResolver
             $readConcern = $options['readConcern'];
             if ($hasOutStage && ReadConcern::MAJORITY === $readConcern->getLevel()) {
                 throw new InvalidArgumentException(
-                    'Specifying "readConcern" option with "majority" level is prohibited when pipeline has $out stage'
+                    'Specifying "readConcern" option with "majority" level is prohibited when pipeline has $out stage.'
                 );
             }
         }
 
         if (isset($options['writeConcern']) && !$hasOutStage) {
             throw new InvalidArgumentException(
-                'Option "writeConcern" is meaningless until aggregation pipeline has $out stage'
+                'Option "writeConcern" is meaningless until aggregation pipeline has $out stage.'
             );
         }
 
@@ -89,7 +89,7 @@ class AggregateResolver
         } else {
             if (isset($options['batchSize'])) {
                 throw new InvalidArgumentException(
-                    'Option "batchSize" is meaningless unless option "useCursor" is set to true'
+                    'Option "batchSize" is meaningless unless option "useCursor" is set to true.'
                 );
             }
         }

@@ -18,20 +18,20 @@ class ResolverFactory
     public static function get($resolverClass)
     {
         if (!is_string($resolverClass)) {
-            throw new InvalidArgumentException('$resolverClass must be a string');
+            throw new InvalidArgumentException('$resolverClass must be a string.');
         }
 
         if (!array_key_exists($resolverClass, self::$cache)) {
             if (!class_exists($resolverClass)) {
                 throw new InvalidArgumentException(
-                    sprintf('Resolver class "%s" is not found', $resolverClass)
+                    sprintf('Resolver class "%s" is not found.', $resolverClass)
                 );
             }
 
             if (!is_subclass_of($resolverClass, OptionsResolver::class)) {
                 throw new InvalidArgumentException(
                     sprintf(
-                        'Resolver class "%s" must extend "%s"',
+                        'Resolver class "%s" must extend "%s".',
                         $resolverClass,
                         OptionsResolver::class
                     )

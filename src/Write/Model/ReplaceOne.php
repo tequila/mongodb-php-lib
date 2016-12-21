@@ -21,7 +21,7 @@ class ReplaceOne implements WriteModelInterface
         if (!is_array($replacement) && !is_object($replacement)) {
             throw new InvalidArgumentException(
                 sprintf(
-                    '$replacement must be an array or an object, %s given',
+                    '$replacement must be an array or an object, "%s" given.',
                     getType($replacement)
                 )
             );

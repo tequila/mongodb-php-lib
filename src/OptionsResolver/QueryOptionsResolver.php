@@ -2,9 +2,10 @@
 
 namespace Tequila\MongoDB\OptionsResolver;
 
-use MongoDB\Driver\ReadConcern;
-use MongoDB\Driver\ReadPreference;
 use Tequila\MongoDB\OptionsResolver\Configurator\CollationConfigurator;
+use Tequila\MongoDB\OptionsResolver\Configurator\MaxTimeConfigurator;
+use Tequila\MongoDB\OptionsResolver\Configurator\ReadConcernConfigurator;
+use Tequila\MongoDB\OptionsResolver\Configurator\ReadPreferenceConfigurator;
 use Tequila\MongoDB\QueryInterface;
 
 class QueryOptionsResolver extends OptionsResolver
@@ -12,6 +13,9 @@ class QueryOptionsResolver extends OptionsResolver
     public function configureOptions()
     {
         CollationConfigurator::configure($this);
+        MaxTimeConfigurator::configure($this);
+        ReadConcernConfigurator::configure($this);
+        ReadPreferenceConfigurator::configure($this);
 
         $this->setDefined([
             'allowPartialResults',
@@ -21,13 +25,10 @@ class QueryOptionsResolver extends OptionsResolver
             'cursorType',
             'exhaust',
             'limit',
-            'maxTimeMS',
             'modifiers',
             'noCursorTimeout',
             'oplogReplay',
             'projection',
-            'readConcern',
-            'readPreference',
             'skip',
             'sort',
         ]);
@@ -40,13 +41,10 @@ class QueryOptionsResolver extends OptionsResolver
             ->setAllowedTypes('comment', 'string')
             ->setAllowedTypes('exhaust', 'bool')
             ->setAllowedTypes('limit', 'integer')
-            ->setAllowedTypes('maxTimeMS', 'integer')
             ->setAllowedTypes('modifiers', $documentTypes)
             ->setAllowedTypes('noCursorTimeout', 'bool')
             ->setAllowedTypes('oplogReplay', 'bool')
             ->setAllowedTypes('projection', $documentTypes)
-            ->setAllowedTypes('readConcern', ReadConcern::class)
-            ->setAllowedTypes('readPreference', ReadPreference::class)
             ->setAllowedTypes('skip', 'integer')
             ->setAllowedTypes('sort', ['array', 'object']);
 

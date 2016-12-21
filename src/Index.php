@@ -25,7 +25,7 @@ class Index
     public function __construct(array $key, array $options = [])
     {
         if (empty($key)) {
-            throw new InvalidArgumentException('$key document cannot be empty');
+            throw new InvalidArgumentException('$key document cannot be empty.');
         }
 
         $options = ResolverFactory::get(IndexOptionsResolver::class)->resolve($options);

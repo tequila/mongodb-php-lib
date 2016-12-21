@@ -3,6 +3,7 @@
 namespace Tequila\MongoDB\OptionsResolver\Command;
 
 use Tequila\MongoDB\OptionsResolver\Configurator\CollationConfigurator;
+use Tequila\MongoDB\OptionsResolver\Configurator\MaxTimeConfigurator;
 use Tequila\MongoDB\OptionsResolver\Configurator\WriteConcernConfigurator;
 use Tequila\MongoDB\OptionsResolver\OptionsResolver;
 
@@ -12,9 +13,9 @@ class FindOneAndDeleteResolver extends OptionsResolver
     {
         CollationConfigurator::configure($this);
         WriteConcernConfigurator::configure($this);
+        MaxTimeConfigurator::configure($this);
 
         $this->setDefined([
-            'maxTimeMS',
             'projection',
             'sort',
         ]);

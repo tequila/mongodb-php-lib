@@ -45,7 +45,7 @@ class BulkCompiler implements BulkCompilerInterface
             if (!$model instanceof WriteModelInterface) {
                 throw new InvalidArgumentException(
                     sprintf(
-                        'Each write model must be an instance of "%s", "%s" given in $writeModels[%d]',
+                        'Each write model must be an instance of "%s", "%s" given in $writeModels[%d].',
                         WriteModelInterface::class,
                         getType($model),
                         $i

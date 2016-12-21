@@ -8,6 +8,7 @@ use MongoDB\Driver\WriteConcern;
 use Tequila\MongoDB\OptionsResolver\Command\AggregateResolver;
 use Tequila\MongoDB\OptionsResolver\Command\CountResolver;
 use Tequila\MongoDB\OptionsResolver\Command\CreateIndexesResolver;
+use Tequila\MongoDB\OptionsResolver\Command\DistinctResolver;
 use Tequila\MongoDB\OptionsResolver\Command\DropCollectionResolver;
 use Tequila\MongoDB\OptionsResolver\Command\DropIndexesResolver;
 use Tequila\MongoDB\OptionsResolver\Command\FindAndModifyResolver;
@@ -228,6 +229,43 @@ class Collection
     }
 
     /**
+     * @param $fieldName
+     * @param array $filter
+     * @param array $options
+     * @return array
+     */
+    public function distinct($fieldName, array $filter = [], array $options = [])
+    {
+        if (!is_string($fieldName)) {
+            throw new InvalidArgumentException('$fieldName must be a string.');
+        }
+
+        if (!$fieldName) {
+            throw new InvalidArgumentException('$fieldName cannot be empty.');
+        }
+
+        $command = ['distinct' => $this->collectionName, 'key' => $fieldName];
+        if ($filter) {
+            $command['query'] = (object)$filter;
+        }
+
+        $cursor = $this->executeCommand(
+            $command,
+            $options,
+            DistinctResolver::class
+        );
+
+        $result = $cursor->current();
+        if (!isset($result['values'])) {
+            throw new UnexpectedResultException(
+                'Command "distinct" did not return expected "values" array.'
+            );
+        }
+
+        return $result['values'];
+    }
+
+    /**
      * @param array $options
      * @return array
      */
@@ -328,7 +366,7 @@ class Collection
         if (!is_array($replacement) && !is_object($replacement)) {
             throw new InvalidArgumentException(
                 sprintf(
-                    '$replacement must be an array or an object, %s given',
+                    '$replacement must be an array or an object, "%s" given.',
                     getType($replacement)
                 )
             );

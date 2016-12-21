@@ -55,7 +55,7 @@ class CreateCollectionResolver extends OptionsResolver implements
                 if ($value && (!isset($options['capped']) || false === $options['capped'])) {
                     throw new InvalidArgumentException(
                         sprintf(
-                            'The "%s" option is meaningless until "capped" option has been set to true',
+                            'The "%s" option is meaningless until "capped" option has been set to true.',
                             $optionName
                         )
                     );
@@ -77,7 +77,7 @@ class CreateCollectionResolver extends OptionsResolver implements
         $options = parent::resolve($options);
         if (!isset($options['size']) && isset($options['capped']) && true === $options['capped']) {
             throw new InvalidArgumentException(
-                'The option "size" is required for capped collections'
+                'The option "size" is required for capped collections.'
             );
         }
         

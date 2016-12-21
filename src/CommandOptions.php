@@ -6,7 +6,6 @@ use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\WriteConcern;
 use Tequila\MongoDB\Exception\RuntimeException;
 use Tequila\MongoDB\Exception\UnsupportedException;
-use Tequila\MongoDB\Server;
 
 class CommandOptions extends \ArrayObject
 {
@@ -21,7 +20,7 @@ class CommandOptions extends \ArrayObject
     public function getServer()
     {
         if (null === $this->server) {
-            throw new RuntimeException('Server was not set on this instance');
+            throw new RuntimeException('Server was not set on this instance.');
         }
 
         return $this->server;
@@ -43,7 +42,7 @@ class CommandOptions extends \ArrayObject
         if (isset($this['bypassDocumentValidation'])) {
             if (!$this->getServer()->supportsDocumentValidation()) {
                 throw new UnsupportedException(
-                    'Option "bypassDocumentValidation" is not supported by the server'
+                    'Option "bypassDocumentValidation" is not supported by the server.'
                 );
             }
         }
@@ -60,7 +59,7 @@ class CommandOptions extends \ArrayObject
     public function resolveCollation()
     {
         if (isset($this['collation']) && !$this->server->supportsCollation()) {
-            throw new UnsupportedException('Option "collation" is not supported by the server');
+            throw new UnsupportedException('Option "collation" is not supported by the server.');
         }
 
         return $this;
@@ -91,7 +90,7 @@ class CommandOptions extends \ArrayObject
 
         if (isset($this['readConcern']) && !$server->supportsReadConcern()) {
             throw new UnsupportedException(
-                'Option "readConcern" is not supported by the server'
+                'Option "readConcern" is not supported by the server.'
             );
         }
 

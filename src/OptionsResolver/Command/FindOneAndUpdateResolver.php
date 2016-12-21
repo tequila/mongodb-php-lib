@@ -4,6 +4,7 @@ namespace Tequila\MongoDB\OptionsResolver\Command;
 
 use Tequila\MongoDB\OptionsResolver\Configurator\CollationConfigurator;
 use Tequila\MongoDB\OptionsResolver\Configurator\DocumentValidationConfigurator;
+use Tequila\MongoDB\OptionsResolver\Configurator\MaxTimeConfigurator;
 use Tequila\MongoDB\OptionsResolver\Configurator\WriteConcernConfigurator;
 use Tequila\MongoDB\OptionsResolver\OptionsResolver;
 
@@ -17,9 +18,9 @@ class FindOneAndUpdateResolver extends OptionsResolver
         CollationConfigurator::configure($this);
         DocumentValidationConfigurator::configure($this);
         WriteConcernConfigurator::configure($this);
+        MaxTimeConfigurator::configure($this);
 
         $this->setDefined([
-            'maxTimeMS',
             'projection',
             'returnDocument',
             'sort',

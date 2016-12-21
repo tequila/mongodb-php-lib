@@ -110,7 +110,7 @@ class Client
 
         if (isset($result['databases']) && is_array($result['databases'])) {
             throw new UnexpectedResultException(
-                'Command "listDatabases" did not return expected "databases" array'
+                'Command "listDatabases" did not return expected "databases" array.'
             );
         }
 
