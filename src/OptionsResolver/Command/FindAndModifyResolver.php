@@ -7,6 +7,7 @@ use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\OptionsResolver\Configurator\CollationConfigurator;
 use Tequila\MongoDB\OptionsResolver\Configurator\DocumentValidationConfigurator;
 use Tequila\MongoDB\OptionsResolver\Configurator\MaxTimeConfigurator;
+use Tequila\MongoDB\OptionsResolver\Configurator\WriteConcernConfigurator;
 use Tequila\MongoDB\OptionsResolver\OptionsResolver;
 use Tequila\MongoDB\CommandOptions;
 
@@ -19,6 +20,7 @@ class FindAndModifyResolver extends OptionsResolver implements WriteConcernAware
         CollationConfigurator::configure($this);
         DocumentValidationConfigurator::configure($this);
         MaxTimeConfigurator::configure($this);
+        WriteConcernConfigurator::configure($this);
 
         $this->setDefined([
             'sort',

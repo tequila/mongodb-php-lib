@@ -6,6 +6,8 @@ use Symfony\Component\OptionsResolver\Options;
 use Tequila\MongoDB\OptionsResolver\Command\Traits\ReadConcernTrait;
 use Tequila\MongoDB\OptionsResolver\Command\Traits\ReadPreferenceTrait;
 use Tequila\MongoDB\Index;
+use Tequila\MongoDB\OptionsResolver\Configurator\ReadConcernConfigurator;
+use Tequila\MongoDB\OptionsResolver\Configurator\ReadPreferenceConfigurator;
 use Tequila\MongoDB\OptionsResolver\OptionsResolver;
 use Tequila\MongoDB\CommandOptions;
 
@@ -19,6 +21,9 @@ class CountResolver extends OptionsResolver implements
 
     public function configureOptions()
     {
+        ReadConcernConfigurator::configure($this);
+        ReadPreferenceConfigurator::configure($this);
+
         $this->setDefined([
             'limit',
             'skip',

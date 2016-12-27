@@ -4,7 +4,6 @@ namespace Tequila\MongoDB\OptionsResolver\Command;
 
 use Symfony\Component\OptionsResolver\Options;
 use Tequila\MongoDB\OptionsResolver\OptionsResolver;
-use Tequila\MongoDB\OptionsResolver\ResolverFactory;
 
 class ListCollectionsResolver extends OptionsResolver
 {
@@ -14,7 +13,7 @@ class ListCollectionsResolver extends OptionsResolver
         $this->setAllowedTypes('filter', ['array', 'object']);
         $this->setNormalizer('filter', function(Options $options, $filter) {
             $filter = (array)$filter;
-            $filter = ResolverFactory::get(ListCollectionsFilterResolver::class)->resolve($filter);
+            $filter = self::get(ListCollectionsFilterResolver::class)->resolve($filter);
 
             return (object)$filter;
         });

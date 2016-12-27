@@ -17,8 +17,8 @@ class FindOneAndUpdateResolver extends OptionsResolver
     {
         CollationConfigurator::configure($this);
         DocumentValidationConfigurator::configure($this);
-        WriteConcernConfigurator::configure($this);
         MaxTimeConfigurator::configure($this);
+        WriteConcernConfigurator::configure($this);
 
         $this->setDefined([
             'projection',

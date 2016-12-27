@@ -5,14 +5,13 @@ namespace Tequila\MongoDB;
 use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
 use MongoDB\Driver\WriteConcern;
-use Tequila\MongoDB\OptionsResolver\Command\DropDatabaseResolver;
 use Tequila\MongoDB\Exception\UnexpectedResultException;
 use Tequila\MongoDB\OptionsResolver\TypeMapResolver;
-use Tequila\MongoDB\Traits\CommandBuilderTrait;
+use Tequila\MongoDB\Traits\CommandExecutorTrait;
 
 class Client
 {
-    use CommandBuilderTrait;
+    use CommandExecutorTrait;
 
     /**
      * @var ManagerInterface
@@ -52,19 +51,14 @@ class Client
      */
     public function dropDatabase($databaseName, array $options = [])
     {
-        $command = $this
-            ->getCommandBuilder()
-            ->createCommand(
+        $cursor = $this
+            ->getCommandExecutor()
+            ->executeCommand(
+                $this->manager,
+                $databaseName,
                 ['dropDatabase' => 1],
-                $options,
-                DropDatabaseResolver::class
+                $options
             );
-
-        $cursor = $this->manager->executeCommand(
-            $databaseName,
-            $command,
-            $command->getReadPreference()
-        );
 
         $cursor->setTypeMap(TypeMapResolver::getDefault());
 
@@ -100,7 +94,7 @@ class Client
      */
     public function listDatabases()
     {
-        $cursor = $this->runCommand(
+        $cursor = $this->manager->executeCommand(
             'admin',
             new SimpleCommand(['listDatabases' => 1]),
             new ReadPreference(ReadPreference::RP_PRIMARY)
@@ -115,20 +109,6 @@ class Client
         }
 
         return $result;
-    }
-
-    /**
-     * @param string $databaseName
-     * @param CommandInterface $command
-     * @param ReadPreference $readPreference
-     * @return CursorInterface
-     */
-    public function runCommand(
-        $databaseName,
-        CommandInterface $command,
-        ReadPreference $readPreference = null
-    ) {
-        return $this->manager->executeCommand($databaseName, $command, $readPreference);
     }
 
     /**

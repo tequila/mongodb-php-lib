@@ -5,18 +5,14 @@ namespace Tequila\MongoDB;
 use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
 use MongoDB\Driver\WriteConcern;
-use Tequila\MongoDB\OptionsResolver\Command\CreateCollectionResolver;
-use Tequila\MongoDB\OptionsResolver\Command\DropCollectionResolver;
-use Tequila\MongoDB\OptionsResolver\Command\DropDatabaseResolver;
-use Tequila\MongoDB\OptionsResolver\Command\ListCollectionsResolver;
 use Tequila\MongoDB\OptionsResolver\DatabaseOptionsResolver;
-use Tequila\MongoDB\OptionsResolver\ResolverFactory;
-use Tequila\MongoDB\Traits\CommandBuilderTrait;
+use Tequila\MongoDB\OptionsResolver\OptionsResolver;
+use Tequila\MongoDB\Traits\CommandExecutorTrait;
 use Tequila\MongoDB\Traits\ExecuteCommandTrait;
 
 class Database
 {
-    use CommandBuilderTrait;
+    use CommandExecutorTrait;
     use ExecuteCommandTrait;
 
     /**
@@ -60,7 +56,7 @@ class Database
             'writeConcern' => $this->manager->getWriteConcern(),
         ];
 
-        $options = ResolverFactory::get(DatabaseOptionsResolver::class)->resolve($options);
+        $options = OptionsResolver::get(DatabaseOptionsResolver::class)->resolve($options);
 
         $this->readConcern = $options['readConcern'];
         $this->readPreference = $options['readPreference'];
@@ -74,11 +70,7 @@ class Database
      */
     public function createCollection($collectionName, array $options = [])
     {
-        $cursor = $this->executeCommand(
-            ['create' => $collectionName],
-            $options,
-            CreateCollectionResolver::class
-        );
+        $cursor = $this->executeCommand(['create' => $collectionName], $options);
 
         return $cursor->current();
     }
@@ -89,11 +81,7 @@ class Database
      */
     public function drop(array $options = [])
     {
-        $cursor = $this->executeCommand(
-            ['dropDatabase' => 1],
-            $options,
-            DropDatabaseResolver::class
-        );
+        $cursor = $this->executeCommand(['dropDatabase' => 1], $options);
 
         return $cursor->current();
     }
@@ -105,11 +93,7 @@ class Database
      */
     public function dropCollection($collectionName, array $options = [])
     {
-        $cursor = $this->executeCommand(
-            ['drop' => $collectionName],
-            $options,
-            DropCollectionResolver::class
-        );
+        $cursor = $this->executeCommand(['drop' => $collectionName], $options);
 
         return $cursor->current();
     }
@@ -128,11 +112,7 @@ class Database
      */
     public function listCollections(array $options = [])
     {
-        return $this->executeCommand(
-            ['listCollections' => 1],
-            $options,
-            ListCollectionsResolver::class
-        );
+        return $this->executeCommand(['listCollections' => 1], $options);
     }
 
     /**
@@ -142,6 +122,8 @@ class Database
      */
     public function runCommand(CommandInterface $command, ReadPreference $readPreference = null)
     {
+        $readPreference = $readPreference ?: $this->readPreference;
+
         return $this->manager->executeCommand($this->databaseName, $command, $readPreference);
     }
 

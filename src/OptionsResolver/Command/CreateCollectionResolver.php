@@ -6,6 +6,7 @@ use Symfony\Component\OptionsResolver\Options;
 use Tequila\MongoDB\OptionsResolver\Command\Traits\WriteConcernCompatibilityTrait;
 use Tequila\MongoDB\OptionsResolver\Command\Traits\WriteConcernTrait;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
+use Tequila\MongoDB\OptionsResolver\Configurator\WriteConcernConfigurator;
 use Tequila\MongoDB\OptionsResolver\OptionsResolver;
 
 class CreateCollectionResolver extends OptionsResolver implements
@@ -20,6 +21,8 @@ class CreateCollectionResolver extends OptionsResolver implements
      */
     public function configureOptions()
     {
+        WriteConcernConfigurator::configure($this);
+
         $this->setDefined([
             'capped',
             'size',
