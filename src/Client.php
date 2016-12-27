@@ -60,8 +60,6 @@ class Client
                 $options
             );
 
-        $cursor->setTypeMap(TypeMapResolver::getDefault());
-
         return $cursor->current();
     }
 
@@ -102,13 +100,13 @@ class Client
         $cursor->setTypeMap(TypeMapResolver::getDefault());
         $result = $cursor->current();
 
-        if (isset($result['databases']) && is_array($result['databases'])) {
+        if (!isset($result['databases']) || !is_array($result['databases'])) {
             throw new UnexpectedResultException(
                 'Command "listDatabases" did not return expected "databases" array.'
             );
         }
 
-        return $result;
+        return $result['databases'];
     }
 
     /**

@@ -57,7 +57,7 @@ abstract class OptionsResolver extends BaseResolver
 
             $resolver->configureOptions();
 
-            self::$cache[$resolverClass] = new $resolverClass;
+            self::$cache[$resolverClass] = $resolver;
         }
 
         return self::$cache[$resolverClass];
