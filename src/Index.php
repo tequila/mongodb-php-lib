@@ -4,7 +4,6 @@ namespace Tequila\MongoDB;
 
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\OptionsResolver\IndexOptionsResolver;
-use Tequila\MongoDB\OptionsResolver\OptionsResolver;
 
 class Index
 {
@@ -28,7 +27,7 @@ class Index
             throw new InvalidArgumentException('$key document cannot be empty.');
         }
 
-        $options = OptionsResolver::get(IndexOptionsResolver::class)->resolve($options);
+        $options = IndexOptionsResolver::resolveStatic($options);
 
         if (empty($options['name'])) {
             $options['name'] = self::generateIndexName($key);

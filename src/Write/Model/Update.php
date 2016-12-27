@@ -36,7 +36,7 @@ class Update implements WriteModelInterface
     {
         $this->filter = $filter;
         $this->update = $update;
-        $this->options = OptionsResolver::get(UpdateResolver::class)->resolve($options);
+        $this->options = UpdateResolver::resolveStatic($options);
     }
 
     /**

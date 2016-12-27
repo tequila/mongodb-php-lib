@@ -62,4 +62,13 @@ abstract class OptionsResolver extends BaseResolver
 
         return self::$cache[$resolverClass];
     }
+
+    /**
+     * @param array $options
+     * @return array
+     */
+    public static function resolveStatic(array $options)
+    {
+        return self::get(static::class)->resolve($options);
+    }
 }

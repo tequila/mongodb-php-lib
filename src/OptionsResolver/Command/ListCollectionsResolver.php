@@ -13,7 +13,7 @@ class ListCollectionsResolver extends OptionsResolver
         $this->setAllowedTypes('filter', ['array', 'object']);
         $this->setNormalizer('filter', function(Options $options, $filter) {
             $filter = (array)$filter;
-            $filter = self::get(ListCollectionsFilterResolver::class)->resolve($filter);
+            $filter = ListCollectionsFilterResolver::resolveStatic($filter);
 
             return (object)$filter;
         });

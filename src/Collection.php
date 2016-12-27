@@ -80,7 +80,7 @@ class Collection
             'writeConcern' => $this->manager->getWriteConcern(),
         ];
 
-        $options = OptionsResolver::get(DatabaseOptionsResolver::class)->resolve($options);
+        $options = DatabaseOptionsResolver::resolveStatic($options);
         $this->readConcern = $options['readConcern'];
         $this->readPreference = $options['readPreference'];
         $this->writeConcern = $options['writeConcern'];
@@ -307,7 +307,7 @@ class Collection
      */
     public function find(array $filter = [], array $options = [])
     {
-        $options = OptionsResolver::get(QueryOptionsResolver::class)->resolve($options);
+        $options = QueryOptionsResolver::resolveStatic($options);
 
         if (isset($options['readPreference'])) {
             $readPreference = $options['readPreference'];
@@ -338,7 +338,7 @@ class Collection
             'query' => (object)$filter,
         ];
 
-        $options = ['remove' => true] + OptionsResolver::get(FindOneAndDeleteResolver::class)->resolve($options);
+        $options = ['remove' => true] + FindOneAndDeleteResolver::resolveStatic($options);
 
         return $this->executeCommand($command, $options);
     }
@@ -384,8 +384,7 @@ class Collection
             'query' => (object)$filter,
         ];
 
-        $options = OptionsResolver::get(FindOneAndUpdateResolver::class)->resolve($options);
-        $options = ['update' => (object)$update] + $options;
+        $options = ['update' => (object)$update] + FindOneAndUpdateResolver::resolveStatic($options);
 
         return $this->executeCommand($command, $options);
     }

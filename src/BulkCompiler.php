@@ -5,7 +5,6 @@ namespace Tequila\MongoDB;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\Exception\LogicException;
 use Tequila\MongoDB\OptionsResolver\BulkWrite\BulkWriteResolver;
-use Tequila\MongoDB\OptionsResolver\OptionsResolver;
 use Tequila\MongoDB\Write\Model\WriteModelInterface;
 
 class BulkCompiler implements BulkCompilerInterface
@@ -25,7 +24,7 @@ class BulkCompiler implements BulkCompilerInterface
      */
     public function __construct(array $options = [])
     {
-        $this->options = OptionsResolver::get(BulkWriteResolver::class)->resolve($options);
+        $this->options = BulkWriteResolver::resolveStatic($options);
     }
 
     /**

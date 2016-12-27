@@ -6,7 +6,6 @@ use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
 use MongoDB\Driver\WriteConcern;
 use Tequila\MongoDB\OptionsResolver\DatabaseOptionsResolver;
-use Tequila\MongoDB\OptionsResolver\OptionsResolver;
 use Tequila\MongoDB\Traits\CommandExecutorTrait;
 use Tequila\MongoDB\Traits\ExecuteCommandTrait;
 
@@ -56,7 +55,7 @@ class Database
             'writeConcern' => $this->manager->getWriteConcern(),
         ];
 
-        $options = OptionsResolver::get(DatabaseOptionsResolver::class)->resolve($options);
+        $options = DatabaseOptionsResolver::resolveStatic($options);
 
         $this->readConcern = $options['readConcern'];
         $this->readPreference = $options['readPreference'];
