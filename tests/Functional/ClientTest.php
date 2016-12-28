@@ -2,46 +2,34 @@
 
 namespace Tequila\MongoDB\Functional;
 
-use MongoDB\Driver\BulkWrite;
-use MongoDB\Driver\Command;
-use MongoDB\Driver\ReadPreference;
 use PHPUnit\Framework\TestCase;
 use Tequila\MongoDB\Client;
 use Tequila\MongoDB\Collection;
 use Tequila\MongoDB\Database;
 use Tequila\MongoDB\Manager;
 use Tequila\MongoDB\Tests\Traits\DatabaseAndCollectionNamesTrait;
+use Tequila\MongoDB\Tests\Traits\EnsureNamespaceExistsTrait;
+use Tequila\MongoDB\Tests\Traits\GetManagerTrait;
+use Tequila\MongoDB\Tests\Traits\ListDatabaseNamesTrait;
 
 class ClientTest extends TestCase
 {
     use DatabaseAndCollectionNamesTrait;
+    use EnsureNamespaceExistsTrait;
+    use GetManagerTrait;
+    use ListDatabaseNamesTrait;
 
     /**
      * @covers Client::dropDatabase()
      */
     public function testDropDatabase()
     {
+        $this->ensureNamespaceExists();
+
         $databaseName = $this->getDatabaseName();
-        $manager = new \MongoDB\Driver\Manager('mongodb://127.0.0.1/');
+        $this->getClient()->dropDatabase($databaseName);
 
-        // Insert document for database to be created if not exists
-        $bulk = new BulkWrite();
-        $bulk->insert(['foo' => 'bar']);
-        $manager->executeBulkWrite($this->getNamespace(), $bulk);
-
-        $client = $this->getClient();
-        $client->dropDatabase($databaseName);
-
-        // List databases and check that database does not exists
-        $listDatabasesCommand = new Command(['listDatabases' => 1]);
-        $readPreference = new ReadPreference(ReadPreference::RP_PRIMARY);
-        $cursor = $manager->executeCommand('admin', $listDatabasesCommand, $readPreference);
-        $result = current($cursor->toArray());
-        $databaseNames = array_map(function(\stdClass $databaseInfo) {
-            return $databaseInfo->name;
-        }, $result->databases);
-
-        $this->assertNotContains($databaseName, $databaseNames);
+        $this->assertNotContains($databaseName, $this->listDatabaseNames());
     }
 
     /**
@@ -49,19 +37,17 @@ class ClientTest extends TestCase
      */
     public function testListDatabases()
     {
-        $manager = new \MongoDB\Driver\Manager('mongodb://127.0.0.1/');
+        $this->ensureNamespaceExists();
 
-        // Insert document for database to be created if not exists
-        $bulk = new BulkWrite();
-        $bulk->insert(['foo' => 'bar']);
-        $manager->executeBulkWrite($this->getNamespace(), $bulk);
-        $client = $this->getClient();
-        $databases = $client->listDatabases();
+        $databases = $this->getClient()->listDatabases();
 
         $databaseNames = array_map(function(array $databaseInfo) {
             return $databaseInfo['name'];
         }, $databases);
 
+        $expectedDatabaseNames = $this->listDatabaseNames();
+
+        $this->assertEquals($expectedDatabaseNames, $databaseNames);
         $this->assertContains($this->getDatabaseName(), $databaseNames);
     }
 
