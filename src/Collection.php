@@ -2,6 +2,7 @@
 
 namespace Tequila\MongoDB;
 
+use MongoDB\Driver\Exception\RuntimeException as MongoDBRuntimeException;
 use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
 use MongoDB\Driver\WriteConcern;
@@ -260,10 +261,15 @@ class Collection
      */
     public function drop(array $options = [])
     {
-        $cursor = $this->executeCommand(
-            ['drop' => $this->collectionName],
-            $options
-        );
+        try {
+            $cursor = $this->executeCommand(['drop' => $this->collectionName], $options);
+        } catch(MongoDBRuntimeException $e) {
+            if('ns not found' === $e->getMessage()) {
+                return ['ok' => 0, 'errmsg' => $e->getMessage()];
+            }
+
+            throw $e;
+        }
 
         return $cursor->current();
     }
