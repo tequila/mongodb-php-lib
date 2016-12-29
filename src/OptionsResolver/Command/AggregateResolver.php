@@ -22,8 +22,7 @@ class AggregateResolver
     implements
     CompatibilityResolverInterface,
     ReadConcernAwareInterface,
-    WriteConcernAwareInterface,
-    ReadPreferenceResolverInterface
+    WriteConcernAwareInterface
 {
     use ReadConcernTrait;
     use WriteConcernTrait;
@@ -39,9 +38,9 @@ class AggregateResolver
 
         $this
             ->setRequired('pipeline')
-            ->setAllowedTypes('pipeline', ['array', 'object'])
+            ->setAllowedTypes('pipeline', 'array')
             ->setNormalizer('pipeline', function(Options $options, $pipeline) {
-                return (object)$pipeline;
+                return $pipeline;
             });
 
         $this->setDefined([
@@ -75,6 +74,10 @@ class AggregateResolver
                     'Specifying "readConcern" option with "majority" level is prohibited when pipeline has $out stage.'
                 );
             }
+        }
+
+        if ($hasOutStage) {
+            $options['readPreference'] = new ReadPreference(ReadPreference::RP_PRIMARY);
         }
 
         if (isset($options['writeConcern']) && !$hasOutStage) {
@@ -124,18 +127,6 @@ class AggregateResolver
         if ($hasOutStage) {
             $options->resolveWriteConcern($this->writeConcern);
         }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function resolveReadPreference(array $options, ReadPreference $defaultReadPreference)
-    {
-        if ($this->hasOutStage($options)) {
-            return new ReadPreference(ReadPreference::RP_PRIMARY);
-        }
-
-        return isset($options['readPreference']) ? $options['readPreference'] : $defaultReadPreference;
     }
 
     /**

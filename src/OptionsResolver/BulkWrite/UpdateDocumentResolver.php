@@ -26,7 +26,7 @@ class UpdateDocumentResolver extends OptionsResolver
     public function resolve(array $options = array())
     {
         try {
-            parent::resolve($options);
+            return parent::resolve($options);
         } catch(InvalidArgumentException $e) {
             throw new InvalidArgumentException(
                 sprintf(

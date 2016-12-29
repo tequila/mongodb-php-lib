@@ -80,5 +80,7 @@ class QueryOptionsResolver extends OptionsResolver
         if (empty($options['modifiers'])) {
             unset($options['modifiers']);
         }
+
+        return $options;
     }
 }

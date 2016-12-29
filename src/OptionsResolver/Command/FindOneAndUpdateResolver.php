@@ -48,5 +48,7 @@ class FindOneAndUpdateResolver extends OptionsResolver
         }
 
         unset($options['returnDocument']);
+
+        return $options;
     }
 }

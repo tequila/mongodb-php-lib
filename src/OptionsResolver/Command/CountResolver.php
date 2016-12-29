@@ -4,20 +4,15 @@ namespace Tequila\MongoDB\OptionsResolver\Command;
 
 use Symfony\Component\OptionsResolver\Options;
 use Tequila\MongoDB\OptionsResolver\Command\Traits\ReadConcernTrait;
-use Tequila\MongoDB\OptionsResolver\Command\Traits\ReadPreferenceTrait;
 use Tequila\MongoDB\Index;
 use Tequila\MongoDB\OptionsResolver\Configurator\ReadConcernConfigurator;
 use Tequila\MongoDB\OptionsResolver\Configurator\ReadPreferenceConfigurator;
 use Tequila\MongoDB\OptionsResolver\OptionsResolver;
 use Tequila\MongoDB\CommandOptions;
 
-class CountResolver extends OptionsResolver implements
-    ReadConcernAwareInterface,
-    ReadPreferenceResolverInterface,
-    CompatibilityResolverInterface
+class CountResolver extends OptionsResolver implements ReadConcernAwareInterface, CompatibilityResolverInterface
 {
     use ReadConcernTrait;
-    use ReadPreferenceTrait;
 
     public function configureOptions()
     {

@@ -7,11 +7,11 @@ use Tequila\MongoDB\OptionsResolver\OptionsResolver;
 
 class DeleteResolver extends OptionsResolver
 {
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions()
     {
-        CollationConfigurator::configure($resolver);
+        CollationConfigurator::configure($this);
 
-        $resolver
+        $this
             ->setDefined('limit')
             ->setAllowedValues('limit', [0, 1]);
     }
