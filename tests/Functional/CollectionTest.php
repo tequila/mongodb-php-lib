@@ -3,12 +3,16 @@
 namespace Tequila\MongoDB\Functional;
 
 use MongoDB\Driver\BulkWrite;
+use MongoDB\Driver\Command;
 use MongoDB\Driver\Query;
+use MongoDB\Driver\ReadPreference;
 use PHPUnit\Framework\TestCase;
 use Tequila\MongoDB\Collection;
+use Tequila\MongoDB\Index;
 use Tequila\MongoDB\Manager;
 use Tequila\MongoDB\Tests\Traits\DatabaseAndCollectionNamesTrait;
 use Tequila\MongoDB\Tests\Traits\DropCollectionTrait;
+use Tequila\MongoDB\Tests\Traits\EnsureNamespaceExistsTrait;
 use Tequila\MongoDB\Tests\Traits\GetManagerTrait;
 use Tequila\MongoDB\Write\Model\DeleteMany;
 use Tequila\MongoDB\Write\Model\DeleteOne;
@@ -21,6 +25,7 @@ class CollectionTest extends TestCase
 {
     use DatabaseAndCollectionNamesTrait;
     use DropCollectionTrait;
+    use EnsureNamespaceExistsTrait;
     use GetManagerTrait;
 
     /**
@@ -126,9 +131,71 @@ class CollectionTest extends TestCase
         $this->assertEquals(3, $count);
     }
 
+    /**
+     * @covers Collection::createIndex()
+     */
     public function testCreateIndex()
     {
+        $this->dropCollection();
 
+        $this->getCollection()->createIndex(['foo' => 1, 'bar' => -1]);
+
+        foreach ($this->listIndexes() as $indexInfo) {
+            if (
+                'foo_1_bar_-1' === $indexInfo->name
+                && 1 === $indexInfo->key->foo
+                && -1 === $indexInfo->key->bar
+            ) {
+                return; // test pass
+            }
+        }
+
+        throw new \RuntimeException('Failed assert that Collection::createIndex() creates index.');
+    }
+
+    /**
+     * @covers Collection::createIndexes()
+     */
+    public function testCreateIndexes()
+    {
+        $this->dropCollection();
+
+        $indexes = [
+            new Index(['foo' => 1, 'bar' => -1]),
+            new Index(['baz' => -1], ['unique' => true, 'sparse' => true]),
+        ];
+
+        $this->getCollection()->createIndexes($indexes);
+
+        $firstIndexMatched = false;
+        $secondIndexMatched = false;
+
+        foreach ($this->listIndexes() as $indexInfo) {
+            if (
+                'foo_1_bar_-1' === $indexInfo->name
+                && 1 === $indexInfo->key->foo
+                && -1 === $indexInfo->key->bar
+            ) {
+                $firstIndexMatched = true;
+
+                continue;
+            }
+
+            if (
+                'baz_-1' === $indexInfo->name
+                && -1 === $indexInfo->key->baz
+                && true === $indexInfo->sparse
+                && true === $indexInfo->unique
+            ) {
+                $secondIndexMatched = true;
+
+                continue;
+            }
+        }
+
+        if (!$firstIndexMatched || !$secondIndexMatched) {
+            throw new \RuntimeException('Failed assert that Collection::createIndexes() creates indexes.');
+        }
     }
 
     private function getCollection()
@@ -136,5 +203,17 @@ class CollectionTest extends TestCase
         $manager = new Manager();
 
         return new Collection($manager, $this->getDatabaseName(), $this->getCollectionName());
+    }
+
+    private function listIndexes()
+    {
+        $command = new Command(['listIndexes' => $this->getCollectionName()]);
+        $cursor = $this->getManager()->executeCommand(
+            $this->getDatabaseName(),
+            $command,
+            new ReadPreference(ReadPreference::RP_PRIMARY)
+        );
+
+        return $cursor->toArray();
     }
 }

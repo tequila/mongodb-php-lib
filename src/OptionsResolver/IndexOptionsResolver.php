@@ -4,9 +4,9 @@ namespace Tequila\MongoDB\OptionsResolver;
 
 class IndexOptionsResolver extends OptionsResolver
 {
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions()
     {
-        $resolver->setDefined([
+        $this->setDefined([
             'name',
             'background',
             'unique',
@@ -28,7 +28,7 @@ class IndexOptionsResolver extends OptionsResolver
         $numberTypes = ['integer', 'float'];
         $documentTypes = ['array', 'object'];
 
-        $resolver
+        $this
             ->setAllowedTypes('name', 'string')
             ->setAllowedTypes('background', 'boolean')
             ->setAllowedTypes('unique', 'boolean')
