@@ -2,19 +2,14 @@
 
 namespace Tequila\MongoDB\OptionsResolver\Command;
 
-use Symfony\Component\OptionsResolver\Options;
-use Tequila\MongoDB\OptionsResolver\Command\Traits\ReadConcernTrait;
 use Tequila\MongoDB\Index;
 use Tequila\MongoDB\OptionsResolver\Configurator\ReadConcernConfigurator;
 use Tequila\MongoDB\OptionsResolver\Configurator\ReadPreferenceConfigurator;
 use Tequila\MongoDB\OptionsResolver\OptionsResolver;
-use Tequila\MongoDB\CommandOptions;
 
-class CountResolver extends OptionsResolver implements ReadConcernAwareInterface, CompatibilityResolverInterface
+class CountResolver extends OptionsResolver
 {
-    use ReadConcernTrait;
-
-    public function configureOptions()
+    protected function configureOptions()
     {
         ReadConcernConfigurator::configure($this);
         ReadPreferenceConfigurator::configure($this);
@@ -30,20 +25,12 @@ class CountResolver extends OptionsResolver implements ReadConcernAwareInterface
             ->setAllowedTypes('skip', 'integer')
             ->setAllowedTypes('hint', ['string', 'array', 'object']);
 
-        $this->setNormalizer('hint', function(Options $options, $hint) {
-            if (is_array($hint) || is_object($hint)) {
-                $hint = Index::generateIndexName((array)$hint);
+        $this->setNormalizer('hint', function($value) {
+            if (is_array($value) || is_object($value)) {
+                $value = Index::generateIndexName((array)$value);
             }
 
-            return $hint;
+            return $value;
         });
-    }
-
-    /**
-     * @param CommandOptions $options
-     */
-    public function resolveCompatibilities(CommandOptions $options)
-    {
-        $options->resolveReadConcern($this->readConcern);
     }
 }

@@ -97,7 +97,7 @@ class Client
             new SimpleCommand(['listDatabases' => 1]),
             new ReadPreference(ReadPreference::RP_PRIMARY)
         );
-        $cursor->setTypeMap(TypeMapResolver::getDefault());
+        $cursor->setTypeMap(TypeMapResolver::resolveStatic([]));
         $result = $cursor->current();
 
         if (!isset($result['databases']) || !is_array($result['databases'])) {

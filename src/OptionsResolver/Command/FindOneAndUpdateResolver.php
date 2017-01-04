@@ -13,7 +13,24 @@ class FindOneAndUpdateResolver extends OptionsResolver
     const RETURN_DOCUMENT_BEFORE = 'before';
     const RETURN_DOCUMENT_AFTER = 'after';
 
-    public function configureOptions()
+    public function resolve(array $options = [])
+    {
+        $options = parent::resolve($options);
+        if (isset($options['projection'])) {
+            $options['fields'] = $options['projection'];
+            unset($options['projection']);
+        }
+
+        if (self::RETURN_DOCUMENT_AFTER === $options['returnDocument']) {
+            $options['new'] = true;
+        }
+
+        unset($options['returnDocument']);
+
+        return $options;
+    }
+
+    protected function configureOptions()
     {
         CollationConfigurator::configure($this);
         DocumentValidationConfigurator::configure($this);
@@ -33,22 +50,5 @@ class FindOneAndUpdateResolver extends OptionsResolver
         ]);
 
         $this->setDefault('returnDocument', self::RETURN_DOCUMENT_BEFORE);
-    }
-
-    public function resolve(array $options = array())
-    {
-        $options = parent::resolve($options);
-        if (isset($options['projection'])) {
-            $options['fields'] = $options['projection'];
-            unset($options['projection']);
-        }
-
-        if (self::RETURN_DOCUMENT_AFTER === $options['returnDocument']) {
-            $options['new'] = true;
-        }
-
-        unset($options['returnDocument']);
-
-        return $options;
     }
 }

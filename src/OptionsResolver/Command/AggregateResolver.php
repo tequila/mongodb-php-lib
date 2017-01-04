@@ -4,9 +4,6 @@ namespace Tequila\MongoDB\OptionsResolver\Command;
 
 use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
-use Symfony\Component\OptionsResolver\Options;
-use Tequila\MongoDB\OptionsResolver\Command\Traits\ReadConcernTrait;
-use Tequila\MongoDB\OptionsResolver\Command\Traits\WriteConcernTrait;
 use Tequila\MongoDB\OptionsResolver\Configurator\CollationConfigurator;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\OptionsResolver\Configurator\DocumentValidationConfigurator;
@@ -15,56 +12,30 @@ use Tequila\MongoDB\OptionsResolver\Configurator\ReadConcernConfigurator;
 use Tequila\MongoDB\OptionsResolver\Configurator\ReadPreferenceConfigurator;
 use Tequila\MongoDB\OptionsResolver\Configurator\WriteConcernConfigurator;
 use Tequila\MongoDB\OptionsResolver\OptionsResolver;
-use Tequila\MongoDB\CommandOptions;
 
-class AggregateResolver
-    extends OptionsResolver
-    implements
-    CompatibilityResolverInterface,
-    ReadConcernAwareInterface,
-    WriteConcernAwareInterface
+class AggregateResolver extends OptionsResolver
 {
-    use ReadConcernTrait;
-    use WriteConcernTrait;
-
-    public function configureOptions()
-    {
-        CollationConfigurator::configure($this);
-        DocumentValidationConfigurator::configure($this);
-        MaxTimeConfigurator::configure($this);
-        ReadConcernConfigurator::configure($this);
-        ReadPreferenceConfigurator::configure($this);
-        WriteConcernConfigurator::configure($this);
-
-        $this
-            ->setRequired('pipeline')
-            ->setAllowedTypes('pipeline', 'array')
-            ->setNormalizer('pipeline', function(Options $options, $pipeline) {
-                return $pipeline;
-            });
-
-        $this->setDefined([
-            'allowDiskUse',
-            'batchSize',
-            'useCursor',
-        ]);
-
-        $this
-            ->setAllowedTypes('allowDiskUse', 'bool')
-            ->setAllowedTypes('batchSize', 'integer')
-            ->setAllowedTypes('useCursor', 'bool');
-
-        $this->setDefault('useCursor', true);
-    }
-
     /**
      * @inheritdoc
      */
-    public function resolve(array $options = array())
+    public function resolve(array $options = [])
     {
-        $options = parent::resolve($options);
-
         $hasOutStage = $this->hasOutStage($options);
+
+        if (
+            $hasOutStage
+            && $this->hasDefault('readConcern')
+            && $this->getDefault('readConcern') instanceof ReadConcern
+            && ReadConcern::MAJORITY === $this->getDefault('readConcern')->getLevel()
+        ) {
+            $this->removeDefault('readConcern');
+        }
+
+        if (!$hasOutStage && $this->hasDefault('writeConcern')) {
+            $this->removeDefault('writeConcern');
+        }
+
+        $options = parent::resolve($options);
 
         if (isset($options['readConcern'])) {
             /** @var ReadConcern $readConcern */
@@ -76,14 +47,14 @@ class AggregateResolver
             }
         }
 
-        if ($hasOutStage) {
-            $options['readPreference'] = new ReadPreference(ReadPreference::RP_PRIMARY);
-        }
-
         if (isset($options['writeConcern']) && !$hasOutStage) {
             throw new InvalidArgumentException(
                 'Option "writeConcern" is meaningless until aggregation pipeline has $out stage.'
             );
+        }
+
+        if ($hasOutStage) {
+            $options['readPreference'] = new ReadPreference(ReadPreference::RP_PRIMARY);
         }
 
         if ($options['useCursor']) {
@@ -107,34 +78,44 @@ class AggregateResolver
         return $options;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function resolveCompatibilities(CommandOptions $options)
+    protected function configureOptions()
     {
-        $options
-            ->resolveCollation()
-            ->resolveDocumentValidation();
+        CollationConfigurator::configure($this);
+        DocumentValidationConfigurator::configure($this);
+        MaxTimeConfigurator::configure($this);
+        ReadConcernConfigurator::configure($this);
+        ReadPreferenceConfigurator::configure($this);
+        WriteConcernConfigurator::configure($this);
 
-        $hasOutStage = $this->hasOutStage($options);
+        $this
+            ->setRequired('pipeline')
+            ->setAllowedTypes('pipeline', 'array');
 
-        if ($this->readConcern) {
-            if (!($hasOutStage && ReadConcern::MAJORITY === $this->readConcern->getLevel())) {
-                $options->resolveReadConcern($this->readConcern);
-            }
-        }
+        $this->setDefined([
+            'allowDiskUse',
+            'batchSize',
+            'useCursor',
+        ]);
 
-        if ($hasOutStage) {
-            $options->resolveWriteConcern($this->writeConcern);
-        }
+        $this
+            ->setAllowedTypes('allowDiskUse', 'bool')
+            ->setAllowedTypes('batchSize', 'integer')
+            ->setAllowedTypes('useCursor', 'bool');
+
+        $this->setDefault('useCursor', true);
     }
 
     /**
-     * @param array|CommandOptions $options
+     * @param array $options
      * @return bool
      */
-    private function hasOutStage($options)
+    private function hasOutStage(array $options)
     {
+        if (!array_key_exists('pipeline', $options)) {
+            // Let resolve() to throw exception, since this option is required
+            return false;
+        }
+
         $pipeline = (array)$options['pipeline'];
         $lastStage = end($pipeline);
 

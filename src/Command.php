@@ -2,7 +2,7 @@
 
 namespace Tequila\MongoDB;
 
-use Tequila\MongoDB\OptionsResolver\Command\CompatibilityResolverInterface;
+use Tequila\MongoDB\OptionsResolver\Command\CompatibilityResolver;
 
 class Command implements CommandInterface
 {
@@ -12,7 +12,7 @@ class Command implements CommandInterface
     private $options;
 
     /**
-     * @var CompatibilityResolverInterface
+     * @var CompatibilityResolver
      */
     private $compatibilityResolver;
 
@@ -30,20 +30,16 @@ class Command implements CommandInterface
     public function getOptions(Server $server)
     {
         if (null !== $this->compatibilityResolver) {
-            $options = new CommandOptions($this->options);
-            $options->setServer($server);
-            $this->compatibilityResolver->resolveCompatibilities($options);
-
-            $this->options = $options->toArray();
+            $this->compatibilityResolver->resolveCompatibilities($server, $this->options);
         }
 
         return $this->options;
     }
 
     /**
-     * @param CompatibilityResolverInterface $resolver
+     * @param CompatibilityResolver $resolver
      */
-    public function setCompatibilityResolver(CompatibilityResolverInterface $resolver)
+    public function setCompatibilityResolver(CompatibilityResolver $resolver)
     {
         $this->compatibilityResolver = $resolver;
     }

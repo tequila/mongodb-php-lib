@@ -8,6 +8,7 @@ use MongoDB\Driver\WriteConcern;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\Exception\LogicException;
 use Tequila\MongoDB\OptionsResolver\Command\AggregateResolver;
+use Tequila\MongoDB\OptionsResolver\Command\CompatibilityResolver;
 use Tequila\MongoDB\OptionsResolver\Command\CountResolver;
 use Tequila\MongoDB\OptionsResolver\Command\CreateCollectionResolver;
 use Tequila\MongoDB\OptionsResolver\Command\CreateIndexesResolver;
@@ -17,9 +18,6 @@ use Tequila\MongoDB\OptionsResolver\Command\DropDatabaseResolver;
 use Tequila\MongoDB\OptionsResolver\Command\DropIndexesResolver;
 use Tequila\MongoDB\OptionsResolver\Command\FindAndModifyResolver;
 use Tequila\MongoDB\OptionsResolver\Command\ListCollectionsResolver;
-use Tequila\MongoDB\OptionsResolver\Command\ReadConcernAwareInterface;
-use Tequila\MongoDB\OptionsResolver\Command\WriteConcernAwareInterface;
-use Tequila\MongoDB\OptionsResolver\Command\CompatibilityResolverInterface;
 use Tequila\MongoDB\OptionsResolver\OptionsResolver;
 use Tequila\MongoDB\OptionsResolver\TypeMapResolver;
 
@@ -40,11 +38,6 @@ class CommandExecutor
         'findAndModify' => FindAndModifyResolver::class,
         'listCollections' => ListCollectionsResolver::class,
     ];
-
-    /**
-     * @var array
-     */
-    private $cache = [];
 
     /**
      * @var ReadConcern
@@ -83,25 +76,43 @@ class CommandExecutor
         }
 
         $resolver = $this->getResolver($command);
+
+        // Command should inherit readConcern, readPreference and writeConcern from Client, Database or Collection
+        // instance, from which it is called, due to MongoDB Driver Specifications
+        foreach (['readConcern', 'readPreference', 'writeConcern'] as $optionToBeInherited) {
+            if ($resolver->isDefined($optionToBeInherited) && !$resolver->hasDefault($optionToBeInherited)) {
+                $resolver->setDefault($optionToBeInherited, $this->$optionToBeInherited);
+            }
+        }
+
         $options = $resolver->resolve($options);
 
         if ($resolver->isDefined('readPreference') && isset($options['readPreference'])) {
             $readPreference = $options['readPreference'];
             unset($options['readPreference']);
         } else {
-            $readPreference = $this->readPreference;
+            $readPreference = new ReadPreference(ReadPreference::RP_PRIMARY);
         }
 
-        $commandOptions = $command + $options;
-        $command = new Command($commandOptions);
-
-        if ($resolver instanceof CompatibilityResolverInterface) {
-            $command->setCompatibilityResolver($resolver);
-        }
+        $command = new Command($command + $options);
+        $command->setCompatibilityResolver(new CompatibilityResolver($resolver));
 
         /** @var CursorInterface $cursor */
         $cursor = $manager->executeCommand($databaseName, $command, $readPreference);
-        $cursor->setTypeMap(TypeMapResolver::getDefault());
+        $cursor->setTypeMap(TypeMapResolver::resolveStatic([]));
+
+        // Clean OptionsResolver from default readConcern, readPreference and writeConcern.
+        // This allows to reuse the same resolver in other commands, that may be called from different
+        // Client, Database or Collection instances with different default readConcern, readPreference and writeConcern
+        foreach (['readConcern', 'readPreference', 'writeConcern'] as $inheritedOption) {
+            if (
+                $resolver->isDefined($inheritedOption)
+                && $resolver->hasDefault($inheritedOption)
+                && $this->$inheritedOption === $resolver->getDefault($inheritedOption)
+            ) {
+                $resolver->removeDefault($inheritedOption);
+            }
+        }
 
         return $cursor;
     }
@@ -114,26 +125,13 @@ class CommandExecutor
     {
         $commandName = key($command);
 
-        if (!isset($this->cache[$commandName])) {
-            if (!isset(self::$resolverClassesByCommandName[$commandName])) {
-                throw new LogicException(
-                    sprintf('OptionsResolver for command "%s" does not exist.', $commandName)
-                );
-            }
-            $resolverClass = self::$resolverClassesByCommandName[$commandName];
-            $resolver = clone OptionsResolver::get($resolverClass);
-
-            if ($resolver instanceof ReadConcernAwareInterface) {
-                $resolver->setDefaultReadConcern($this->readConcern);
-            }
-
-            if ($resolver instanceof WriteConcernAwareInterface) {
-                $resolver->setDefaultWriteConcern($this->writeConcern);
-            }
-
-            $this->cache[$commandName] = $resolver;
+        if (!isset(self::$resolverClassesByCommandName[$commandName])) {
+            throw new LogicException(
+                sprintf('OptionsResolver for command "%s" does not exist.', $commandName)
+            );
         }
+        $resolverClass = self::$resolverClassesByCommandName[$commandName];
 
-        return $this->cache[$commandName];
+        return OptionsResolver::get($resolverClass);
     }
 }

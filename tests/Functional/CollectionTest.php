@@ -126,6 +126,11 @@ class CollectionTest extends TestCase
         $this->assertEquals(3, $count);
     }
 
+    public function testCreateIndex()
+    {
+
+    }
+
     private function getCollection()
     {
         $manager = new Manager();

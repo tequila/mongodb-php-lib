@@ -6,7 +6,7 @@ use Tequila\MongoDB\OptionsResolver\OptionsResolver;
 
 class BulkWriteResolver extends OptionsResolver
 {
-    public function configureOptions()
+    protected function configureOptions()
     {
         $this->setDefined([
             'bypassDocumentValidation',

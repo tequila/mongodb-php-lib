@@ -2,7 +2,6 @@
 
 namespace Tequila\MongoDB\OptionsResolver\Configurator;
 
-use Symfony\Component\OptionsResolver\Options;
 use Tequila\MongoDB\OptionsResolver\OptionsResolver;
 
 class CollationConfigurator
@@ -12,7 +11,7 @@ class CollationConfigurator
         $resolver
             ->setDefined('collation')
             ->setAllowedTypes('collation', ['array', 'object'])
-            ->setNormalizer('collation', function(Options $options, $collation) {
+            ->setNormalizer('collation', function($collation) {
                 return (object)$collation;
             });
     }

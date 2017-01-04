@@ -10,7 +10,34 @@ use Tequila\MongoDB\QueryInterface;
 
 class QueryOptionsResolver extends OptionsResolver
 {
-    public function configureOptions()
+    public function resolve(array $options = array())
+    {
+        $options = parent::resolve($options);
+
+        if (isset($options['cursorType'])) {
+            $cursorType = $options['cursorType'];
+
+            if (QueryInterface::CURSOR_TAILABLE === $cursorType) {
+                $options['tailable'] = true;
+            }
+
+            if (QueryInterface::CURSOR_TAILABLE_AWAIT === $cursorType) {
+                $options['tailable'] = true;
+                $options['awaitData'] = true;
+            }
+
+            unset($options['cursorType']);
+        }
+
+        $options['modifiers'] = (array)$options['modifiers'];
+        if (empty($options['modifiers'])) {
+            unset($options['modifiers']);
+        }
+
+        return $options;
+    }
+
+    protected function configureOptions()
     {
         CollationConfigurator::configure($this);
         MaxTimeConfigurator::configure($this);
@@ -55,32 +82,5 @@ class QueryOptionsResolver extends OptionsResolver
         ]);
 
         $this->setDefault('modifiers', []);
-    }
-
-    public function resolve(array $options = array())
-    {
-        $options = parent::resolve($options);
-
-        if (isset($options['cursorType'])) {
-            $cursorType = $options['cursorType'];
-
-            if (QueryInterface::CURSOR_TAILABLE === $cursorType) {
-                $options['tailable'] = true;
-            }
-
-            if (QueryInterface::CURSOR_TAILABLE_AWAIT === $cursorType) {
-                $options['tailable'] = true;
-                $options['awaitData'] = true;
-            }
-
-            unset($options['cursorType']);
-        }
-
-        $options['modifiers'] = (array)$options['modifiers'];
-        if (empty($options['modifiers'])) {
-            unset($options['modifiers']);
-        }
-
-        return $options;
     }
 }

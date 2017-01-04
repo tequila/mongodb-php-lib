@@ -9,7 +9,18 @@ use Tequila\MongoDB\OptionsResolver\OptionsResolver;
 
 class FindOneAndDeleteResolver extends OptionsResolver
 {
-    public function configureOptions()
+    public function resolve(array $options = [])
+    {
+        $options = parent::resolve($options);
+        if (isset($options['projection'])) {
+            $options['fields'] = $options['projection'];
+            unset($options['projection']);
+        }
+
+        return $options;
+    }
+
+    protected function configureOptions()
     {
         CollationConfigurator::configure($this);
         WriteConcernConfigurator::configure($this);
@@ -19,16 +30,5 @@ class FindOneAndDeleteResolver extends OptionsResolver
             'projection',
             'sort',
         ]);
-    }
-
-    public function resolve(array $options = array())
-    {
-        $options = parent::resolve($options);
-        if (isset($options['projection'])) {
-            $options['fields'] = $options['projection'];
-            unset($options['projection']);
-        }
-
-        return $options;
     }
 }

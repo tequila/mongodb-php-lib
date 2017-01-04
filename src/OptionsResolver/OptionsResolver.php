@@ -2,8 +2,8 @@
 
 namespace Tequila\MongoDB\OptionsResolver;
 
-use Symfony\Component\OptionsResolver\OptionsResolver as BaseResolver;
-use Symfony\Component\OptionsResolver\Exception\InvalidArgumentException as OptionsResolverException;
+use Tequila\OptionsResolver\OptionsResolver as BaseResolver;
+use Tequila\OptionsResolver\Exception\InvalidArgumentException as OptionsResolverException;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 
 abstract class OptionsResolver extends BaseResolver
@@ -13,7 +13,7 @@ abstract class OptionsResolver extends BaseResolver
      */
     private static $cache = [];
 
-    public function resolve(array $options = array())
+    public function resolve(array $options = [])
     {
         try {
             return parent::resolve($options);

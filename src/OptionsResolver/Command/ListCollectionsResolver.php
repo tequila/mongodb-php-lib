@@ -2,20 +2,23 @@
 
 namespace Tequila\MongoDB\OptionsResolver\Command;
 
-use Symfony\Component\OptionsResolver\Options;
 use Tequila\MongoDB\OptionsResolver\OptionsResolver;
 
 class ListCollectionsResolver extends OptionsResolver
 {
-    public function configureOptions()
+    public function resolve(array $options = [])
+    {
+        $options = parent::resolve($options);
+        if (isset($options['filter'])) {
+            $options['filter'] = (object)ListCollectionsFilterResolver::resolveStatic($options['filter']);
+        }
+
+        return $options;
+    }
+
+    protected function configureOptions()
     {
         $this->setDefined(['filter']);
         $this->setAllowedTypes('filter', ['array', 'object']);
-        $this->setNormalizer('filter', function(Options $options, $filter) {
-            $filter = (array)$filter;
-            $filter = ListCollectionsFilterResolver::resolveStatic($filter);
-
-            return (object)$filter;
-        });
     }
 }

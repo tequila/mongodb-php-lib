@@ -2,24 +2,43 @@
 
 namespace Tequila\MongoDB\OptionsResolver\Command;
 
-use Symfony\Component\OptionsResolver\Options;
-use Tequila\MongoDB\OptionsResolver\Command\Traits\WriteConcernCompatibilityTrait;
-use Tequila\MongoDB\OptionsResolver\Command\Traits\WriteConcernTrait;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\OptionsResolver\Configurator\WriteConcernConfigurator;
 use Tequila\MongoDB\OptionsResolver\OptionsResolver;
 
-class CreateCollectionResolver extends OptionsResolver implements
-    WriteConcernAwareInterface,
-    CompatibilityResolverInterface
+class CreateCollectionResolver extends OptionsResolver
 {
-    use WriteConcernTrait;
-    use WriteConcernCompatibilityTrait;
+    /**
+     * @inheritdoc
+     */
+    public function resolve(array $options = [])
+    {
+        $options = parent::resolve($options);
+
+        if (!isset($options['size']) && isset($options['capped']) && true === $options['capped']) {
+            throw new InvalidArgumentException(
+                'The option "size" is required for capped collections.'
+            );
+        }
+
+        foreach (['max', 'size'] as $optionName) {
+            if (isset($options[$optionName]) && (!isset($options['capped']) || false === $options['capped'])) {
+                throw new InvalidArgumentException(
+                    sprintf(
+                        'The "%s" option is meaningless until "capped" option has been set to true.',
+                        $optionName
+                    )
+                );
+            }
+        }
+
+        return $options;
+    }
 
     /**
      * @inheritdoc
      */
-    public function configureOptions()
+    protected function configureOptions()
     {
         WriteConcernConfigurator::configure($this);
 
@@ -52,38 +71,5 @@ class CreateCollectionResolver extends OptionsResolver implements
                 'warn',
             ])
             ->setAllowedTypes('indexOptionDefaults', ['array', 'object']);
-
-        $sizeAndMaxOptionsNormalizerFactory = function ($optionName) {
-            return function (Options $options, $value) use ($optionName) {
-                if ($value && (!isset($options['capped']) || false === $options['capped'])) {
-                    throw new InvalidArgumentException(
-                        sprintf(
-                            'The "%s" option is meaningless until "capped" option has been set to true.',
-                            $optionName
-                        )
-                    );
-                }
-
-                return $value;
-            };
-        };
-
-        $this->setNormalizer('size', $sizeAndMaxOptionsNormalizerFactory('size'));
-        $this->setNormalizer('max', $sizeAndMaxOptionsNormalizerFactory('max'));
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function resolve(array $options = array())
-    {
-        $options = parent::resolve($options);
-        if (!isset($options['size']) && isset($options['capped']) && true === $options['capped']) {
-            throw new InvalidArgumentException(
-                'The option "size" is required for capped collections.'
-            );
-        }
-        
-        return $options;
     }
 }

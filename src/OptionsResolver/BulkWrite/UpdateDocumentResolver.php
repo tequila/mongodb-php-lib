@@ -7,7 +7,21 @@ use Tequila\MongoDB\OptionsResolver\OptionsResolver;
 
 class UpdateDocumentResolver extends OptionsResolver
 {
-    public function configureOptions()
+    public function resolve(array $options = array())
+    {
+        try {
+            return parent::resolve($options);
+        } catch(InvalidArgumentException $e) {
+            throw new InvalidArgumentException(
+                sprintf(
+                    '$update has a wrong format: %s',
+                    $e->getMessage()
+                )
+            );
+        }
+    }
+
+    protected function configureOptions()
     {
         $this->setDefined([
             '$inc',
@@ -21,19 +35,5 @@ class UpdateDocumentResolver extends OptionsResolver
             '$currentDate',
             '$bit',
         ]);
-    }
-
-    public function resolve(array $options = array())
-    {
-        try {
-            return parent::resolve($options);
-        } catch(InvalidArgumentException $e) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    '$update has a wrong format: %s',
-                    $e->getMessage()
-                )
-            );
-        }
     }
 }

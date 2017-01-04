@@ -8,7 +8,7 @@ use Tequila\MongoDB\OptionsResolver\Configurator\WriteConcernConfigurator;
 
 class DatabaseOptionsResolver extends OptionsResolver
 {
-    public function configureOptions()
+    protected function configureOptions()
     {
         ReadConcernConfigurator::configure($this);
         ReadPreferenceConfigurator::configure($this);
