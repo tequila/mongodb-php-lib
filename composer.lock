@@ -58,12 +58,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/tequila/options-resolver.git",
-                "reference": "8009c80e01ae3b2358a20e3bd10bb82d74923c86"
+                "reference": "4aaf15733655235ec9f48e9924aac1e5014b734d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/tequila/options-resolver/zipball/8009c80e01ae3b2358a20e3bd10bb82d74923c86",
-                "reference": "8009c80e01ae3b2358a20e3bd10bb82d74923c86",
+                "url": "https://api.github.com/repos/tequila/options-resolver/zipball/4aaf15733655235ec9f48e9924aac1e5014b734d",
+                "reference": "4aaf15733655235ec9f48e9924aac1e5014b734d",
                 "shasum": ""
             },
             "require": {
@@ -106,7 +106,7 @@
                 "configuration",
                 "options"
             ],
-            "time": "2017-01-03 18:17:48"
+            "time": "2017-01-04 01:47:49"
         }
     ],
     "packages-dev": [
