@@ -13,8 +13,6 @@ trait ListCollectionNamesTrait
         $listCollectionsCommand = new Command(['listCollections' => 1]);
         $cursor = $this->getManager()->executeCommand($this->getDatabaseName(), $listCollectionsCommand, $readPreference);
 
-        return array_map(function(\stdClass $collectionInfo) {
-            return $collectionInfo->name;
-        }, $cursor->toArray());
+        return array_column($cursor->toArray(), 'name');
     }
 }

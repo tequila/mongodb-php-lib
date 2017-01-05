@@ -15,6 +15,7 @@ use Tequila\MongoDB\Tests\Traits\DatabaseAndCollectionNamesTrait;
 use Tequila\MongoDB\Tests\Traits\DropCollectionTrait;
 use Tequila\MongoDB\Tests\Traits\EnsureNamespaceExistsTrait;
 use Tequila\MongoDB\Tests\Traits\GetManagerTrait;
+use Tequila\MongoDB\Tests\Traits\ListCollectionNamesTrait;
 use Tequila\MongoDB\Write\Model\DeleteMany;
 use Tequila\MongoDB\Write\Model\DeleteOne;
 use Tequila\MongoDB\Write\Model\InsertOne;
@@ -30,6 +31,7 @@ class CollectionTest extends TestCase
     use DropCollectionTrait;
     use EnsureNamespaceExistsTrait;
     use GetManagerTrait;
+    use ListCollectionNamesTrait;
 
     /**
      * @covers Collection::aggregate()
@@ -279,6 +281,68 @@ class CollectionTest extends TestCase
         $this->assertSame($expected, $drinks);
     }
 
+    /**
+     * @covers Collection::distinct()
+     */
+    public function testDistinct()
+    {
+        $this->dropCollection();
+
+        $this->bulkInsert([
+            ['drink' => 'tequila', 'country' => 'Mexico'],
+            ['drink' => 'whisky', 'country' => 'Scotland'],
+            ['drink' => 'whiskey', 'country' => 'Ireland'],
+            ['drink' => 'vodka', 'country' => 'Russia'],
+            ['drink' => 'tequila', 'country' => 'Mexico'],
+        ]);
+
+        $drinks = $this->getCollection()->distinct('drink');
+        $expectedDrinks = ['tequila', 'whisky', 'whiskey', 'vodka'];
+
+        $this->assertSame($expectedDrinks, $drinks);
+    }
+
+    /**
+     * @covers Collection::drop()
+     */
+    public function testDrop()
+    {
+        $this->ensureNamespaceExists();
+
+        $this->getCollection()->drop();
+
+        $this->assertNotContains($this->getCollectionName(), $this->listCollectionNames());
+    }
+
+    /**
+     * @covers Collection::dropIndexes()
+     */
+    public function testDropIndexes()
+    {
+        $this->createIndexes();
+
+        $result = $this->getCollection()->dropIndexes();
+        $this->assertSame(1.0, $result['ok']);
+
+        $indexNames = array_column($this->listIndexes(), 'name');
+        $this->assertSame(['_id_'], $indexNames);
+    }
+
+    /**
+     * @covers Collection::dropIndex()
+     */
+    public function testDropIndex()
+    {
+        $this->createIndexes();
+
+        $result = $this->getCollection()->dropIndex('baz_-1');
+        $this->assertSame(1.0, $result['ok']);
+
+        $indexNames = array_column($this->listIndexes(), 'name');
+        $expectedIndexNames = ['_id_', 'foo_1_bar_1', 'nullable_-1'];
+        $this->assertSame($expectedIndexNames, $indexNames);
+    }
+
     private function getCollection()
     {
         $manager = new Manager();
@@ -317,5 +381,20 @@ class CollectionTest extends TestCase
         $cursor->setTypeMap(['root' => 'array', 'document' => 'array']);
 
         return $cursor->toArray();
+    }
+
+    private function createIndexes()
+    {
+        $indexes = [
+            ['key' => ['foo' => 1, 'bar' => 1], 'name' => 'foo_1_bar_1'],
+            ['key' => ['baz' => -1], 'name' => 'baz_-1', 'unique' => true],
+            ['key' => ['nullable' => -1], 'name' => 'nullable_-1', 'sparse' => true],
+        ];
+
+        $command = new Command(
+            ['createIndexes' => $this->getCollectionName(), 'indexes' => $indexes]
+        );
+
+        $this->getManager()->executeCommand($this->getDatabaseName(), $command);
     }
 }

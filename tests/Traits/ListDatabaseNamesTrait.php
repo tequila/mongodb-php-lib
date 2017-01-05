@@ -15,8 +15,6 @@ trait ListDatabaseNamesTrait
         $cursor = $this->getManager()->executeCommand('admin', $listDatabasesCommand, $readPreference);
         $result = current($cursor->toArray());
 
-        return array_map(function(\stdClass $databaseInfo) {
-            return $databaseInfo->name;
-        }, $result->databases);
+        return array_column($result->databases, 'name');
     }
 }
