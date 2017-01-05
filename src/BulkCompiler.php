@@ -4,6 +4,8 @@ namespace Tequila\MongoDB;
 
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\Exception\LogicException;
+use Tequila\MongoDB\Exception\RuntimeException;
+use Tequila\MongoDB\Exception\UnsupportedException;
 use Tequila\MongoDB\OptionsResolver\BulkWrite\BulkWriteResolver;
 use Tequila\MongoDB\Write\Model\WriteModelInterface;
 
@@ -68,10 +70,11 @@ class BulkCompiler implements BulkCompilerInterface
         foreach ($this->writeModels as $position => $writeModel) {
             try {
                 $writeModel->writeToBulk($bulkWrite, $server);
-            } catch(InvalidArgumentException $e) {
-                throw new InvalidArgumentException(
+            } catch(UnsupportedException $e) {
+                throw new RuntimeException(
                     sprintf(
-                        'Exception during parsing $writeModels[%d]: %s',
+                        '%s during applying $writeModels[%d] to BulkWrite: %s',
+                        UnsupportedException::class,
                         $position,
                         $e->getMessage()
                     )
