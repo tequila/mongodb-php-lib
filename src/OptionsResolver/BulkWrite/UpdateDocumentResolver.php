@@ -14,7 +14,7 @@ class UpdateDocumentResolver extends OptionsResolver
         } catch(InvalidArgumentException $e) {
             throw new InvalidArgumentException(
                 sprintf(
-                    '$update has a wrong format: %s',
+                    'Invalid $update document: %s',
                     $e->getMessage()
                 )
             );

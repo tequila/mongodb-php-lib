@@ -6,6 +6,7 @@ use MongoDB\Driver\Exception\RuntimeException as MongoDBRuntimeException;
 use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
 use MongoDB\Driver\WriteConcern;
+use Tequila\MongoDB\OptionsResolver\BulkWrite\UpdateDocumentResolver;
 use Tequila\MongoDB\OptionsResolver\Command\FindOneAndDeleteResolver;
 use Tequila\MongoDB\OptionsResolver\Command\FindOneAndUpdateResolver;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
@@ -347,25 +348,20 @@ class Collection
     /**
      * @param array $filter
      * @param array $options
-     * @return CursorInterface
+     * @return array|object|null
      */
     public function findOneAndDelete(array $filter, array $options = [])
     {
-        $command = [
-            'findAndModify' => $this->collectionName,
-            'query' => (object)$filter,
-        ];
-
         $options = ['remove' => true] + FindOneAndDeleteResolver::resolveStatic($options);
 
-        return $this->executeCommand($command, $options);
+        return $this->findAndModify($filter, $options);
     }
 
     /**
      * @param array $filter
      * @param array|object $replacement
      * @param array $options
-     * @return CursorInterface
+     * @return array|object|null
      */
     public function findOneAndReplace(array $filter, $replacement, array $options = [])
     {
@@ -386,25 +382,24 @@ class Collection
             );
         }
 
-        return $this->findOneAndUpdate($filter, $replacement, $options);
+        $options = ['update' => (object)$replacement] + FindOneAndUpdateResolver::resolveStatic($options);
+
+        return $this->findAndModify($filter, $options);
     }
 
     /**
      * @param array $filter
      * @param $update
      * @param array $options
-     * @return CursorInterface
+     * @return array|null|object
      */
-    public function findOneAndUpdate(array $filter, $update, array $options = [])
+    public function findOneAndUpdate(array $filter, array $update, array $options = [])
     {
-        $command = [
-            'findAndModify' => $this->collectionName,
-            'query' => (object)$filter,
-        ];
+        UpdateDocumentResolver::resolveStatic($update);
 
         $options = ['update' => (object)$update] + FindOneAndUpdateResolver::resolveStatic($options);
 
-        return $this->executeCommand($command, $options);
+        return $this->findAndModify($filter, $options);
     }
 
     /**
@@ -538,5 +533,29 @@ class Collection
         $operationOptions = array_diff_key($options, $bulkWriteOptions);
 
         return [$bulkWriteOptions, $operationOptions];
+    }
+
+    /**
+     * @param array $filter
+     * @param array $options
+     * @return array|object|null
+     */
+    private function findAndModify(array $filter, array $options)
+    {
+        $command = [
+            'findAndModify' => $this->collectionName,
+            'query' => (object)$filter,
+        ];
+
+        $cursor = $this->executeCommand($command, $options);
+        $result = $cursor->current();
+
+        if (!array_key_exists('value', $result)) {
+            throw new UnexpectedResultException(
+                'Command "findAndModify" did not return expected "value" document.'
+            );
+        }
+
+        return $result['value'];
     }
 }

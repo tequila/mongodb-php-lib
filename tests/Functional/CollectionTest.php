@@ -379,6 +379,74 @@ class CollectionTest extends TestCase
         $this->assertNull($document);
     }
 
+    /**
+     * @covers Collection::findOneAndDelete()
+     */
+    public function testFindOneAndDelete()
+    {
+        $this->bulkInsert([['foo' => 'bar']]);
+
+        $document = $this->getCollection()->findOneAndDelete(['foo' => 'bar']);
+        $this->assertSame('bar', $document['foo']);
+
+        $cursor = self::getManager()->executeQuery(self::getNamespace(), new Query(['foo' => 'bar']));
+        $this->assertFalse(current($cursor->toArray()));
+    }
+
+    /**
+     * @covers Collection::findOneAndReplace()
+     */
+    public function testFindOneAndReplace()
+    {
+        $this->bulkInsert([['foo' => 'bar']]);
+
+        $oldDocument = $this->getCollection()->findOneAndReplace(
+            ['foo' => 'bar'],
+            ['bar' => 'baz', 'spam' => 'egg']
+        );
+
+        $this->assertSame('bar', $oldDocument['foo']);
+
+        $cursor = self::getManager()->executeQuery(self::getNamespace(), new Query(['foo' => 'bar']));
+        $this->assertFalse(current($cursor->toArray()));
+
+        $cursor = self::getManager()->executeQuery(self::getNamespace(), new Query(['bar' => 'baz']));
+        $newDocument = current($cursor->toArray());
+        $this->assertSame('egg', $newDocument->spam);
+    }
+
+    /**
+     * @covers Collection::findOneAndReplace()
+     */
+    public function testFindOneAndReplaceReturnsOldDocumentWhenOptionReturnDocumentBefore()
+    {
+        $this->bulkInsert([['foo' => 'bar']]);
+
+        $oldDocument = $this->getCollection()->findOneAndReplace(
+            ['foo' => 'bar'],
+            ['bar' => 'baz', 'spam' => 'egg'],
+            ['returnDocument' => 'before']
+        );
+
+        $this->assertSame('bar', $oldDocument['foo']);
+    }
+
+    /**
+     * @covers Collection::findOneAndReplace()
+     */
+    public function testFindOneAndReplaceReturnsNewDocumentWhenOptionReturnDocumentAfter()
+    {
+        $this->bulkInsert([['foo' => 'bar']]);
+
+        $oldDocument = $this->getCollection()->findOneAndReplace(
+            ['foo' => 'bar'],
+            ['bar' => 'baz', 'spam' => 'egg'],
+            ['returnDocument' => 'after']
+        );
+
+        $this->assertSame('egg', $oldDocument['spam']);
+    }
+
     private function getCollection()
     {
         $manager = new Manager();
