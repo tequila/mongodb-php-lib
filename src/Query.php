@@ -3,7 +3,7 @@
 namespace Tequila\MongoDB;
 
 use MongoDB\Driver\ReadConcern;
-use Tequila\MongoDB\Exception\InvalidArgumentException;
+use Tequila\MongoDB\Exception\UnsupportedException;
 
 class Query implements QueryInterface
 {
@@ -46,14 +46,14 @@ class Query implements QueryInterface
     public function getOptions(Server $server)
     {
         if (isset($this->options['collation']) && !$server->supportsCollation()) {
-            throw new InvalidArgumentException(
+            throw new UnsupportedException(
                 'Option "collation" is not supported by the server.'
             );
         }
 
         if (isset($this->options['readConcern'])) {
             if (!$server->supportsReadConcern()) {
-                throw new InvalidArgumentException(
+                throw new UnsupportedException(
                     'Option "readConcern" is not supported by the server.'
                 );
             }
