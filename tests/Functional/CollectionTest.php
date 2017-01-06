@@ -531,6 +531,30 @@ class CollectionTest extends TestCase
     }
 
     /**
+     * @covers Collection::insertMany()
+     */
+    public function testInsertMany()
+    {
+        $documents = [
+            ['foo' => 'bar'],
+            ['bar' => 'baz'],
+            ['spam' => 'egg'],
+        ];
+
+        $result = $this->getCollection()->insertMany($documents);
+        $this->assertSame(3, $result->getInsertedCount());
+        $this->assertSame([0, 1, 2], array_keys($result->getInsertedIds()));
+        $this->assertTrue($result->isAcknowledged());
+        $this->assertNull($result->getWriteConcernError());
+        $this->assertSame([], $result->getWriteErrors());
+
+        $foundDocuments = $this->findAllDocuments();
+        $this->assertSame('bar', $foundDocuments[0]['foo']);
+        $this->assertSame('baz', $foundDocuments[1]['bar']);
+        $this->assertSame('egg', $foundDocuments[2]['spam']);
+    }
+
+    /**
      * @return Collection
      */
     private function getCollection()
