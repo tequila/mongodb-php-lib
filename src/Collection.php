@@ -335,6 +335,18 @@ class Collection
     /**
      * @param array $filter
      * @param array $options
+     * @return array|object|null
+     */
+    public function findOne(array $filter = [], array $options = [])
+    {
+        $cursor = $this->find($filter, ['limit' => 1] + $options);
+
+        return ($document = $cursor->current()) ? $document : null;
+    }
+
+    /**
+     * @param array $filter
+     * @param array $options
      * @return CursorInterface
      */
     public function findOneAndDelete(array $filter, array $options = [])

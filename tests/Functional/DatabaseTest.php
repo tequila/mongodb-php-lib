@@ -1,24 +1,15 @@
 <?php
 
-namespace Tequila\MongoDB\Functional;
+namespace Tequila\MongoDB\Tests\Functional;
 
-use PHPUnit\Framework\TestCase;
 use Tequila\MongoDB\Collection;
 use Tequila\MongoDB\Database;
 use Tequila\MongoDB\Manager;
-use Tequila\MongoDB\Tests\Traits\DatabaseAndCollectionNamesTrait;
-use Tequila\MongoDB\Tests\Traits\DropCollectionTrait;
-use Tequila\MongoDB\Tests\Traits\EnsureNamespaceExistsTrait;
-use Tequila\MongoDB\Tests\Traits\GetManagerTrait;
 use Tequila\MongoDB\Tests\Traits\ListCollectionNamesTrait;
 use Tequila\MongoDB\Tests\Traits\ListDatabaseNamesTrait;
 
 class DatabaseTest extends TestCase
 {
-    use DatabaseAndCollectionNamesTrait;
-    use DropCollectionTrait;
-    use EnsureNamespaceExistsTrait;
-    use GetManagerTrait;
     use ListCollectionNamesTrait;
     use ListDatabaseNamesTrait;
 
@@ -27,11 +18,11 @@ class DatabaseTest extends TestCase
      */
     public function testCreateCollection()
     {
-        $this->dropCollection();
+        self::dropDatabase();
 
-        $this->getDatabase()->createCollection($this->getCollectionName());
+        $this->getDatabase()->createCollection(self::getCollectionName());
 
-        $this->assertContains($this->getCollectionName(), $this->listCollectionNames());
+        $this->assertContains(self::getCollectionName(), $this->listCollectionNames());
     }
 
     /**
@@ -39,11 +30,11 @@ class DatabaseTest extends TestCase
      */
     public function testDrop()
     {
-        $this->ensureNamespaceExists();
+        self::ensureNamespaceExists();
 
         $this->getDatabase()->drop();
 
-        $this->assertNotContains($this->getDatabaseName(), $this->listDatabaseNames());
+        $this->assertNotContains(self::getDatabaseName(), $this->listDatabaseNames());
     }
 
     /**
@@ -51,11 +42,11 @@ class DatabaseTest extends TestCase
      */
     public function testDropCollection()
     {
-        $this->ensureNamespaceExists();
+        self::ensureNamespaceExists();
 
-        $this->getDatabase()->dropCollection($this->getCollectionName());
+        $this->getDatabase()->dropCollection(self::getCollectionName());
 
-        $this->assertNotContains($this->getCollectionName(), $this->listCollectionNames());
+        $this->assertNotContains(self::getCollectionName(), $this->listCollectionNames());
     }
 
     /**
@@ -63,17 +54,14 @@ class DatabaseTest extends TestCase
      */
     public function testListCollections()
     {
-        $this->ensureNamespaceExists();
+        self::ensureNamespaceExists();
 
         $collections = $this->getDatabase()->listCollections();
-        $collectionNames = array_map(function(array $collectionInfo) {
-            return $collectionInfo['name'];
-        }, iterator_to_array($collections));
-
+        $collectionNames = array_column(iterator_to_array($collections), 'name');
         $expectedCollectionNames = $this->listCollectionNames();
 
         $this->assertEquals($expectedCollectionNames, $collectionNames);
-        $this->assertContains($this->getCollectionName(), $collectionNames);
+        $this->assertContains(self::getCollectionName(), $collectionNames);
     }
 
     /**
@@ -81,10 +69,10 @@ class DatabaseTest extends TestCase
      */
     public function testSelectCollection()
     {
-        $collection = $this->getDatabase()->selectCollection($this->getCollectionName());
+        $collection = $this->getDatabase()->selectCollection(self::getCollectionName());
         $this->assertInstanceOf(Collection::class, $collection);
-        $this->assertEquals($this->getCollectionName(), $collection->getCollectionName());
-        $this->assertEquals($this->getDatabaseName(), $collection->getDatabaseName());
+        $this->assertEquals(self::getCollectionName(), $collection->getCollectionName());
+        $this->assertEquals(self::getDatabaseName(), $collection->getDatabaseName());
     }
 
     private function getDatabase()

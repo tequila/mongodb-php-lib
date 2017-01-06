@@ -1,22 +1,15 @@
 <?php
 
-namespace Tequila\MongoDB\Functional;
+namespace Tequila\MongoDB\Tests\Functional;
 
-use PHPUnit\Framework\TestCase;
 use Tequila\MongoDB\Client;
 use Tequila\MongoDB\Collection;
 use Tequila\MongoDB\Database;
 use Tequila\MongoDB\Manager;
-use Tequila\MongoDB\Tests\Traits\DatabaseAndCollectionNamesTrait;
-use Tequila\MongoDB\Tests\Traits\EnsureNamespaceExistsTrait;
-use Tequila\MongoDB\Tests\Traits\GetManagerTrait;
 use Tequila\MongoDB\Tests\Traits\ListDatabaseNamesTrait;
 
 class ClientTest extends TestCase
 {
-    use DatabaseAndCollectionNamesTrait;
-    use EnsureNamespaceExistsTrait;
-    use GetManagerTrait;
     use ListDatabaseNamesTrait;
 
     /**
@@ -24,7 +17,7 @@ class ClientTest extends TestCase
      */
     public function testDropDatabase()
     {
-        $this->ensureNamespaceExists();
+        self::ensureNamespaceExists();
 
         $databaseName = $this->getDatabaseName();
         $this->getClient()->dropDatabase($databaseName);
@@ -37,18 +30,15 @@ class ClientTest extends TestCase
      */
     public function testListDatabases()
     {
-        $this->ensureNamespaceExists();
+        self::ensureNamespaceExists();
 
         $databases = $this->getClient()->listDatabases();
 
-        $databaseNames = array_map(function(array $databaseInfo) {
-            return $databaseInfo['name'];
-        }, $databases);
-
+        $databaseNames = array_column($databases, 'name');
         $expectedDatabaseNames = $this->listDatabaseNames();
 
         $this->assertEquals($expectedDatabaseNames, $databaseNames);
-        $this->assertContains($this->getDatabaseName(), $databaseNames);
+        $this->assertContains(self::getDatabaseName(), $databaseNames);
     }
 
     /**
@@ -57,10 +47,10 @@ class ClientTest extends TestCase
     public function testSelectCollection()
     {
         $client = $this->getClient();
-        $collection = $client->selectCollection($this->getDatabaseName(), $this->getCollectionName());
+        $collection = $client->selectCollection(self::getDatabaseName(), self::getCollectionName());
         $this->assertInstanceOf(Collection::class, $collection);
-        $this->assertEquals($this->getCollectionName(), $collection->getCollectionName());
-        $this->assertEquals($this->getDatabaseName(), $collection->getDatabaseName());
+        $this->assertEquals(self::getCollectionName(), $collection->getCollectionName());
+        $this->assertEquals(self::getDatabaseName(), $collection->getDatabaseName());
     }
 
     /**
@@ -69,9 +59,9 @@ class ClientTest extends TestCase
     public function testSelectDatabase()
     {
         $client = $this->getClient();
-        $database = $client->selectDatabase($this->getDatabaseName());
+        $database = $client->selectDatabase(self::getDatabaseName());
         $this->assertInstanceOf(Database::class, $database);
-        $this->assertEquals($this->getDatabaseName(), $database->getDatabaseName());
+        $this->assertEquals(self::getDatabaseName(), $database->getDatabaseName());
     }
 
     private function getClient()

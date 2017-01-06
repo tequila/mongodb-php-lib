@@ -1,20 +1,16 @@
 <?php
 
-namespace Tequila\MongoDB\Functional;
+namespace Tequila\MongoDB\Tests\Functional;
 
 use MongoDB\Driver\BulkWrite;
 use MongoDB\Driver\Command;
 use MongoDB\Driver\Query;
 use MongoDB\Driver\ReadPreference;
 use MongoDB\Driver\Server;
-use PHPUnit\Framework\TestCase;
+use MongoDB\Driver\Exception\RuntimeException as MongoDBRuntimeException;
 use Tequila\MongoDB\Collection;
 use Tequila\MongoDB\Index;
 use Tequila\MongoDB\Manager;
-use Tequila\MongoDB\Tests\Traits\DatabaseAndCollectionNamesTrait;
-use Tequila\MongoDB\Tests\Traits\DropCollectionTrait;
-use Tequila\MongoDB\Tests\Traits\EnsureNamespaceExistsTrait;
-use Tequila\MongoDB\Tests\Traits\GetManagerTrait;
 use Tequila\MongoDB\Tests\Traits\ListCollectionNamesTrait;
 use Tequila\MongoDB\Write\Model\DeleteMany;
 use Tequila\MongoDB\Write\Model\DeleteOne;
@@ -27,26 +23,25 @@ use Tequila\MongoDB\WriteResult;
 
 class CollectionTest extends TestCase
 {
-    use DatabaseAndCollectionNamesTrait;
-    use DropCollectionTrait;
-    use EnsureNamespaceExistsTrait;
-    use GetManagerTrait;
     use ListCollectionNamesTrait;
+
+    public function setUp()
+    {
+        $this->dropCollection();
+    }
 
     /**
      * @covers Collection::aggregate()
      */
     public function testAggregate()
     {
-        $this->dropCollection();
-
         // populate collection with test data
-        $bulk = new BulkWrite();
-        $bulk->insert(['integerField' => 10]);
-        $bulk->insert(['integerField' => 20]);
-        $bulk->insert(['integerField' => 30]);
-        $bulk->insert(['integerField' => 40]);
-        $this->getManager()->executeBulkWrite($this->getNamespace(), $bulk);
+        $this->bulkInsert([
+            ['integerField' => 10],
+            ['integerField' => 20],
+            ['integerField' => 30],
+            ['integerField' => 40]
+        ]);
 
         $pipeline = [
             [
@@ -69,8 +64,6 @@ class CollectionTest extends TestCase
      */
     public function testBulkWrite()
     {
-        $this->dropCollection();
-
         $requests = [
             new InsertOne(['replaceMe' => true]),
             new ReplaceOne(['replaceMe' => true], ['isReplacementDocument' => true]),
@@ -126,17 +119,14 @@ class CollectionTest extends TestCase
      */
     public function testCount()
     {
-        $this->dropCollection();
-
-        $bulk = new BulkWrite();
-        $bulk->insert(['foo' => 'bar']);
-        $bulk->insert(['bar' => 'baz']);
-        $bulk->insert(['spam' => true]);
-        $bulk->insert(['willBeCounted' => true]);
-        $bulk->insert(['willBeCounted' => 'yes']);
-        $bulk->insert(['willBeCounted' => 'whatever']);
-
-        $this->getManager()->executeBulkWrite($this->getNamespace(), $bulk);
+        $this->bulkInsert([
+            ['foo' => 'bar'],
+            ['bar' => 'baz'],
+            ['spam' => true],
+            ['willBeCounted' => true],
+            ['willBeCounted' => 'yes'],
+            ['willBeCounted' => 'whatever']
+        ]);
 
         $totalCount = $this->getCollection()->count();
         $count = $this->getCollection()->count(['willBeCounted' => ['$exists' => true]]);
@@ -150,8 +140,6 @@ class CollectionTest extends TestCase
      */
     public function testCreateIndex()
     {
-        $this->dropCollection();
-
         $indexName = $this->getCollection()->createIndex(['foo' => 1, 'bar' => -1]);
 
         $indexMatched = false;
@@ -178,8 +166,6 @@ class CollectionTest extends TestCase
      */
     public function testCreateIndexes()
     {
-        $this->dropCollection();
-
         $indexes = [
             new Index(['foo' => 1, 'bar' => -1]),
             new Index(['baz' => -1], ['unique' => true, 'sparse' => true]),
@@ -225,8 +211,6 @@ class CollectionTest extends TestCase
      */
     public function testDeleteMany()
     {
-        $this->dropCollection();
-
         $this->bulkInsert([
             ['genre' => 'blues'],
             ['genre' => 'rock'],
@@ -260,8 +244,6 @@ class CollectionTest extends TestCase
      */
     public function testDeleteOne()
     {
-        $this->dropCollection();
-
         $this->bulkInsert([
             ['drink' => 'tequila', 'alcohol' => true],
             ['drink' => 'wine', 'alcohol' => true],
@@ -286,8 +268,6 @@ class CollectionTest extends TestCase
      */
     public function testDistinct()
     {
-        $this->dropCollection();
-
         $this->bulkInsert([
             ['drink' => 'tequila', 'country' => 'Mexico'],
             ['drink' => 'whisky', 'country' => 'Scotland'],
@@ -307,7 +287,7 @@ class CollectionTest extends TestCase
      */
     public function testDrop()
     {
-        $this->ensureNamespaceExists();
+        self::ensureNamespaceExists();
 
         $this->getCollection()->drop();
 
@@ -343,11 +323,67 @@ class CollectionTest extends TestCase
         $this->assertSame($expectedIndexNames, $indexNames);
     }
 
+    /**
+     * @covers Collection::find()
+     */
+    public function testFind()
+    {
+        $this->bulkInsert([
+            ['country' => 'Ukraine', 'region' => 'Europe'],
+            ['country' => 'Great Britain', 'region' => 'Europe'],
+            ['country' => 'China', 'region' => 'Asia'],
+            ['country' => 'Thailand', 'region' => 'Asia'],
+            ['country' => 'France', 'region' => 'Europe'],
+            ['country' => 'USA', 'region' => 'North America'],
+            ['country' => 'Switzerland', 'region' => 'Europe'],
+            ['country' => 'Germany', 'region' => 'Europe'],
+            ['country' => 'Austria', 'region' => 'Europe'],
+        ]);
+
+        $cursor = $this->getCollection()->find(['region' => 'Europe'], ['limit' => 5]);
+        $countries = array_column($cursor->toArray(), 'country');
+        $expectedCountries = ['Ukraine', 'Great Britain', 'France', 'Switzerland', 'Germany'];
+
+        $this->assertSame($expectedCountries, $countries);
+    }
+
+    /**
+     * @covers Collection::findOne()
+     */
+    public function testFindOne()
+    {
+        $this->bulkInsert([
+            ['city' => 'New York'],
+            ['city' => 'Miami'],
+            ['city' => 'Kiev'],
+            ['city' => 'Paris'],
+        ]);
+
+        $document = $this->getCollection()->findOne();
+        $this->assertSame('New York', $document->city);
+    }
+
+    /**
+     * @covers Collection::findOne()
+     */
+    public function testFindOneReturnsNullWhenNoDocumentsMatch()
+    {
+        $this->bulkInsert([
+            ['city' => 'New York'],
+            ['city' => 'Miami'],
+            ['city' => 'Kiev'],
+            ['city' => 'Paris'],
+        ]);
+
+        $document = $this->getCollection()->findOne(['foo' => 'bar']);
+        $this->assertNull($document);
+    }
+
     private function getCollection()
     {
         $manager = new Manager();
 
-        return new Collection($manager, $this->getDatabaseName(), $this->getCollectionName());
+        return new Collection($manager, self::getDatabaseName(), self::getCollectionName());
     }
 
     private function listIndexes()
@@ -370,14 +406,14 @@ class CollectionTest extends TestCase
             $bulkWrite->insert($document);
         }
 
-        $this->getManager()->executeBulkWrite($this->getNamespace(), $bulkWrite);
+        self::getManager()->executeBulkWrite(self::getNamespace(), $bulkWrite);
     }
 
     private function findAllDocuments()
     {
         $query = new Query([]);
 
-        $cursor = $this->getManager()->executeQuery($this->getNamespace(), $query);
+        $cursor = self::getManager()->executeQuery(self::getNamespace(), $query);
         $cursor->setTypeMap(['root' => 'array', 'document' => 'array']);
 
         return $cursor->toArray();
@@ -392,9 +428,22 @@ class CollectionTest extends TestCase
         ];
 
         $command = new Command(
-            ['createIndexes' => $this->getCollectionName(), 'indexes' => $indexes]
+            ['createIndexes' => self::getCollectionName(), 'indexes' => $indexes]
         );
 
-        $this->getManager()->executeCommand($this->getDatabaseName(), $command);
+        self::getManager()->executeCommand(self::getDatabaseName(), $command);
+    }
+
+    private function dropCollection()
+    {
+        $readPreference = new ReadPreference(ReadPreference::RP_PRIMARY);
+        $dropCollectionCommand = new Command(['drop' => self::getCollectionName()]);
+        try {
+            self::getManager()->executeCommand(self::getDatabaseName(), $dropCollectionCommand, $readPreference);
+        } catch(MongoDBRuntimeException $e) {
+            if('ns not found' !== $e->getMessage()) {
+                throw $e;
+            }
+        }
     }
 }
