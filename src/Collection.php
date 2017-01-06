@@ -15,6 +15,7 @@ use Tequila\MongoDB\OptionsResolver\BulkWrite\BulkWriteResolver;
 use Tequila\MongoDB\OptionsResolver\DatabaseOptionsResolver;
 use Tequila\MongoDB\OptionsResolver\OptionsResolver;
 use Tequila\MongoDB\OptionsResolver\QueryOptionsResolver;
+use Tequila\MongoDB\OptionsResolver\TypeMapResolver;
 use Tequila\MongoDB\Traits\CommandExecutorTrait;
 use Tequila\MongoDB\Traits\ExecuteCommandTrait;
 use Tequila\MongoDB\Write\Model\DeleteMany;
@@ -468,6 +469,7 @@ class Collection
             $command,
             new ReadPreference(ReadPreference::RP_PRIMARY)
         );
+        $cursor->setTypeMap(TypeMapResolver::resolveStatic([]));
 
         return iterator_to_array($cursor);
     }

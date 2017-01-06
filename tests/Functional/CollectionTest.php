@@ -2,6 +2,7 @@
 
 namespace Tequila\MongoDB\Tests\Functional;
 
+use MongoDB\BSON\ObjectID;
 use MongoDB\Driver\BulkWrite;
 use MongoDB\Driver\Command;
 use MongoDB\Driver\Query;
@@ -542,9 +543,9 @@ class CollectionTest extends TestCase
         ];
 
         $result = $this->getCollection()->insertMany($documents);
+        $this->assertTrue($result->isAcknowledged());
         $this->assertSame(3, $result->getInsertedCount());
         $this->assertSame([0, 1, 2], array_keys($result->getInsertedIds()));
-        $this->assertTrue($result->isAcknowledged());
         $this->assertNull($result->getWriteConcernError());
         $this->assertSame([], $result->getWriteErrors());
 
@@ -552,6 +553,52 @@ class CollectionTest extends TestCase
         $this->assertSame('bar', $foundDocuments[0]['foo']);
         $this->assertSame('baz', $foundDocuments[1]['bar']);
         $this->assertSame('egg', $foundDocuments[2]['spam']);
+    }
+
+    /**
+     * @covers Collection::insertOne()
+     */
+    public function testInsertOne()
+    {
+        $result = $this->getCollection()->insertOne(['foo' => 'bar']);
+        $insertedId = $result->getInsertedId();
+        $this->assertTrue($result->isAcknowledged());
+        $this->assertInstanceOf(ObjectID::class, $insertedId);
+        $this->assertNull($result->getWriteConcernError());
+        $this->assertSame([], $result->getWriteErrors());
+
+        $documents = $this->findAllDocuments();
+        $this->assertCount(1, $documents);
+        $this->assertSame((string)$insertedId, (string)$documents[0]['_id']);
+        $this->assertSame('bar', $documents[0]['foo']);
+    }
+
+    /**
+     * @covers Collection::listIndexes()
+     */
+    public function testListIndexes()
+    {
+        $this->createIndexes();
+
+        $indexes = $this->getCollection()->listIndexes();
+        $indexNames = array_column($indexes, 'name');
+        $this->assertSame(['_id_', 'foo_1_bar_1', 'baz_-1', 'nullable_-1'], $indexNames);
+        $this->assertTrue($indexes[2]['unique']);
+        $this->assertTrue($indexes[3]['sparse']);
+    }
+
+    /**
+     * @covers Collection::replaceOne()
+     */
+    public function testReplaceOne()
+    {
+        $this->bulkInsert([['foo' => 'bar']]);
+
+        $this->getCollection()->replaceOne(['foo' => 'bar'], ['bar' => 'baz']);
+
+        $documents = $this->findAllDocuments();
+        $this->assertSame('baz', $documents[0]['bar']);
+        $this->assertArrayNotHasKey('foo', $documents[0]);
     }
 
     /**
