@@ -602,6 +602,55 @@ class CollectionTest extends TestCase
     }
 
     /**
+     * @covers Collection::updateMany()
+     */
+    public function testUpdateMany()
+    {
+        $this->bulkInsert([
+            ['city' => 'New York', 'population' => 8500000],
+            ['city' => 'Kiev', 'population' => 3000000],
+            ['city' => 'Miami', 'population' => 400000],
+        ]);
+
+        $this->getCollection()->updateMany(
+            ['population' => ['$gt' => 1000000]],
+            ['$set' => ['megacity' => true]]
+        );
+
+        $cursor = self::getManager()->executeQuery(
+            self::getNamespace(),
+            new Query(['megacity' => true]),
+            new ReadPreference(ReadPreference::RP_PRIMARY)
+        );
+
+        $cityNames = array_column($cursor->toArray(), 'city');
+        $this->assertSame(['New York', 'Kiev'], $cityNames);
+    }
+
+    public function testUpdateOne()
+    {
+        $this->bulkInsert([
+            ['city' => 'New York', 'population' => 8500000],
+            ['city' => 'Kiev', 'population' => 3000000],
+            ['city' => 'Miami', 'population' => 400000],
+        ]);
+
+        $this->getCollection()->updateOne(
+            ['population' => ['$gt' => 1000000]],
+            ['$set' => ['megacity' => true]]
+        );
+
+        $cursor = self::getManager()->executeQuery(
+            self::getNamespace(),
+            new Query(['megacity' => true]),
+            new ReadPreference(ReadPreference::RP_PRIMARY)
+        );
+
+        $cityNames = array_column($cursor->toArray(), 'city');
+        $this->assertSame(['New York'], $cityNames);
+    }
+
+    /**
      * @return Collection
      */
     private function getCollection()
