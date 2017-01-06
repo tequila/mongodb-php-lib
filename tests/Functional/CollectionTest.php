@@ -447,6 +447,92 @@ class CollectionTest extends TestCase
         $this->assertSame('egg', $oldDocument['spam']);
     }
 
+    /**
+     * @covers Collection::findOneAndUpdate()
+     */
+    public function testFindOneAndUpdate()
+    {
+        $this->bulkInsert([['foo' => 'bar']]);
+
+        $oldDocument = $this->getCollection()->findOneAndUpdate(
+            ['foo' => 'bar'],
+            ['$set' => ['spam' => 'egg'], '$inc' => ['timesUpdated' => 1]]
+        );
+
+        $this->assertSame('bar', $oldDocument['foo']);
+        $this->assertArrayNotHasKey('spam', $oldDocument);
+
+        $cursor = self::getManager()->executeQuery(
+            self::getNamespace(),
+            new Query(['timesUpdated' => 1])
+        );
+        $newDocument = current($cursor->toArray());
+        $this->assertSame('egg', $newDocument->spam);
+        $this->assertSame(1, $newDocument->timesUpdated);
+    }
+
+    /**
+     * @covers Collection::findOneAndUpdate()
+     */
+    public function testFindOneAndUpdateReturnsOldDocumentWhenOptionReturnDocumentBefore()
+    {
+        $this->bulkInsert([['foo' => 'bar', 'timesUpdated' => 0]]);
+
+        $oldDocument = $this->getCollection()->findOneAndUpdate(
+            ['foo' => 'bar'],
+            ['$set' => ['spam' => 'egg'], '$inc' => ['timesUpdated' => 1]],
+            ['returnDocument' => 'before']
+        );
+
+        $this->assertSame('bar', $oldDocument['foo']);
+        $this->assertArrayNotHasKey('spam', $oldDocument);
+    }
+
+    /**
+     * @covers Collection::findOneAndUpdate()
+     */
+    public function testFindOneAndUpdateReturnsOldDocumentWhenOptionReturnDocumentAfter()
+    {
+        $this->bulkInsert([['foo' => 'bar', 'timesUpdated' => 0]]);
+
+        $newDocument = $this->getCollection()->findOneAndUpdate(
+            ['foo' => 'bar'],
+            ['$set' => ['spam' => 'egg'], '$inc' => ['timesUpdated' => 1]],
+            ['returnDocument' => 'after']
+        );
+
+        $this->assertSame('bar', $newDocument['foo']);
+        $this->assertSame('egg', $newDocument['spam']);
+        $this->assertSame(1, $newDocument['timesUpdated']);
+    }
+
+    /**
+     * @covers Collection::getCollectionName()
+     */
+    public function testGetCollectionName()
+    {
+        $this->assertSame($this->getCollectionName(), $this->getCollection()->getCollectionName());
+    }
+
+    /**
+     * @covers Collection::getDatabaseName()
+     */
+    public function testGetDatabaseName()
+    {
+        $this->assertSame($this->getDatabaseName(), $this->getCollection()->getDatabaseName());
+    }
+
+    /**
+     * @covers Collection::getNamespace()
+     */
+    public function testGetNamespace()
+    {
+        $this->assertSame($this->getNamespace(), $this->getCollection()->getNamespace());
+    }
+
+    /**
+     * @return Collection
+     */
     private function getCollection()
     {
         $manager = new Manager();
