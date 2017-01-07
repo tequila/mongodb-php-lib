@@ -16,7 +16,7 @@ that allows to execute database commands, read and write queries -
 [`pecl/mongodb`](https://github.com/mongodb/mongo-php-driver) PHP extension. 
 The high-level API need to be implemented in PHP lib, such as this.
 
-You can use low-level driver without high-level driver like this:
+You can use **low-level** driver without high-level driver like this:
 
 ```php
 <?php
@@ -68,7 +68,7 @@ $command = new Command($commandOptions);
 $cursor = $server->executeCommand('my_db', $command);
 ```
 
-Here is how to use this high-level driver:
+Here is how to use this **high-level** driver:
 ```php
 <?php
 
