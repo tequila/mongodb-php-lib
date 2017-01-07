@@ -8,6 +8,20 @@ follows [MongoDB Driver Specifications](https://github.com/mongodb/specification
 and defines abstractions like `Client`, `Database`, `Collection` etc. You should use
 this classes instead of `\MongoClient`, `\MongoCollection` and other classes from deprecated `mongo` extension.
 
+## Installation
+
+Since this library is based on a new low-level driver, it requires this driver to be installed.
+Here is how to install low-level driver in Debian/Ubuntu:
+```bash
+sudo pecl install mongodb
+```
+
+The library itself should be installed by Composer:
+
+```bash
+composer require tequila/mongodb-php-lib
+```
+
 ## Low-level and high-level driver
 
 MongoDB developers decided not to implement all functionality of the legacy driver
@@ -113,18 +127,4 @@ foreach ($indexes as $indexInfo) {
 // For other unsupported options, \Tequila\MongoDB\Exception\UnsupportedException can be thrown.
 // This behavior is described in MongoDB Driver Specifications.
 $collection->drop(['writeConcern' => new WriteConcern(WriteConcern::MAJORITY)]);
-```
-
-## Installation
-
-Since this library is based on a new low-level driver, it requires this driver to be installed.
-Here is how to install low-level driver in Debian/Ubuntu:
-```bash
-sudo pecl install mongodb
-```
-
-The library itself should be installed by Composer:
-
-```bash
-composer require tequila/mongodb-php-lib
 ```
