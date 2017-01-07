@@ -1,6 +1,6 @@
 # Getting started
 
-This library is high-level MongoDB driver, which developed to replace 
+This library is high-level MongoDB driver, which created to replace 
 [Legacy MongoDB PHP Driver](https://github.com/mongodb/mongo-php-driver-legacy),
 i.e. `pecl/mongo` PHP extension, which for now is deprecated and does not work with PHP 7.
 The lib is based on the new official low-level [MongoDB PHP Driver](https://github.com/mongodb/mongo-php-driver),
@@ -14,6 +14,8 @@ MongoDB developers decided not to implement all functionality of the legacy driv
 in new PHP extension, written in `C` language. Instead, they developed a thin abstraction layer
 that allows to execute database commands, read and write queries - 
 [`pecl/mongodb`](https://github.com/mongodb/mongo-php-driver) PHP extension. 
+The high-level API need to be implemented in PHP lib, such as this.
+
 You can use low-level driver without high-level driver like this:
 
 ```php
