@@ -117,7 +117,13 @@ $collection->drop(['writeConcern' => new WriteConcern(WriteConcern::MAJORITY)]);
 
 ## Installation
 
-This library should be installed by Composer:
+Since this library is based on a new low-level driver, it requires this driver to be installed.
+Here is how to install low-level driver in Debian/Ubuntu:
+```bash
+sudo pecl install mongodb
+```
+
+The library itself should be installed by Composer:
 
 ```bash
 composer require tequila/mongodb-php-lib
