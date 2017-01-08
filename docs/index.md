@@ -1,6 +1,6 @@
 # Getting started
 
-This library is high-level MongoDB driver, which created to replace 
+This library is a high-level MongoDB driver, which created to replace 
 [Legacy MongoDB PHP Driver](https://github.com/mongodb/mongo-php-driver-legacy),
 i.e. `pecl/mongo` PHP extension, which for now is deprecated and does not work with PHP 7.
 The lib is based on the new official low-level [MongoDB PHP Driver](https://github.com/mongodb/mongo-php-driver),
@@ -14,6 +14,7 @@ Since this library is based on a new low-level driver, it requires this driver t
 Here is how to install low-level driver in Debian/Ubuntu:
 ```bash
 sudo pecl install mongodb
+echo "extension=mongodb.so" >> `php --ini | grep "Loaded Configuration" | sed -e "s|.*:\s*||"`
 ```
 
 The library itself should be installed by Composer:
@@ -22,7 +23,57 @@ The library itself should be installed by Composer:
 composer require tequila/mongodb-php-lib
 ```
 
-## Low-level and high-level driver
+## Usage
+
+Here are few examples of how to use this lib:
+
+```php
+<?php
+
+use MongoDB\Driver\WriteConcern;
+use Tequila\MongoDB\Manager;
+use Tequila\MongoDB\Client;
+use Tequila\MongoDB\Write\Model\InsertOne;
+use Tequila\MongoDB\Write\Model\UpdateOne;
+
+$manager = new Manager('mongodb://127.0.0.1/');
+$client = new Client($manager);
+
+// Writes
+$collection = $client->selectCollection('my_db', 'my_collection');
+$collection->insertOne(['foo' => 'bar']);
+$collection->insertOne(['bar' => 'baz']);
+$collection->updateOne(['foo' => 'bar'], ['$set' => ['bla' => 'bla-bla']]);
+
+// .. or, to send all write queries in one bulk:
+$collection->bulkWrite([
+    new InsertOne(['foo' => 'bar']),
+    new InsertOne(['bar' => 'baz']),
+    new UpdateOne(['foo' => 'bar'], ['$set' => ['bla' => 'bla-bla']]),
+]);
+
+
+// Read documents
+$document = $collection->findOne(['foo' => 'bar']);
+echo $document->bla; // outputs "bla-bla"
+
+// Execute command 
+$indexes = $collection->listIndexes();
+foreach ($indexes as $indexInfo) {
+    echo $indexInfo['name']; // outputs each index name in collection "my_collection" in db "my_db"
+}
+
+// Execute command with "writeConcern" option
+// command will return after write operation have been propagated to majority of voting replica set nodes.
+// If 'writeConcern' option is not supported by the server, which executes this operation, option will
+// be removed before command execution, and command will return after operation have been
+// propagated to the primary server.
+// For other unsupported options, \Tequila\MongoDB\Exception\UnsupportedException can be thrown.
+// This behavior is described in MongoDB Driver Specifications.
+$collection->drop(['writeConcern' => new WriteConcern(WriteConcern::MAJORITY)]);
+```
+
+## Few words about low-level driver
 
 MongoDB developers decided not to implement all functionality of the legacy driver
 in new PHP extension, written in `C` language. Instead, they developed a thin abstraction layer
@@ -30,7 +81,8 @@ that allows to execute database commands, read and write queries -
 [`pecl/mongodb`](https://github.com/mongodb/mongo-php-driver) PHP extension. 
 The high-level API need to be implemented in PHP lib, such as this.
 
-You can use **low-level** driver without high-level driver like this:
+You could use **low-level** driver without this lib. 
+This is how previous examples would look using the low-level driver:
 
 ```php
 <?php
@@ -80,51 +132,4 @@ if ($wireVersionForWriteConcern > $minWireVersion && $wireVersionForWriteConcern
 $command = new Command($commandOptions);
 
 $cursor = $server->executeCommand('my_db', $command);
-```
-
-Here is how to use this **high-level** driver:
-```php
-<?php
-
-use MongoDB\Driver\WriteConcern;
-use Tequila\MongoDB\Manager;
-use Tequila\MongoDB\Client;
-use Tequila\MongoDB\Write\Model\InsertOne;
-use Tequila\MongoDB\Write\Model\UpdateOne;
-
-$manager = new Manager('mongodb://127.0.0.1/');
-$client = new Client($manager);
-
-// Writes
-$collection = $client->selectCollection('my_db', 'my_collection');
-$collection->insertOne(['foo' => 'bar']);
-$collection->insertOne(['bar' => 'baz']);
-$collection->updateOne(['foo' => 'bar'], ['$set' => ['bla' => 'bla-bla']]);
-
-// .. or, to send all write queries in one bulk:
-$collection->bulkWrite([
-    new InsertOne(['foo' => 'bar']),
-    new InsertOne(['bar' => 'baz']),
-    new UpdateOne(['foo' => 'bar'], ['$set' => ['bla' => 'bla-bla']]),
-]);
-
-
-// Read documents
-$document = $collection->findOne(['foo' => 'bar']);
-echo $document->bla; // outputs "bla-bla"
-
-// Execute command 
-$indexes = $collection->listIndexes();
-foreach ($indexes as $indexInfo) {
-    echo $indexInfo['name']; // outputs each index name in collection "my_collection" in db "my_db"
-}
-
-// Execute command with "writeConcern" option
-// command will return after write operation have been propagated to majority of voting replica set nodes.
-// If 'writeConcern' option is not supported by the server, which executes this operation, option will
-// be removed before command execution, and command will return after operation have been
-// propagated to the primary server.
-// For other unsupported options, \Tequila\MongoDB\Exception\UnsupportedException can be thrown.
-// This behavior is described in MongoDB Driver Specifications.
-$collection->drop(['writeConcern' => new WriteConcern(WriteConcern::MAJORITY)]);
 ```

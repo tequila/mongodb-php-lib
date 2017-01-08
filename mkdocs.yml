@@ -1,2 +1,2 @@
 site_name: Tequila MongoDB PHP Library
-theme: 'readthedocs'
+theme: flatly
