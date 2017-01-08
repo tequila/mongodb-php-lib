@@ -6,6 +6,9 @@ schema-management, abstractions around connections, databases, collections, inde
 This library follows the [MongoDB Driver Specifications](https://github.com/mongodb/specifications), and it's 
 an alternative to the official [MongoDB PHP Library](https://github.com/mongodb/mongo-php-library).
 
+It requires PHP 5.6 or higher, PHP 7.0 or higher and requires `mongodb` PHP extension
+(new low-level driver) to be installed.
+
 For usage examples see the [Documentation](https://tequila.github.io/mongodb-php-lib/).
 
 ### Current status of the library
