@@ -124,6 +124,8 @@ $serverInfo = $server->getInfo();
 $minWireVersion = $serverInfo['minWireVersion'];
 $maxWireVersion = $serverInfo['maxWireVersion'];
 $wireVersionForWriteConcern = 5;
+
+// Check if server supports "writeConcern" option
 if ($wireVersionForWriteConcern > $minWireVersion && $wireVersionForWriteConcern < $maxWireVersion) {
     // command will return after write operation have been propagated to majority of voting replica set nodes
     $commandOptions['writeConcern'] = new WriteConcern(WriteConcern::MAJORITY);
