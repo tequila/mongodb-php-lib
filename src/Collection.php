@@ -143,9 +143,14 @@ class Collection
      */
     public function createIndex(array $key, array $options = [])
     {
+        $commandOptions = [];
+        if (isset($options['writeConcern'])) {
+            $commandOptions['writeConcern'] = $options['writeConcern'];
+            unset($options['writeConcern']);
+        }
         $index = new Index($key, $options);
 
-        return current($this->createIndexes([$index]));
+        return current($this->createIndexes([$index], $commandOptions));
     }
 
     /**
