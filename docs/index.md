@@ -55,7 +55,7 @@ $collection->bulkWrite([
 
 // Read documents
 $document = $collection->findOne(['foo' => 'bar']);
-echo $document->bla; // outputs "bla-bla"
+echo $document['bla']; // outputs "bla-bla"
 
 // Execute command 
 $indexes = $collection->listIndexes();
