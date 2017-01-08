@@ -3,17 +3,16 @@
 namespace Tequila\MongoDB;
 
 use MongoDB\Driver\Exception\RuntimeException as MongoDBRuntimeException;
-use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
-use MongoDB\Driver\WriteConcern;
-use Tequila\MongoDB\OptionsResolver\DatabaseOptionsResolver;
 use Tequila\MongoDB\Traits\CommandExecutorTrait;
 use Tequila\MongoDB\Traits\ExecuteCommandTrait;
+use Tequila\MongoDB\Traits\ResolveReadWriteOptionsTrait;
 
 class Database
 {
     use CommandExecutorTrait;
     use ExecuteCommandTrait;
+    use ResolveReadWriteOptionsTrait;
 
     /**
      * @var ManagerInterface
@@ -26,21 +25,6 @@ class Database
     private $databaseName;
 
     /**
-     * @var ReadConcern
-     */
-    private $readConcern;
-
-    /**
-     * @var ReadPreference
-     */
-    private $readPreference;
-
-    /**
-     * @var WriteConcern
-     */
-    private $writeConcern;
-
-    /**
      * @param ManagerInterface $manager
      * @param string $databaseName
      * @param array $options
@@ -49,18 +33,7 @@ class Database
     {
         $this->manager = $manager;
         $this->databaseName = $databaseName;
-
-        $options += [
-            'readConcern' => $this->manager->getReadConcern(),
-            'readPreference' => $this->manager->getReadPreference(),
-            'writeConcern' => $this->manager->getWriteConcern(),
-        ];
-
-        $options = DatabaseOptionsResolver::resolveStatic($options);
-
-        $this->readConcern = $options['readConcern'];
-        $this->readPreference = $options['readPreference'];
-        $this->writeConcern = $options['writeConcern'];
+        $this->resolveReadWriteOptions($options);
     }
 
     /**

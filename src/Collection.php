@@ -2,8 +2,8 @@
 
 namespace Tequila\MongoDB;
 
+use MongoDB\BSON\Unserializable;
 use MongoDB\Driver\Exception\RuntimeException as MongoDBRuntimeException;
-use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
 use MongoDB\Driver\WriteConcern;
 use Tequila\MongoDB\OptionsResolver\BulkWrite\UpdateDocumentResolver;
@@ -12,12 +12,12 @@ use Tequila\MongoDB\OptionsResolver\Command\FindOneAndUpdateResolver;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\Exception\UnexpectedResultException;
 use Tequila\MongoDB\OptionsResolver\BulkWrite\BulkWriteResolver;
-use Tequila\MongoDB\OptionsResolver\DatabaseOptionsResolver;
 use Tequila\MongoDB\OptionsResolver\OptionsResolver;
 use Tequila\MongoDB\OptionsResolver\QueryOptionsResolver;
 use Tequila\MongoDB\OptionsResolver\TypeMapResolver;
 use Tequila\MongoDB\Traits\CommandExecutorTrait;
 use Tequila\MongoDB\Traits\ExecuteCommandTrait;
+use Tequila\MongoDB\Traits\ResolveReadWriteOptionsTrait;
 use Tequila\MongoDB\Write\Model\DeleteMany;
 use Tequila\MongoDB\Write\Model\DeleteOne;
 use Tequila\MongoDB\Write\Model\InsertOne;
@@ -34,6 +34,7 @@ class Collection
 {
     use CommandExecutorTrait;
     use ExecuteCommandTrait;
+    use ResolveReadWriteOptionsTrait;
 
     /**
      * @var ManagerInterface
@@ -49,21 +50,6 @@ class Collection
      * @var string
      */
     private $collectionName;
-
-    /**
-     * @var ReadConcern
-     */
-    private $readConcern;
-
-    /**
-     * @var ReadPreference
-     */
-    private $readPreference;
-
-    /**
-     * @var WriteConcern
-     */
-    private $writeConcern;
 
     /**
      * @param ManagerInterface $manager
@@ -82,11 +68,7 @@ class Collection
             'readPreference' => $this->manager->getReadPreference(),
             'writeConcern' => $this->manager->getWriteConcern(),
         ];
-
-        $options = DatabaseOptionsResolver::resolveStatic($options);
-        $this->readConcern = $options['readConcern'];
-        $this->readPreference = $options['readPreference'];
-        $this->writeConcern = $options['writeConcern'];
+        $this->resolveReadWriteOptions($options);
     }
 
     /**
@@ -327,17 +309,21 @@ class Collection
         $query = new Query($filter, $options);
         $query->setDefaultReadConcern($this->readConcern);
 
-        return $this->manager->executeQuery(
+        $cursor = $this->manager->executeQuery(
             $this->getNamespace(),
             $query,
             $readPreference
         );
+
+        $cursor->setTypeMap(TypeMapResolver::resolveStatic([]));
+
+        return $cursor;
     }
 
     /**
      * @param array $filter
      * @param array $options
-     * @return array|object|null
+     * @return array|Unserializable|null
      */
     public function findOne(array $filter = [], array $options = [])
     {
@@ -349,7 +335,7 @@ class Collection
     /**
      * @param array $filter
      * @param array $options
-     * @return array|object|null
+     * @return array|Unserializable|null
      */
     public function findOneAndDelete(array $filter, array $options = [])
     {
@@ -362,7 +348,7 @@ class Collection
      * @param array $filter
      * @param array|object $replacement
      * @param array $options
-     * @return array|object|null
+     * @return array|Unserializable|null
      */
     public function findOneAndReplace(array $filter, $replacement, array $options = [])
     {
@@ -392,7 +378,7 @@ class Collection
      * @param array $filter
      * @param $update
      * @param array $options
-     * @return array|null|object
+     * @return array|Unserializable|null
      */
     public function findOneAndUpdate(array $filter, array $update, array $options = [])
     {
@@ -540,7 +526,7 @@ class Collection
     /**
      * @param array $filter
      * @param array $options
-     * @return array|object|null
+     * @return array|Unserializable|null
      */
     private function findAndModify(array $filter, array $options)
     {

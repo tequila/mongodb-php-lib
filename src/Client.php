@@ -2,16 +2,16 @@
 
 namespace Tequila\MongoDB;
 
-use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
-use MongoDB\Driver\WriteConcern;
 use Tequila\MongoDB\Exception\UnexpectedResultException;
 use Tequila\MongoDB\OptionsResolver\TypeMapResolver;
 use Tequila\MongoDB\Traits\CommandExecutorTrait;
+use Tequila\MongoDB\Traits\ResolveReadWriteOptionsTrait;
 
 class Client
 {
     use CommandExecutorTrait;
+    use ResolveReadWriteOptionsTrait;
 
     /**
      * @var ManagerInterface
@@ -19,29 +19,13 @@ class Client
     private $manager;
 
     /**
-     * @var ReadConcern
-     */
-    private $readConcern;
-
-    /**
-     * @var ReadPreference
-     */
-    private $readPreference;
-
-    /**
-     * @var WriteConcern
-     */
-    private $writeConcern;
-
-    /**
      * @param ManagerInterface $manager
+     * @param array $options
      */
-    public function __construct(ManagerInterface $manager)
+    public function __construct(ManagerInterface $manager, array $options = [])
     {
         $this->manager = $manager;
-        $this->readConcern = $manager->getReadConcern();
-        $this->readPreference = $manager->getReadPreference();
-        $this->writeConcern = $manager->getWriteConcern();
+        $this->resolveReadWriteOptions($options);
     }
 
     /**

@@ -361,7 +361,7 @@ class CollectionTest extends TestCase
         ]);
 
         $document = $this->getCollection()->findOne();
-        $this->assertSame('New York', $document->city);
+        $this->assertSame('New York', $document['city']);
     }
 
     /**
