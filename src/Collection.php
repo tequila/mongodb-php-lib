@@ -11,8 +11,6 @@ use Tequila\MongoDB\OptionsResolver\Command\FindOneAndDeleteResolver;
 use Tequila\MongoDB\OptionsResolver\Command\FindOneAndUpdateResolver;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\Exception\UnexpectedResultException;
-use Tequila\MongoDB\OptionsResolver\BulkWrite\BulkWriteResolver;
-use Tequila\MongoDB\OptionsResolver\OptionsResolver;
 use Tequila\MongoDB\OptionsResolver\QueryOptionsResolver;
 use Tequila\MongoDB\OptionsResolver\TypeMapResolver;
 use Tequila\MongoDB\Traits\CommandExecutorTrait;
@@ -514,10 +512,8 @@ class Collection
      */
     private static function extractBulkWriteOptions(array $options)
     {
-        $definedOptions = OptionsResolver::get(BulkWriteResolver::class)->getDefinedOptions();
-        array_push($definedOptions, 'writeConcern');
-
-        $bulkWriteOptions = array_intersect_key($options, array_flip($definedOptions));
+        $definedBulkOptions = ['bypassDocumentValidation', 'ordered', 'writeConcern'];
+        $bulkWriteOptions = array_intersect_key($options, array_flip($definedBulkOptions));
         $operationOptions = array_diff_key($options, $bulkWriteOptions);
 
         return [$bulkWriteOptions, $operationOptions];
