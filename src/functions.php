@@ -32,3 +32,11 @@ function ensureValidDocument($document) {
 function getType($value) {
     return is_object($value) ? get_class($value) : \gettype($value);
 }
+
+/**
+ * @param string $value - a value to check
+ * @return bool
+ */
+function isValidObjectId($value) {
+    return 24 === strspn((string)$value,'0123456789ABCDEFabcdef');
+}
