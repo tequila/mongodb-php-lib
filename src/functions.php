@@ -10,9 +10,9 @@ function ensureValidDocument($document) {
         $document = $document->bsonSerialize();
     }
 
-    $document = (array) $document;
+    $arrayDocument = (array) $document;
 
-    foreach ($document as $fieldName => $value) {
+    foreach ($arrayDocument as $fieldName => $value) {
         if (!preg_match('/^[^$][^\.]*$/', $fieldName)) {
             throw new InvalidArgumentException(
                 sprintf(
@@ -22,8 +22,9 @@ function ensureValidDocument($document) {
             );
         }
 
-        if (is_array($value) || is_object($value)) {
-            ensureValidDocument($document);
+        // Check nested document, if it's not a circular reference to the current $document
+        if ((is_array($value) || is_object($value)) && !$value === $document) {
+            ensureValidDocument($value);
         }
     }
 }
