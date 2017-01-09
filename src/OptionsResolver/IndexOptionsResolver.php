@@ -2,10 +2,14 @@
 
 namespace Tequila\MongoDB\OptionsResolver;
 
+use Tequila\MongoDB\OptionsResolver\Configurator\CollationConfigurator;
+
 class IndexOptionsResolver extends OptionsResolver
 {
     public function configureOptions()
     {
+        CollationConfigurator::configure($this);
+
         $this->setDefined([
             'name',
             'background',
