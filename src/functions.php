@@ -7,7 +7,9 @@ use Tequila\MongoDB\Exception\InvalidArgumentException;
 
 function ensureValidDocument($document) {
     if ($document instanceof Serializable) {
-        $document = $document->bsonSerialize();
+        // do not validate Serializable instances since call to Serializable::bsonSerialize()
+        // will increase a memory usage by creating array|object copy of the document
+        return;
     }
 
     $arrayDocument = (array) $document;
@@ -20,11 +22,6 @@ function ensureValidDocument($document) {
                     $fieldName
                 )
             );
-        }
-
-        // Check nested document, if it's not a circular reference to the current $document
-        if ((is_array($value) || is_object($value)) && !$value === $document) {
-            ensureValidDocument($value);
         }
     }
 }
