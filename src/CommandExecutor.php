@@ -69,7 +69,7 @@ class CommandExecutor
     /**
      * @inheritdoc
      */
-    public function executeCommand(ManagerInterface $manager, $databaseName, array $command, array $options)
+    public function executeCommand(Manager $manager, $databaseName, array $command, array $options)
     {
         if (empty($command)) {
             throw new InvalidArgumentException('$command cannot be empty.');

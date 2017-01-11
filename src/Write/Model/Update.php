@@ -4,14 +4,10 @@ namespace Tequila\MongoDB\Write\Model;
 
 use Tequila\MongoDB\BulkWrite;
 use Tequila\MongoDB\OptionsResolver\BulkWrite\UpdateResolver;
-use Tequila\MongoDB\OptionsResolver\OptionsResolver;
-use Tequila\MongoDB\Server;
-use Tequila\MongoDB\Write\Model\Traits\CheckCompatibilityTrait;
+use Tequila\MongoDB\WriteModelInterface;
 
 class Update implements WriteModelInterface
 {
-    use CheckCompatibilityTrait;
-
     /**
      * @var array
      */
@@ -42,10 +38,8 @@ class Update implements WriteModelInterface
     /**
      * @inheritdoc
      */
-    public function writeToBulk(BulkWrite $bulk, Server $server)
+    public function writeToBulk(BulkWrite $bulk)
     {
-        $this->checkCompatibility($this->options, $server);
-
         $bulk->update($this->filter, $this->update, $this->options);
     }
 }

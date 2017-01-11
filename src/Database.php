@@ -15,7 +15,7 @@ class Database
     use ResolveReadWriteOptionsTrait;
 
     /**
-     * @var ManagerInterface
+     * @var Manager
      */
     private $manager;
 
@@ -25,11 +25,11 @@ class Database
     private $databaseName;
 
     /**
-     * @param ManagerInterface $manager
+     * @param Manager $manager
      * @param string $databaseName
      * @param array $options
      */
-    public function __construct(ManagerInterface $manager, $databaseName, array $options = [])
+    public function __construct(Manager $manager, $databaseName, array $options = [])
     {
         $this->manager = $manager;
         $this->databaseName = $databaseName;

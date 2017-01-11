@@ -6,6 +6,7 @@ use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\Write\Model\Traits\BulkUpdateTrait;
 use function Tequila\MongoDB\ensureValidDocument;
 use function Tequila\MongoDB\getType;
+use Tequila\MongoDB\WriteModelInterface;
 
 class ReplaceOne implements WriteModelInterface
 {

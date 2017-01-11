@@ -22,7 +22,6 @@ use Tequila\MongoDB\Write\Model\InsertOne;
 use Tequila\MongoDB\Write\Model\ReplaceOne;
 use Tequila\MongoDB\Write\Model\UpdateMany;
 use Tequila\MongoDB\Write\Model\UpdateOne;
-use Tequila\MongoDB\Write\Model\WriteModelInterface;
 use Tequila\MongoDB\Write\Result\DeleteResult;
 use Tequila\MongoDB\Write\Result\InsertManyResult;
 use Tequila\MongoDB\Write\Result\InsertOneResult;
@@ -35,7 +34,7 @@ class Collection
     use ResolveReadWriteOptionsTrait;
 
     /**
-     * @var ManagerInterface
+     * @var Manager
      */
     private $manager;
 
@@ -50,12 +49,12 @@ class Collection
     private $collectionName;
 
     /**
-     * @param ManagerInterface $manager
+     * @param Manager $manager
      * @param string $databaseName
      * @param string $collectionName
      * @param array $options
      */
-    public function __construct(ManagerInterface $manager, $databaseName, $collectionName, array $options = [])
+    public function __construct(Manager $manager, $databaseName, $collectionName, array $options = [])
     {
         $this->manager = $manager;
         $this->databaseName = $databaseName;
@@ -110,10 +109,9 @@ class Collection
             $writeConcern = $this->writeConcern;
         }
 
-        $compiler = new BulkCompiler($options);
-        $compiler->add($requests);
+        $bulkWrite = new BulkWrite($requests);
 
-        return $this->manager->executeBulkWrite($this->getNamespace(), $compiler, $writeConcern);
+        return $this->manager->executeBulkWrite($this->getNamespace(), $bulkWrite, $writeConcern);
     }
 
     /**
