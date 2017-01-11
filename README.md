@@ -14,12 +14,12 @@ For usage examples see the [Documentation](https://tequila.github.io/mongodb-php
 ### Current status of the library
 
 At the moment, library is in an alpha stage, so it should be used with caution.
-The current release is `v1.0.0-alpha1`.
+The current release is `v1.0.0-alpha2`.
 Public API for now is stable and working, but library needs more tests.
 You can support this project by writing tests, testing the library with the MongoDB server and reporting bugs.
 Contributions are appreciated.
 
 #### Todo before the first stable release:
-- Tests, bugfixes.
+- Tests, bugfixes, documentation.
 
 The documentation is in progress and is updated almost every day.
