@@ -3,6 +3,7 @@
 namespace Tequila\MongoDB\Write\Model;
 
 use Tequila\MongoDB\Write\Model\Traits\BulkDeleteTrait;
+use Tequila\MongoDB\WriteModelInterface;
 
 class DeleteOne implements WriteModelInterface
 {

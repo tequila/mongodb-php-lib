@@ -14,15 +14,15 @@ class Client
     use ResolveReadWriteOptionsTrait;
 
     /**
-     * @var ManagerInterface
+     * @var Manager
      */
     private $manager;
 
     /**
-     * @param ManagerInterface $manager
+     * @param Manager $manager
      * @param array $options
      */
-    public function __construct(ManagerInterface $manager, array $options = [])
+    public function __construct(Manager $manager, array $options = [])
     {
         $this->manager = $manager;
         $this->resolveReadWriteOptions($options);

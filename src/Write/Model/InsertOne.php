@@ -4,7 +4,7 @@ namespace Tequila\MongoDB\Write\Model;
 
 use Tequila\MongoDB\BulkWrite;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
-use Tequila\MongoDB\Server;
+use Tequila\MongoDB\WriteModelInterface;
 use function Tequila\MongoDB\ensureValidDocument;
 use function Tequila\MongoDB\getType;
 
@@ -40,7 +40,7 @@ class InsertOne implements WriteModelInterface
         $this->document = $document;
     }
 
-    public function writeToBulk(BulkWrite $bulk, Server $server)
+    public function writeToBulk(BulkWrite $bulk)
     {
         $bulk->insert($this->document);
     }

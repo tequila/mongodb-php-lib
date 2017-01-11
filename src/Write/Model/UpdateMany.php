@@ -4,6 +4,7 @@ namespace Tequila\MongoDB\Write\Model;
 
 use Tequila\MongoDB\OptionsResolver\BulkWrite\UpdateDocumentResolver;
 use Tequila\MongoDB\Write\Model\Traits\BulkUpdateTrait;
+use Tequila\MongoDB\WriteModelInterface;
 
 class UpdateMany implements WriteModelInterface
 {

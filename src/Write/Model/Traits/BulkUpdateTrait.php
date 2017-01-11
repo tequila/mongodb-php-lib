@@ -3,7 +3,6 @@
 namespace Tequila\MongoDB\Write\Model\Traits;
 
 use Tequila\MongoDB\BulkWrite;
-use Tequila\MongoDB\Server;
 use Tequila\MongoDB\Write\Model\Update;
 
 trait BulkUpdateTrait
@@ -16,8 +15,8 @@ trait BulkUpdateTrait
     /**
      * @inheritdoc
      */
-    public function writeToBulk(BulkWrite $bulk, Server $server)
+    public function writeToBulk(BulkWrite $bulk)
     {
-        $this->update->writeToBulk($bulk, $server);
+        $this->update->writeToBulk($bulk);
     }
 }

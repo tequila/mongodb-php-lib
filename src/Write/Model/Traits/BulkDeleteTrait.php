@@ -3,7 +3,6 @@
 namespace Tequila\MongoDB\Write\Model\Traits;
 
 use Tequila\MongoDB\BulkWrite;
-use Tequila\MongoDB\Server;
 use Tequila\MongoDB\Write\Model\Delete;
 
 trait BulkDeleteTrait
@@ -17,10 +16,9 @@ trait BulkDeleteTrait
      * @see \Tequila\MongoDB\Write\Model\WriteModelInterface::writeToBulk()
      *
      * @param BulkWrite $bulk
-     * @param Server $server
      */
-    public function writeToBulk(BulkWrite $bulk, Server $server)
+    public function writeToBulk(BulkWrite $bulk)
     {
-        $this->delete->writeToBulk($bulk, $server);
+        $this->delete->writeToBulk($bulk);
     }
 }

@@ -4,13 +4,10 @@ namespace Tequila\MongoDB\Write\Model;
 
 use Tequila\MongoDB\BulkWrite;
 use Tequila\MongoDB\OptionsResolver\BulkWrite\DeleteResolver;
-use Tequila\MongoDB\Server;
-use Tequila\MongoDB\Write\Model\Traits\CheckCompatibilityTrait;
+use Tequila\MongoDB\WriteModelInterface;
 
 class Delete implements WriteModelInterface
 {
-    use CheckCompatibilityTrait;
-
     /**
      * @var array
      */
@@ -34,10 +31,8 @@ class Delete implements WriteModelInterface
     /**
      * @inheritdoc
      */
-    public function writeToBulk(BulkWrite $bulk, Server $server)
+    public function writeToBulk(BulkWrite $bulk)
     {
-        $this->checkCompatibility($this->options, $server);
-
         $bulk->delete($this->filter, $this->options);
     }
 
