@@ -32,32 +32,42 @@ class CompatibilityResolver
      */
     public function resolveCompatibilities(Server $server, array $options)
     {
-        // If resolved readConcern is one that inherited from Client, Database or Collection,
-        // and this option is not supported by the server - silently remove this option,
-        // since exception should only be thrown only if readConcern has been specified explicitly
-        // for this operation
+        // if "readConcern" option is inherited from Collection, Database or Client
+        // and is not supported by the server executing this command - silently omit the option
         if (
             $this->optionsResolver->isDefined('readConcern')
             && isset($options['readConcern'])
             && $this->optionsResolver->hasDefault('readConcern')
-            // if option is inherited
+            // if option is inherited from Collection, Database or Client and not supported
             && $options['readConcern'] === $this->optionsResolver->getDefault('readConcern')
             && !$server->supportsWireVersion(self::$wireVersionsForOptions['readConcern'])
         ) {
             unset($options['readConcern']);
         }
 
-        // If writeConcern specified, but not supported by the server that executes this operation,
-        // this option should be silently omitted due to MongoDB Driver Specifications
+        // if "writeConcern" option is inherited from Collection, Database or Client
+        // and is not supported by the server executing this command - silently omit the option
         if ($this->optionsResolver->isDefined('writeConcern') && isset($options['writeConcern'])) {
             $wireVersionForWriteConcern = $this->optionsResolver instanceof FindAndModifyResolver ? 4 : 5;
+
             if (!$server->supportsWireVersion($wireVersionForWriteConcern)) {
-                unset($options['writeConcern']);
+                // if option is inherited - from Collection, Client or Database - omit the option
+                // else - throw an exception
+                if (
+                    $this->optionsResolver->hasDefault('writeConcern')
+                    && $options['writeConcern'] === $this->optionsResolver->getDefault('writeConcern')
+                ) {
+                    unset($options['writeConcern']);
+                } else {
+                    throw new UnsupportedException(
+                        'Option "writeConcern" is not supported by the server.'
+                    );
+                }
             }
         }
 
         // Check if option defined and set, and if server does not support it - throw exception
-        foreach (['bypassDocumentValidation', 'collation', 'readConcern',] as $option) {
+        foreach (['bypassDocumentValidation', 'collation', 'readConcern'] as $option) {
             if (
                 $this->optionsResolver->isDefined($option)
                 && isset($options[$option])

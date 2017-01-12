@@ -96,7 +96,7 @@ class Collection
             if (!$options['writeConcern'] instanceof WriteConcern) {
                 throw new InvalidArgumentException(
                     sprintf(
-                        'Option "writeConcern" must be an instance of "%s", but is of type "%s".',
+                        'Option "writeConcern" expected be "%s", "%s" given.',
                         WriteConcern::class,
                         getType($options['writeConcern'])
                     )
