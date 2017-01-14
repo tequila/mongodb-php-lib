@@ -1,6 +1,5 @@
 ---
 title: Tequila MongoDB PHP Library
-layout: post
 ---
 
 # Getting started
