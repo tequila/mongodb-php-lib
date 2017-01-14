@@ -120,7 +120,7 @@ Using this driver:
 
 // Collection::replaceOne() will trow an exception if a second argument contains
 // update operators like $inc, $set etc.
-// Collection::updateOne() will throw an exception if a second argument is replacement document.
+// Collection::updateOne() will throw an exception if a second argument is a replacement document.
 
 /** @var \Tequila\MongoDB\Collection $collection */
 $collection->replaceOne(['foo' => 'bar'], ['bar' => 'baz']);
@@ -215,14 +215,12 @@ and `\MongoDeleteBatch`. To add operation to a batch, you must use a weird synta
 ```php
 <?php
 
-use MongoDB\BSON\UTCDateTime;
-
 /** @var \MongoCollection $collection */
 $batch = new \MongoUpdateBatch($collection);
 
 $batch->add([
     'q' => ['foo' => 'bar'], // query (filter) document
-    'u' => ['set' => ['updated_at' => new UTCDateTime()]] // update document
+    'u' => ['set' => ['updated_at' => new \MongoDate()]] // update document
 ]);
 
 $batch->execute();
