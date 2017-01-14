@@ -101,6 +101,12 @@ class Client
      */
     public function selectCollection($databaseName, $collectionName, array $options = [])
     {
+        $options += [
+            'readConcern' => $this->readConcern,
+            'readPreference' => $this->readPreference,
+            'writeConcern' => $this->writeConcern,
+        ];
+
         return new Collection($this->manager, $databaseName, $collectionName, $options);
     }
 
@@ -111,6 +117,12 @@ class Client
      */
     public function selectDatabase($databaseName, array $options = [])
     {
+        $options += [
+            'readConcern' => $this->readConcern,
+            'readPreference' => $this->readPreference,
+            'writeConcern' => $this->writeConcern,
+        ];
+
         return new Database($this->manager, $databaseName, $options);
     }
 }
