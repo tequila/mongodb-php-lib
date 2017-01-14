@@ -77,11 +77,12 @@ Using the legacy driver:
 <?php
 
 /** @var \MongoCollection $collection */
-$collection->batchInsert([
-    ['foo' => 'bar'],
-    ['bar' => 'baz'],
-    ['baz' => 'foo'],
-]);
+$batch = new \MongoInsertBatch($collection);
+$batch->add(['foo' => 'bar']);
+$batch->add(['bar' => 'baz']);
+$batch->add(['baz' => 'foo']);
+
+$batch->execute();
 ```
 
 #### Update one document
