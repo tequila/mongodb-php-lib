@@ -1,3 +1,8 @@
+---
+title: Tequila MongoDB PHP Library
+layout: post
+---
+
 # Getting started
 
 This high-level MongoDB driver was created to replace 
@@ -29,9 +34,11 @@ of the legacy driver.
 Below there are examples of how to do common tasks using this driver in comparison with te API of the legacy driver:
 
 ### CRUD
+
 #### Insert one document
 
 Using this driver:
+
 ```php
 <?php
 
