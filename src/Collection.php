@@ -281,6 +281,12 @@ class Collection
      */
     public function dropIndex($indexName, array $options = [])
     {
+        if ('*' === $indexName) {
+            throw new InvalidArgumentException(
+                'Invalid $indexName "*", use dropIndexes() method to delete all indexes.'
+            );
+        }
+
         $command = [
             'dropIndexes' => $this->collectionName,
             'index' => $indexName,
