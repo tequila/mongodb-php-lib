@@ -29,7 +29,7 @@ composer require tequila/mongodb-php-lib
 All new drivers for MongoDB should follow [MongoDB Driver Specifications](https://github.com/mongodb/specifications).
 By following this specifications, this library introduces different changes beside the API
 of the legacy driver.
-Below there are examples of how to do common tasks using this driver in comparison with te API of the legacy driver:
+Below there are examples of how to do common tasks using this driver in comparison with the API of the legacy driver:
 
 ### CRUD
 
