@@ -46,7 +46,6 @@ class QueryOptionsResolver extends OptionsResolver
 
         $this->setDefined([
             'allowPartialResults',
-            'awaitData',
             'batchSize',
             'comment',
             'cursorType',
