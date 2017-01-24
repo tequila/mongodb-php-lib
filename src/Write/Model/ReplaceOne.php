@@ -14,7 +14,7 @@ class ReplaceOne implements WriteModelInterface
 
     /**
      * @param $filter
-     * @param $replacement
+     * @param array|object $replacement
      * @param array $options
      */
     public function __construct(array $filter, $replacement, array $options = [])
