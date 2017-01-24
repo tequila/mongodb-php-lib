@@ -11,7 +11,7 @@ trait ExecuteCommandTrait
      * @param array $options
      * @return CursorInterface
      */
-    protected function executeCommand(array $command, array $options)
+    private function executeCommand(array $command, array $options)
     {
         return $this
             ->getCommandExecutor()
