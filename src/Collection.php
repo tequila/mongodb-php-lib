@@ -109,7 +109,7 @@ class Collection
             $writeConcern = $this->writeConcern;
         }
 
-        $bulkWrite = new BulkWrite($requests);
+        $bulkWrite = $this->createBulkWrite($requests, $options);
 
         return $this->manager->executeBulkWrite($this->getNamespace(), $bulkWrite, $writeConcern);
     }
@@ -513,6 +513,16 @@ class Collection
         $bulkWriteResult = $this->bulkWrite([$model], $bulkOptions);
 
         return new UpdateResult($bulkWriteResult);
+    }
+
+    /**
+     * @param WriteModelInterface[]|\Traversable $requests
+     * @param array $options
+     * @return BulkWrite
+     */
+    protected function createBulkWrite($requests, array $options)
+    {
+        return new BulkWrite($requests, $options);
     }
 
     /**
