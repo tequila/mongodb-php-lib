@@ -86,11 +86,11 @@ class Collection
     }
 
     /**
-     * @param WriteModelInterface[] $requests
+     * @param WriteModelInterface[]|\Traversable $requests
      * @param array $options
      * @return WriteResult
      */
-    public function bulkWrite(array $requests, array $options = [])
+    public function bulkWrite($requests, array $options = [])
     {
         if (isset($options['writeConcern'])) {
             if (!$options['writeConcern'] instanceof WriteConcern) {
