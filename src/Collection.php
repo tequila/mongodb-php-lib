@@ -49,6 +49,11 @@ class Collection
     private $collectionName;
 
     /**
+     * @var BulkWriteListenerInterface
+     */
+    private $bulkWriteListener;
+
+    /**
      * @param Manager $manager
      * @param string $databaseName
      * @param string $collectionName
@@ -109,7 +114,10 @@ class Collection
             $writeConcern = $this->writeConcern;
         }
 
-        $bulkWrite = $this->createBulkWrite($requests, $options);
+        $bulkWrite = new BulkWrite($requests, $options);
+        if (null !== $this->bulkWriteListener) {
+            $bulkWrite->setListener($this->bulkWriteListener);
+        }
 
         return $this->manager->executeBulkWrite($this->getNamespace(), $bulkWrite, $writeConcern);
     }
@@ -484,6 +492,17 @@ class Collection
     }
 
     /**
+     * Sets the listener for BulkWrite methods insert(), update() and delete().
+     * This can be used for example to log all writes or intercept them.
+     *
+     * @param BulkWriteListenerInterface $listener
+     */
+    public function setBulkWriteListener(BulkWriteListenerInterface $listener)
+    {
+        $this->bulkWriteListener = $listener;
+    }
+
+    /**
      * @param array|object $filter
      * @param $update
      * @param array $options
@@ -513,16 +532,6 @@ class Collection
         $bulkWriteResult = $this->bulkWrite([$model], $bulkOptions);
 
         return new UpdateResult($bulkWriteResult);
-    }
-
-    /**
-     * @param WriteModelInterface[]|\Traversable $requests
-     * @param array $options
-     * @return BulkWrite
-     */
-    protected function createBulkWrite($requests, array $options)
-    {
-        return new BulkWrite($requests, $options);
     }
 
     /**
