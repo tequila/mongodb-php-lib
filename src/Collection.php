@@ -185,11 +185,11 @@ class Collection
     }
 
     /**
-     * @param array|object $filter
+     * @param array $filter
      * @param array $options
      * @return DeleteResult
      */
-    public function deleteMany($filter, array $options = [])
+    public function deleteMany(array $filter, array $options = [])
     {
         list($bulkOptions, $options) = self::extractBulkWriteOptions($options);
         $model = new DeleteMany($filter, $options);
@@ -199,11 +199,11 @@ class Collection
     }
 
     /**
-     * @param array|object $filter
+     * @param array $filter
      * @param array $options
      * @return DeleteResult
      */
-    public function deleteOne($filter, array $options = [])
+    public function deleteOne(array $filter, array $options = [])
     {
         list($bulkOptions, $options) = self::extractBulkWriteOptions($options);
         $model = new DeleteOne($filter, $options);
@@ -213,7 +213,7 @@ class Collection
     }
 
     /**
-     * @param $fieldName
+     * @param string $fieldName
      * @param array $filter
      * @param array $options
      * @return array
@@ -481,7 +481,7 @@ class Collection
      * @param array $options
      * @return UpdateResult
      */
-    public function replaceOne($filter, $replacement, array $options = [])
+    public function replaceOne(array $filter, $replacement, array $options = [])
     {
         list($bulkOptions, $options) = self::extractBulkWriteOptions($options);
         $model = new ReplaceOne($filter, $replacement, $options);
@@ -503,12 +503,12 @@ class Collection
     }
 
     /**
-     * @param array|object $filter
-     * @param $update
+     * @param array $filter
+     * @param array|object $update
      * @param array $options
      * @return UpdateResult
      */
-    public function updateMany($filter, $update, array $options = [])
+    public function updateMany(array $filter, $update, array $options = [])
     {
         list($bulkOptions, $options) = self::extractBulkWriteOptions($options);
         $model = new UpdateMany($filter, $update, $options);
@@ -519,12 +519,12 @@ class Collection
     }
 
     /**
-     * @param array|object $filter
-     * @param $update
+     * @param array $filter
+     * @param array|object $update
      * @param array $options
      * @return UpdateResult
      */
-    public function updateOne($filter, $update, array $options = [])
+    public function updateOne(array $filter, $update, array $options = [])
     {
         list($bulkOptions, $options) = self::extractBulkWriteOptions($options);
         $model = new UpdateOne($filter, $update, $options);
