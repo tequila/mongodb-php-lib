@@ -3,6 +3,7 @@
 namespace Tequila\MongoDB\OptionsResolver\Command;
 
 use Tequila\MongoDB\Exception\InvalidArgumentException;
+use Tequila\MongoDB\OptionsResolver\Configurator\CollationConfigurator;
 use Tequila\MongoDB\OptionsResolver\Configurator\WriteConcernConfigurator;
 use Tequila\MongoDB\OptionsResolver\OptionsResolver;
 
@@ -40,6 +41,7 @@ class CreateCollectionResolver extends OptionsResolver
      */
     protected function configureOptions()
     {
+        CollationConfigurator::configure($this);
         WriteConcernConfigurator::configure($this);
 
         $this->setDefined([
