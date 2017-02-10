@@ -18,6 +18,7 @@ use Tequila\MongoDB\Traits\ExecuteCommandTrait;
 use Tequila\MongoDB\Traits\ResolveReadWriteOptionsTrait;
 use Tequila\MongoDB\Write\Model\DeleteMany;
 use Tequila\MongoDB\Write\Model\DeleteOne;
+use Tequila\MongoDB\Write\Model\InsertMany;
 use Tequila\MongoDB\Write\Model\InsertOne;
 use Tequila\MongoDB\Write\Model\ReplaceOne;
 use Tequila\MongoDB\Write\Model\UpdateMany;
@@ -427,13 +428,8 @@ class Collection
      */
     public function insertMany($documents, array $options = [])
     {
-        $models = [];
-
-        foreach ($documents as $document) {
-            $models[] = new InsertOne($document);
-        }
-
-        $bulkWriteResult = $this->bulkWrite($models, $options);
+        $writeModel = new InsertMany($documents);
+        $bulkWriteResult = $this->bulkWrite([$writeModel], $options);
 
         return new InsertManyResult($bulkWriteResult);
     }
