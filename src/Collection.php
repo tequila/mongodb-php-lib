@@ -97,7 +97,7 @@ class Collection
             if (!$options['writeConcern'] instanceof WriteConcern) {
                 throw new InvalidArgumentException(
                     sprintf(
-                        'Option "writeConcern" expected be "%s", "%s" given.',
+                        'Option "writeConcern" is expected to be "%s", "%s" given.',
                         WriteConcern::class,
                         getType($options['writeConcern'])
                     )
