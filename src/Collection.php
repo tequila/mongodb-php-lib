@@ -18,6 +18,7 @@ use Tequila\MongoDB\Traits\ExecuteCommandTrait;
 use Tequila\MongoDB\Traits\ResolveReadWriteOptionsTrait;
 use Tequila\MongoDB\Write\Model\DeleteMany;
 use Tequila\MongoDB\Write\Model\DeleteOne;
+use Tequila\MongoDB\Write\Model\InsertMany;
 use Tequila\MongoDB\Write\Model\InsertOne;
 use Tequila\MongoDB\Write\Model\ReplaceOne;
 use Tequila\MongoDB\Write\Model\UpdateMany;
@@ -47,11 +48,6 @@ class Collection
      * @var string
      */
     private $collectionName;
-
-    /**
-     * @var BulkWriteListenerInterface
-     */
-    private $bulkWriteListener;
 
     /**
      * @param Manager $manager
@@ -115,9 +111,6 @@ class Collection
         }
 
         $bulkWrite = new BulkWrite($requests, $options);
-        if (null !== $this->bulkWriteListener) {
-            $bulkWrite->setListener($this->bulkWriteListener);
-        }
 
         return $this->manager->executeBulkWrite($this->getNamespace(), $bulkWrite, $writeConcern);
     }
@@ -435,13 +428,8 @@ class Collection
      */
     public function insertMany($documents, array $options = [])
     {
-        $models = [];
-
-        foreach ($documents as $document) {
-            $models[] = new InsertOne($document);
-        }
-
-        $bulkWriteResult = $this->bulkWrite($models, $options);
+        $writeModel = new InsertMany($documents);
+        $bulkWriteResult = $this->bulkWrite([$writeModel], $options);
 
         return new InsertManyResult($bulkWriteResult);
     }
@@ -489,17 +477,6 @@ class Collection
         $bulkWriteResult = $this->bulkWrite([$model], $bulkOptions);
 
         return new UpdateResult($bulkWriteResult);
-    }
-
-    /**
-     * Sets the listener for BulkWrite methods insert(), update() and delete().
-     * This can be used for example to log all writes or intercept them.
-     *
-     * @param BulkWriteListenerInterface $listener
-     */
-    public function setBulkWriteListener(BulkWriteListenerInterface $listener)
-    {
-        $this->bulkWriteListener = $listener;
     }
 
     /**
