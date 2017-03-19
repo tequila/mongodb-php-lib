@@ -89,7 +89,7 @@ class Database
 
     /**
      * @param array $options
-     * @return CursorInterface
+     * @return Cursor
      */
     public function listCollections(array $options = [])
     {
@@ -99,7 +99,7 @@ class Database
     /**
      * @param CommandInterface $command
      * @param ReadPreference|null $readPreference
-     * @return CursorInterface
+     * @return Cursor
      */
     public function runCommand(CommandInterface $command, ReadPreference $readPreference = null)
     {

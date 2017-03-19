@@ -2,14 +2,14 @@
 
 namespace Tequila\MongoDB\Traits;
 
-use Tequila\MongoDB\CursorInterface;
+use Tequila\MongoDB\Cursor;
 
 trait ExecuteCommandTrait
 {
     /**
      * @param array $command
      * @param array $options
-     * @return CursorInterface
+     * @return Cursor
      */
     private function executeCommand(array $command, array $options)
     {

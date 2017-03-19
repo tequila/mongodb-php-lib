@@ -76,7 +76,7 @@ class Collection
     /**
      * @param array $pipeline
      * @param array $options
-     * @return CursorInterface
+     * @return Cursor
      */
     public function aggregate(array $pipeline, array $options = [])
     {
@@ -308,7 +308,7 @@ class Collection
     /**
      * @param array $filter
      * @param array $options
-     * @return CursorInterface
+     * @return Cursor
      */
     public function find(array $filter = [], array $options = [])
     {

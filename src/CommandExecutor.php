@@ -97,7 +97,7 @@ class CommandExecutor
         $command = new Command($command + $options);
         $command->setCompatibilityResolver(new CompatibilityResolver($resolver));
 
-        /** @var CursorInterface $cursor */
+        /** @var Cursor $cursor */
         $cursor = $manager->executeCommand($databaseName, $command, $readPreference);
         $cursor->setTypeMap(TypeMapResolver::resolveStatic([]));
 
