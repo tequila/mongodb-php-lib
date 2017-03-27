@@ -2,6 +2,7 @@
 
 namespace Tequila\MongoDB;
 
+use MongoDB\BSON\Serializable;
 use MongoDB\Driver\Exception\RuntimeException as MongoDBRuntimeException;
 use MongoDB\Driver\ReadPreference;
 use Tequila\MongoDB\Traits\CommandExecutorTrait;
@@ -15,14 +16,19 @@ class Database
     use ResolveReadWriteOptionsTrait;
 
     /**
-     * @var Manager
+     * @var Collection[]
      */
-    private $manager;
+    private $collectionsCache = [];
 
     /**
      * @var string
      */
     private $databaseName;
+
+    /**
+     * @var Manager
+     */
+    private $manager;
 
     /**
      * @param Manager $manager
@@ -121,6 +127,29 @@ class Database
             'writeConcern' => $this->writeConcern,
         ];
 
-        return new Collection($this->manager, $this->databaseName, $collectionName, $options);
+        $options = array_filter($options, function($option) {
+            // All valid options ("readConcern", "readPreference", "writeConcern") are
+            // instances of \MongoDB\Driver\Serializable
+            return $option instanceof Serializable;
+        });
+
+        ksort($options);
+        $cacheKey = $collectionName;
+        foreach ($options as $option) {
+            /** @var Serializable $option */
+            $cacheKey = $cacheKey . var_export((array)$option->bsonSerialize(), true);
+        }
+
+        $cacheKey = md5($cacheKey);
+        if (!array_key_exists($cacheKey, $this->collectionsCache)) {
+            $this->collectionsCache[$cacheKey] = new Collection(
+                $this->manager,
+                $this->databaseName,
+                $collectionName,
+                $options
+            );
+        }
+
+        return $this->collectionsCache[$cacheKey];
     }
 }
