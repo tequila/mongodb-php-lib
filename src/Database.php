@@ -2,9 +2,9 @@
 
 namespace Tequila\MongoDB;
 
-use MongoDB\BSON\Serializable;
 use MongoDB\Driver\Exception\RuntimeException as MongoDBRuntimeException;
 use MongoDB\Driver\ReadPreference;
+use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\Traits\CommandExecutorTrait;
 use Tequila\MongoDB\Traits\ExecuteCommandTrait;
 use Tequila\MongoDB\Traits\ResolveReadWriteOptionsTrait;
@@ -14,11 +14,6 @@ class Database
     use CommandExecutorTrait;
     use ExecuteCommandTrait;
     use ResolveReadWriteOptionsTrait;
-
-    /**
-     * @var Collection[]
-     */
-    private $collectionsCache = [];
 
     /**
      * @var string
@@ -37,6 +32,10 @@ class Database
      */
     public function __construct(Manager $manager, $databaseName, array $options = [])
     {
+        if (!$databaseName) {
+            throw new InvalidArgumentException('$databaseName cannot be empty.');
+        }
+
         $this->manager = $manager;
         $this->databaseName = $databaseName;
         $this->resolveReadWriteOptions($options);
@@ -127,29 +126,6 @@ class Database
             'writeConcern' => $this->writeConcern,
         ];
 
-        $options = array_filter($options, function($option) {
-            // All valid options ("readConcern", "readPreference", "writeConcern") are
-            // instances of \MongoDB\Driver\Serializable
-            return $option instanceof Serializable;
-        });
-
-        ksort($options);
-        $cacheKey = $collectionName;
-        foreach ($options as $option) {
-            /** @var Serializable $option */
-            $cacheKey = $cacheKey . var_export((array)$option->bsonSerialize(), true);
-        }
-
-        $cacheKey = md5($cacheKey);
-        if (!array_key_exists($cacheKey, $this->collectionsCache)) {
-            $this->collectionsCache[$cacheKey] = new Collection(
-                $this->manager,
-                $this->databaseName,
-                $collectionName,
-                $options
-            );
-        }
-
-        return $this->collectionsCache[$cacheKey];
+        return new Collection($this->manager, $this->databaseName, $collectionName, $options);
     }
 }

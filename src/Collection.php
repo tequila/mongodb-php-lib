@@ -57,6 +57,14 @@ class Collection
      */
     public function __construct(Manager $manager, $databaseName, $collectionName, array $options = [])
     {
+        if (!$databaseName) {
+            throw new InvalidArgumentException('$databaseName cannot be empty.');
+        }
+
+        if (!$collectionName) {
+            throw new InvalidArgumentException('$collectionName cannot be empty.');
+        }
+
         $this->manager = $manager;
         $this->databaseName = $databaseName;
         $this->collectionName = $collectionName;
