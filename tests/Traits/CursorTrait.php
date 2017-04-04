@@ -2,22 +2,22 @@
 
 namespace Tequila\MongoDB\Tests\Traits;
 
-use Tequila\MongoDB\CursorInterface;
+use Tequila\MongoDB\Cursor;
 
 trait CursorTrait
 {
     /**
-     * @var CursorInterface
+     * @var Cursor
      */
     private $cursor;
 
     /**
-     * @return CursorInterface
+     * @return Cursor
      */
     public function getCursor()
     {
         if (null === $this->cursor) {
-            $this->cursor = $this->prophesize(CursorInterface::class)->reveal();
+            $this->cursor = $this->prophesize(Cursor::class)->reveal();
         }
 
         return $this->cursor;

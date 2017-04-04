@@ -6,7 +6,7 @@ use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
 use MongoDB\Driver\WriteConcern;
 use Prophecy\Prophecy\ObjectProphecy;
-use Tequila\MongoDB\ManagerInterface;
+use Tequila\MongoDB\Manager;
 
 trait ManagerProphecyTrait
 {
@@ -18,7 +18,7 @@ trait ManagerProphecyTrait
     private function getManagerProphecy()
     {
         if (null === $this->managerProphecy) {
-            $managerProphecy = $this->prophesize(ManagerInterface::class);
+            $managerProphecy = $this->prophesize(Manager::class);
 
             $managerProphecy
                 ->getReadConcern()

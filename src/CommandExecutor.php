@@ -19,7 +19,6 @@ use Tequila\MongoDB\OptionsResolver\Command\DropIndexesResolver;
 use Tequila\MongoDB\OptionsResolver\Command\FindAndModifyResolver;
 use Tequila\MongoDB\OptionsResolver\Command\ListCollectionsResolver;
 use Tequila\MongoDB\OptionsResolver\OptionsResolver;
-use Tequila\MongoDB\OptionsResolver\TypeMapResolver;
 
 class CommandExecutor
 {
@@ -86,6 +85,12 @@ class CommandExecutor
         }
 
         $options = $resolver->resolve($options);
+        if (isset($options['typeMap'])) {
+            $typeMap = $options['typeMap'];
+            unset($options['typeMap']);
+        } else {
+            $typeMap = ['root' => 'array', 'document' => 'array', 'array' => 'array'];
+        }
 
         if ($resolver->isDefined('readPreference') && isset($options['readPreference'])) {
             $readPreference = $options['readPreference'];
@@ -99,7 +104,7 @@ class CommandExecutor
 
         /** @var Cursor $cursor */
         $cursor = $manager->executeCommand($databaseName, $command, $readPreference);
-        $cursor->setTypeMap(TypeMapResolver::resolveStatic([]));
+        $cursor->setTypeMap($typeMap);
 
         // Clean OptionsResolver from default readConcern, readPreference and writeConcern.
         // This allows to reuse the same resolver in other commands, that may be called from different

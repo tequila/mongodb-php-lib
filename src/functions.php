@@ -5,6 +5,15 @@ namespace Tequila\MongoDB;
 use MongoDB\BSON\Serializable;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 
+/**
+ * @param $document
+ * @param array $typeMap
+ * @return object
+ */
+function applyTypeMap($document, array $typeMap) {
+    return \MongoDB\BSON\toPHP(\MongoDB\BSON\fromPHP($document), $typeMap);
+}
+
 function ensureValidDocument($document) {
     if ($document instanceof Serializable) {
         // do not validate Serializable instances since call to Serializable::bsonSerialize()

@@ -4,7 +4,6 @@ namespace Tequila\MongoDB;
 
 use MongoDB\Driver\ReadPreference;
 use Tequila\MongoDB\Exception\UnexpectedResultException;
-use Tequila\MongoDB\OptionsResolver\TypeMapResolver;
 use Tequila\MongoDB\Traits\CommandExecutorTrait;
 use Tequila\MongoDB\Traits\ResolveReadWriteOptionsTrait;
 
@@ -81,7 +80,7 @@ class Client
             new SimpleCommand(['listDatabases' => 1]),
             new ReadPreference(ReadPreference::RP_PRIMARY)
         );
-        $cursor->setTypeMap(TypeMapResolver::resolveStatic([]));
+        $cursor->setTypeMap(['root' => 'array', 'document' => 'array', 'array' => 'array']);
         $result = $cursor->current();
 
         if (!isset($result['databases']) || !is_array($result['databases'])) {

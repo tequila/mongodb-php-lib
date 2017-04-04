@@ -4,18 +4,18 @@ namespace Tequila\MongoDB;
 
 use MongoDB\BSON\Unserializable;
 use MongoDB\Driver\Exception\RuntimeException as MongoDBRuntimeException;
+use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
 use MongoDB\Driver\WriteConcern;
 use Tequila\MongoDB\OptionsResolver\BulkWrite\UpdateDocumentResolver;
+use Tequila\MongoDB\OptionsResolver\CollectionOptionsResolver;
 use Tequila\MongoDB\OptionsResolver\Command\FindOneAndDeleteResolver;
 use Tequila\MongoDB\OptionsResolver\Command\FindOneAndUpdateResolver;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\Exception\UnexpectedResultException;
 use Tequila\MongoDB\OptionsResolver\QueryOptionsResolver;
-use Tequila\MongoDB\OptionsResolver\TypeMapResolver;
 use Tequila\MongoDB\Traits\CommandExecutorTrait;
 use Tequila\MongoDB\Traits\ExecuteCommandTrait;
-use Tequila\MongoDB\Traits\ResolveReadWriteOptionsTrait;
 use Tequila\MongoDB\Write\Model\DeleteMany;
 use Tequila\MongoDB\Write\Model\DeleteOne;
 use Tequila\MongoDB\Write\Model\InsertMany;
@@ -32,7 +32,6 @@ class Collection
 {
     use CommandExecutorTrait;
     use ExecuteCommandTrait;
-    use ResolveReadWriteOptionsTrait;
 
     /**
      * @var Manager
@@ -48,6 +47,26 @@ class Collection
      * @var string
      */
     private $collectionName;
+
+    /**
+     * @var ReadConcern
+     */
+    private $readConcern;
+
+    /**
+     * @var ReadPreference
+     */
+    private $readPreference;
+
+    /**
+     * @var WriteConcern
+     */
+    private $writeConcern;
+
+    /**
+     * @var array
+     */
+    private $typeMap;
 
     /**
      * @param Manager $manager
@@ -69,12 +88,7 @@ class Collection
         $this->databaseName = $databaseName;
         $this->collectionName = $collectionName;
 
-        $options += [
-            'readConcern' => $this->manager->getReadConcern(),
-            'readPreference' => $this->manager->getReadPreference(),
-            'writeConcern' => $this->manager->getWriteConcern(),
-        ];
-        $this->resolveReadWriteOptions($options);
+        $this->resolveOptions($options);
     }
 
     /**
@@ -233,6 +247,7 @@ class Collection
         if ($filter) {
             $command['query'] = (object)$filter;
         }
+        $options += ['typeMap' => $this->typeMap];
 
         $cursor = $this->executeCommand(
             $command,
@@ -313,7 +328,10 @@ class Collection
      */
     public function find(array $filter = [], array $options = [])
     {
+        $options += ['typeMap' => $this->typeMap];
         $options = QueryOptionsResolver::resolveStatic($options);
+        $typeMap = $options['typeMap'];
+        unset($options['typeMap']);
 
         if (isset($options['readPreference'])) {
             $readPreference = $options['readPreference'];
@@ -331,7 +349,7 @@ class Collection
             $readPreference
         );
 
-        $cursor->setTypeMap(TypeMapResolver::resolveStatic([]));
+        $cursor->setTypeMap($typeMap);
 
         return $cursor;
     }
@@ -466,7 +484,7 @@ class Collection
             $command,
             new ReadPreference(ReadPreference::RP_PRIMARY)
         );
-        $cursor->setTypeMap(TypeMapResolver::resolveStatic([]));
+        $cursor->setTypeMap(['root' => 'array', 'document' => 'array', 'array' => 'array']);
 
         return iterator_to_array($cursor);
     }
@@ -535,7 +553,7 @@ class Collection
     /**
      * @param array $filter
      * @param array $options
-     * @return array|Unserializable|null
+     * @return array|Unserializable|object|null
      */
     private function findAndModify(array $filter, array $options)
     {
@@ -543,6 +561,13 @@ class Collection
             'findAndModify' => $this->collectionName,
             'query' => (object)$filter,
         ];
+
+        if (isset($options['typeMap'])) {
+            $typeMap = $options['typeMap'];
+            unset($options['typeMap']);
+        } else {
+            $typeMap = $this->typeMap;
+        }
 
         $cursor = $this->executeCommand($command, $options);
         $result = $cursor->current();
@@ -553,6 +578,25 @@ class Collection
             );
         }
 
-        return $result['value'];
+        $result = $result['value'];
+
+        return \Tequila\MongoDB\applyTypeMap($result, $typeMap);
+    }
+
+    private function resolveOptions(array $options)
+    {
+        $options += [
+            'readConcern' => $this->manager->getReadConcern(),
+            'readPreference' => $this->manager->getReadPreference(),
+            'writeConcern' => $this->manager->getWriteConcern(),
+            'typeMap' => ['root' => null, 'document' => null, 'array' => null],
+        ];
+
+        $options = CollectionOptionsResolver::resolveStatic($options);
+
+        $this->readConcern = $options['readConcern'];
+        $this->readPreference = $options['readPreference'];
+        $this->writeConcern = $options['writeConcern'];
+        $this->typeMap = $options['typeMap'];
     }
 }

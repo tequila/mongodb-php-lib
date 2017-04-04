@@ -657,7 +657,12 @@ class CollectionTest extends TestCase
     {
         $manager = new Manager();
 
-        return new Collection($manager, self::getDatabaseName(), self::getCollectionName());
+        return new Collection(
+            $manager,
+            self::getDatabaseName(),
+            self::getCollectionName(),
+            ['typeMap' => ['root' => 'array', 'document' => 'array', 'array' => 'array']]
+        );
     }
 
     private function listIndexes()
