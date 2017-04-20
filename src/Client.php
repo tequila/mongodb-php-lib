@@ -2,15 +2,15 @@
 
 namespace Tequila\MongoDB;
 
+use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
+use MongoDB\Driver\WriteConcern;
 use Tequila\MongoDB\Exception\UnexpectedResultException;
 use Tequila\MongoDB\Traits\CommandExecutorTrait;
-use Tequila\MongoDB\Traits\ResolveReadWriteOptionsTrait;
 
 class Client
 {
     use CommandExecutorTrait;
-    use ResolveReadWriteOptionsTrait;
 
     /**
      * @var Manager
@@ -18,13 +18,31 @@ class Client
     private $manager;
 
     /**
-     * @param Manager $manager
-     * @param array $options
+     * @var ReadConcern
      */
-    public function __construct(Manager $manager, array $options = [])
+    private $readConcern;
+
+    /**
+     * @var ReadPreference
+     */
+    private $readPreference;
+
+    /**
+     * @var WriteConcern
+     */
+    private $writeConcern;
+
+    /**
+     * @param string $uri
+     * @param array $uriOptions
+     * @param array $driverOptions
+     */
+    public function __construct($uri = 'mongodb://127.0.0.1/', array $uriOptions = [], array $driverOptions = [])
     {
-        $this->manager = $manager;
-        $this->resolveReadWriteOptions($options);
+        $this->manager = new Manager($uri, $uriOptions, $driverOptions);
+        $this->readConcern = $this->manager->getReadConcern();
+        $this->readPreference = $this->manager->getReadPreference();
+        $this->writeConcern = $this->manager->getWriteConcern();
     }
 
     /**
@@ -47,27 +65,11 @@ class Client
     }
 
     /**
-     * @return \MongoDB\Driver\ReadConcern
+     * @return Manager
      */
-    public function getReadConcern()
+    public function getManager()
     {
-        return $this->readConcern;
-    }
-
-    /**
-     * @return ReadPreference
-     */
-    public function getReadPreference()
-    {
-        return $this->readPreference;
-    }
-
-    /**
-     * @return \MongoDB\Driver\WriteConcern
-     */
-    public function getWriteConcern()
-    {
-        return $this->writeConcern;
+        return $this->manager;
     }
 
     /**
@@ -100,12 +102,6 @@ class Client
      */
     public function selectCollection($databaseName, $collectionName, array $options = [])
     {
-        $options += [
-            'readConcern' => $this->readConcern,
-            'readPreference' => $this->readPreference,
-            'writeConcern' => $this->writeConcern,
-        ];
-
         return new Collection($this->manager, $databaseName, $collectionName, $options);
     }
 
@@ -116,12 +112,6 @@ class Client
      */
     public function selectDatabase($databaseName, array $options = [])
     {
-        $options += [
-            'readConcern' => $this->readConcern,
-            'readPreference' => $this->readPreference,
-            'writeConcern' => $this->writeConcern,
-        ];
-
         return new Database($this->manager, $databaseName, $options);
     }
 }

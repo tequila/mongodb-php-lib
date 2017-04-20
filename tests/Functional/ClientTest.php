@@ -5,7 +5,6 @@ namespace Tequila\MongoDB\Tests\Functional;
 use Tequila\MongoDB\Client;
 use Tequila\MongoDB\Collection;
 use Tequila\MongoDB\Database;
-use Tequila\MongoDB\Manager;
 use Tequila\MongoDB\Tests\Traits\ListDatabaseNamesTrait;
 
 class ClientTest extends TestCase
@@ -66,8 +65,6 @@ class ClientTest extends TestCase
 
     private function getClient()
     {
-        $manager = new Manager();
-
-        return new Client($manager);
+        return new Client();
     }
 }

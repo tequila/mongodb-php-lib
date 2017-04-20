@@ -3,17 +3,17 @@
 namespace Tequila\MongoDB;
 
 use MongoDB\Driver\Exception\RuntimeException as MongoDBRuntimeException;
+use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
+use MongoDB\Driver\WriteConcern;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\Traits\CommandExecutorTrait;
 use Tequila\MongoDB\Traits\ExecuteCommandTrait;
-use Tequila\MongoDB\Traits\ResolveReadWriteOptionsTrait;
 
 class Database
 {
     use CommandExecutorTrait;
     use ExecuteCommandTrait;
-    use ResolveReadWriteOptionsTrait;
 
     /**
      * @var string
@@ -26,6 +26,21 @@ class Database
     private $manager;
 
     /**
+     * @var ReadConcern
+     */
+    private $readConcern;
+
+    /**
+     * @var ReadPreference
+     */
+    private $readPreference;
+
+    /**
+     * @var WriteConcern
+     */
+    private $writeConcern;
+
+    /**
      * @param Manager $manager
      * @param string $databaseName
      * @param array $options
@@ -36,9 +51,35 @@ class Database
             throw new InvalidArgumentException('$databaseName cannot be empty.');
         }
 
+        $options += [
+            'readConcern' => $manager->getReadConcern(),
+            'readPreference' => $manager->getReadPreference(),
+            'writeConcern' => $manager->getWriteConcern(),
+        ];
+
+        $validTypes = [
+            'readConcern' => ReadConcern::class,
+            'readPreference' => ReadPreference::class,
+            'writeConcern' => WriteConcern::class,
+        ];
+
+        foreach ($validTypes as $optionName => $validType) {
+            if (!$options[$optionName] instanceof $validType) {
+                throw new InvalidArgumentException(
+                    'Option "%s" is expected to be an instance of %s, %s given.',
+                    $optionName,
+                    $validType,
+                    getType($options[$optionName])
+                );
+            }
+        }
+
+        $this->readConcern = $options['readConcern'];
+        $this->readPreference = $options['readPreference'];
+        $this->writeConcern = $options['writeConcern'];
+
         $this->manager = $manager;
         $this->databaseName = $databaseName;
-        $this->resolveReadWriteOptions($options);
     }
 
     /**
