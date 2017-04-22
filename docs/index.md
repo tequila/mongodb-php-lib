@@ -40,8 +40,7 @@ Using this driver:
 ```php
 <?php
 
-$manager = new \Tequila\MongoDB\Manager('mongodb://127.0.0.1/');
-$client = new \Tequila\MongoDB\Client($manager);
+$client = new \Tequila\MongoDB\Client('mongodb://127.0.0.1/');
 $collection = $client->selectCollection('test', 'test');
 $collection->insertOne(['foo' => 'bar']);
 ```
