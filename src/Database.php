@@ -172,7 +172,7 @@ class Database
             );
         }
 
-        if (!$command instanceof $command) {
+        if (!$command instanceof \MongoDB\Driver\Command) {
             $command = new \MongoDB\Driver\Command($command);
         }
         $server = $this->manager->selectServer($readPreference);
