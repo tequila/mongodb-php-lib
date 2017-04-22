@@ -247,21 +247,18 @@ class Collection
         if ($filter) {
             $command['query'] = (object)$filter;
         }
-        $options += ['typeMap' => $this->typeMap];
+        $options['typeMap'] = [];
 
-        $cursor = $this->executeCommand(
-            $command,
-            $options
-        );
+        $cursor = $this->executeCommand($command, $options);
 
         $result = $cursor->current();
-        if (!isset($result['values'])) {
+        if (!isset($result->values)) {
             throw new UnexpectedResultException(
                 'Command "distinct" did not return expected "values" array.'
             );
         }
 
-        return $result['values'];
+        return $result->values;
     }
 
     /**
@@ -562,12 +559,9 @@ class Collection
             'query' => (object)$filter,
         ];
 
-        if (isset($options['typeMap'])) {
-            $typeMap = $options['typeMap'];
-            unset($options['typeMap']);
-        } else {
-            $typeMap = $this->typeMap;
-        }
+        $options += ['typeMap' => $this->typeMap];
+        $typeMap = $options['typeMap'];
+        unset($options['typeMap']);
 
         $cursor = $this->executeCommand($command, $options);
         $result = $cursor->current();
@@ -589,7 +583,7 @@ class Collection
             'readConcern' => $this->manager->getReadConcern(),
             'readPreference' => $this->manager->getReadPreference(),
             'writeConcern' => $this->manager->getWriteConcern(),
-            'typeMap' => ['root' => null, 'document' => null, 'array' => null],
+            'typeMap' => [],
         ];
 
         $options = CollectionOptionsResolver::resolveStatic($options);
