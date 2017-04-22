@@ -143,15 +143,42 @@ class Database
     }
 
     /**
-     * @param CommandInterface $command
-     * @param ReadPreference|null $readPreference
-     * @return Cursor
+     * @param array|object $command
+     * @param array $options
+     * @return CommandCursor
      */
-    public function runCommand(CommandInterface $command, ReadPreference $readPreference = null)
+    public function runCommand($command, array $options = [])
     {
-        $readPreference = $readPreference ?: $this->readPreference;
+        if (!is_array($command) && !is_object($command)) {
+            throw new InvalidArgumentException(
+                sprintf(
+                    '$command must be an array or an object, %s given.',
+                    \Tequila\MongoDB\getType($command)
+                )
+            );
+        }
 
-        return $this->manager->executeCommand($this->databaseName, $command, $readPreference);
+        $readPreference = isset($options['readPreference'])
+            ? $options['readPreference']
+            : $this->readPreference;
+
+        if (!$readPreference instanceof ReadPreference) {
+            throw new InvalidArgumentException(
+                sprintf(
+                    'Option "readPreference" is expected to be an instance of %s, %s given.',
+                    ReadPreference::class,
+                    \Tequila\MongoDB\getType($readPreference)
+                )
+            );
+        }
+
+        if (!$command instanceof $command) {
+            $command = new \MongoDB\Driver\Command($command);
+        }
+        $server = $this->manager->selectServer($readPreference);
+        $cursor = $server->executeCommand($this->databaseName, $command);
+
+        return new CommandCursor($cursor);
     }
 
     /**
