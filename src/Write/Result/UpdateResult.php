@@ -5,6 +5,7 @@ namespace Tequila\MongoDB\Write\Result;
 class UpdateResult
 {
     use WriteResultDecoratorTrait;
+
     /**
      * @return int
      */
@@ -34,10 +35,8 @@ class UpdateResult
      */
     public function getUpsertedId()
     {
-        foreach ($this->writeResult->getUpsertedIds() as $id) {
-            return $id;
-        }
+        $upsertedIds = $this->writeResult->getUpsertedIds();
 
-        return null;
+        return array_shift($upsertedIds);
     }
 }
