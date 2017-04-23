@@ -321,7 +321,7 @@ class Collection
     /**
      * @param array $filter
      * @param array $options
-     * @return Cursor
+     * @return QueryCursor
      */
     public function find(array $filter = [], array $options = [])
     {
