@@ -46,6 +46,14 @@ class Client
     }
 
     /**
+     * @param QueryListenerInterface $listener
+     */
+    public function addQueryListener(QueryListenerInterface $listener)
+    {
+        $this->manager->addQueryListener($listener);
+    }
+
+    /**
      * @param string $databaseName
      * @param array $options
      * @return array
