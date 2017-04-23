@@ -79,6 +79,6 @@ class DatabaseTest extends TestCase
     {
         $manager = new Manager();
 
-        return new Database($manager, $this->getDatabaseName());
+        return new Database($manager, static::getDatabaseName());
     }
 }

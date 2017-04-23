@@ -79,7 +79,7 @@ trait InvalidValuesTrait
             ['array' => 'foo'],
             ['root' => 'bar'],
             ['document' => 'baz'],
-            ['root' => 'My\ClassThatDoesNotExists']
+            ['root' => 'My\ClassThatDoesNotExists'],
         ];
     }
 }

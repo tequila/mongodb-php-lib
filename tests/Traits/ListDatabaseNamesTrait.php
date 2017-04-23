@@ -12,7 +12,7 @@ trait ListDatabaseNamesTrait
         // List databases and check that database does not exists
         $listDatabasesCommand = new Command(['listDatabases' => 1]);
         $readPreference = new ReadPreference(ReadPreference::RP_PRIMARY);
-        $cursor = $this->getManager()->executeCommand('admin', $listDatabasesCommand, $readPreference);
+        $cursor = static::getManager()->executeCommand('admin', $listDatabasesCommand, $readPreference);
         $result = current($cursor->toArray());
 
         return array_column($result->databases, 'name');

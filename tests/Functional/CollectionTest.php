@@ -5,10 +5,10 @@ namespace Tequila\MongoDB\Tests\Functional;
 use MongoDB\BSON\ObjectID;
 use MongoDB\Driver\BulkWrite;
 use MongoDB\Driver\Command;
+use MongoDB\Driver\Exception\RuntimeException as MongoDBRuntimeException;
 use MongoDB\Driver\Query;
 use MongoDB\Driver\ReadPreference;
 use MongoDB\Driver\Server;
-use MongoDB\Driver\Exception\RuntimeException as MongoDBRuntimeException;
 use Tequila\MongoDB\Collection;
 use Tequila\MongoDB\Index;
 use Tequila\MongoDB\Manager;
@@ -41,7 +41,7 @@ class CollectionTest extends TestCase
             ['integerField' => 10],
             ['integerField' => 20],
             ['integerField' => 30],
-            ['integerField' => 40]
+            ['integerField' => 40],
         ]);
 
         $pipeline = [
@@ -50,7 +50,7 @@ class CollectionTest extends TestCase
                     '_id' => null,
                     'sum' => ['$sum' => '$integerField'],
                 ],
-            ]
+            ],
         ];
 
         $cursor = $this->getCollection()->aggregate($pipeline);
@@ -81,7 +81,7 @@ class CollectionTest extends TestCase
 
         $result = $this->getCollection()->bulkWrite($requests, ['ordered' => true]);
         $this->assertInstanceOf(WriteResult::class, $result);
-        $this->assertSame(true, $result->isAcknowledged());
+        $this->assertTrue($result->isAcknowledged());
         $expectedInsertedIdsIndexes = [0, 2, 5, 6, 7, 8];
         $actualInsertedIdsIndexes = array_keys($result->getInsertedIds());
         $this->assertSame($expectedInsertedIdsIndexes, $actualInsertedIdsIndexes);
@@ -126,7 +126,7 @@ class CollectionTest extends TestCase
             ['spam' => true],
             ['willBeCounted' => true],
             ['willBeCounted' => 'yes'],
-            ['willBeCounted' => 'whatever']
+            ['willBeCounted' => 'whatever'],
         ]);
 
         $totalCount = $this->getCollection()->count();
@@ -292,7 +292,7 @@ class CollectionTest extends TestCase
 
         $this->getCollection()->drop();
 
-        $this->assertNotContains($this->getCollectionName(), $this->listCollectionNames());
+        $this->assertNotContains(static::getCollectionName(), $this->listCollectionNames());
     }
 
     /**
@@ -512,7 +512,7 @@ class CollectionTest extends TestCase
      */
     public function testGetCollectionName()
     {
-        $this->assertSame($this->getCollectionName(), $this->getCollection()->getCollectionName());
+        $this->assertSame(static::getCollectionName(), $this->getCollection()->getCollectionName());
     }
 
     /**
@@ -520,7 +520,7 @@ class CollectionTest extends TestCase
      */
     public function testGetDatabaseName()
     {
-        $this->assertSame($this->getDatabaseName(), $this->getCollection()->getDatabaseName());
+        $this->assertSame(static::getDatabaseName(), $this->getCollection()->getDatabaseName());
     }
 
     /**
@@ -528,7 +528,7 @@ class CollectionTest extends TestCase
      */
     public function testGetNamespace()
     {
-        $this->assertSame($this->getNamespace(), $this->getCollection()->getNamespace());
+        $this->assertSame(static::getNamespace(), $this->getCollection()->getNamespace());
     }
 
     /**
@@ -569,7 +569,7 @@ class CollectionTest extends TestCase
 
         $documents = $this->findAllDocuments();
         $this->assertCount(1, $documents);
-        $this->assertSame((string)$insertedId, (string)$documents[0]['_id']);
+        $this->assertSame((string) $insertedId, (string) $documents[0]['_id']);
         $this->assertSame('bar', $documents[0]['foo']);
     }
 
@@ -667,9 +667,9 @@ class CollectionTest extends TestCase
 
     private function listIndexes()
     {
-        $command = new Command(['listIndexes' => $this->getCollectionName()]);
-        $cursor = $this->getManager()->executeCommand(
-            $this->getDatabaseName(),
+        $command = new Command(['listIndexes' => self::getCollectionName()]);
+        $cursor = static::getManager()->executeCommand(
+            static::getDatabaseName(),
             $command,
             new ReadPreference(ReadPreference::RP_PRIMARY)
         );
@@ -719,8 +719,8 @@ class CollectionTest extends TestCase
         $dropCollectionCommand = new Command(['drop' => self::getCollectionName()]);
         try {
             self::getManager()->executeCommand(self::getDatabaseName(), $dropCollectionCommand, $readPreference);
-        } catch(MongoDBRuntimeException $e) {
-            if('ns not found' !== $e->getMessage()) {
+        } catch (MongoDBRuntimeException $e) {
+            if ('ns not found' !== $e->getMessage()) {
                 throw $e;
             }
         }
