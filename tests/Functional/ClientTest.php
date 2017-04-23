@@ -18,7 +18,7 @@ class ClientTest extends TestCase
     {
         self::ensureNamespaceExists();
 
-        $databaseName = $this->getDatabaseName();
+        $databaseName = static::getDatabaseName();
         $this->getClient()->dropDatabase($databaseName);
 
         $this->assertNotContains($databaseName, $this->listDatabaseNames());

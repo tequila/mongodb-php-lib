@@ -11,7 +11,7 @@ trait ListCollectionNamesTrait
     {
         $readPreference = new ReadPreference(ReadPreference::RP_PRIMARY);
         $listCollectionsCommand = new Command(['listCollections' => 1]);
-        $cursor = $this->getManager()->executeCommand($this->getDatabaseName(), $listCollectionsCommand, $readPreference);
+        $cursor = static::getManager()->executeCommand(static::getDatabaseName(), $listCollectionsCommand, $readPreference);
 
         return array_column($cursor->toArray(), 'name');
     }
