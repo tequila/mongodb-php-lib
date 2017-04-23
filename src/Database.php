@@ -66,10 +66,12 @@ class Database
         foreach ($validTypes as $optionName => $validType) {
             if (!$options[$optionName] instanceof $validType) {
                 throw new InvalidArgumentException(
-                    'Option "%s" is expected to be an instance of %s, %s given.',
-                    $optionName,
-                    $validType,
-                    getType($options[$optionName])
+                    sprintf(
+                        'Option "%s" is expected to be an instance of %s, %s given.',
+                        $optionName,
+                        $validType,
+                        getType($options[$optionName])
+                    )
                 );
             }
         }
