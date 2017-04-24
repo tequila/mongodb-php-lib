@@ -15,15 +15,17 @@ class InsertOneResult
      */
     public function getInsertedId()
     {
-        foreach ($this->writeResult->getInsertedIds() as $id) {
-            return $id;
+        $insertedIds = $this->writeResult->getInsertedIds();
+
+        if (0 === count($insertedIds)) {
+            throw new UnexpectedResultException(
+                sprintf(
+                    '%s::getInsertedIds() returned empty array, though there was an insert operation.',
+                    WriteResult::class
+                )
+            );
         }
 
-        throw new UnexpectedResultException(
-            sprintf(
-                '%s::getInsertedIds() returned empty array, though there was an insert operation.',
-                WriteResult::class
-            )
-        );
+        return reset($insertedIds);
     }
 }
