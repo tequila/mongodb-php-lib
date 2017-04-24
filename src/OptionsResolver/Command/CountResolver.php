@@ -25,9 +25,9 @@ class CountResolver extends OptionsResolver
             ->setAllowedTypes('skip', 'integer')
             ->setAllowedTypes('hint', ['string', 'array', 'object']);
 
-        $this->setNormalizer('hint', function($value) {
+        $this->setNormalizer('hint', function ($value) {
             if (is_array($value) || is_object($value)) {
-                $value = Index::generateIndexName((array)$value);
+                $value = Index::generateIndexName((array) $value);
             }
 
             return $value;

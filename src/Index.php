@@ -37,6 +37,9 @@ class Index
         $this->options = $options;
     }
 
+    /**
+     * @return string
+     */
     public function __toString()
     {
         return $this->getName();
@@ -83,7 +86,7 @@ class Index
         $nameParts = [];
         foreach ($key as $fieldName => $direction) {
             $nameParts[] = $fieldName;
-            $nameParts[] = (string)$direction;
+            $nameParts[] = (string) $direction;
         }
 
         return implode('_', $nameParts);

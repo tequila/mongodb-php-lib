@@ -10,11 +10,13 @@ use Tequila\MongoDB\Exception\InvalidArgumentException;
  * @param array $typeMap
  * @return object
  */
-function applyTypeMap($document, array $typeMap) {
+function applyTypeMap($document, array $typeMap)
+{
     return \MongoDB\BSON\toPHP(\MongoDB\BSON\fromPHP($document), $typeMap);
 }
 
-function ensureValidDocument($document) {
+function ensureValidDocument($document)
+{
     if ($document instanceof Serializable) {
         // do not validate Serializable instances since call to Serializable::bsonSerialize()
         // will increase a memory usage by creating array|object copy of the document
@@ -35,7 +37,8 @@ function ensureValidDocument($document) {
     }
 }
 
-function getType($value) {
+function getType($value)
+{
     return is_object($value) ? get_class($value) : \gettype($value);
 }
 
@@ -43,6 +46,7 @@ function getType($value) {
  * @param string $value - a value to check
  * @return bool
  */
-function isValidObjectId($value) {
-    return 24 === strspn((string)$value,'0123456789ABCDEFabcdef');
+function isValidObjectId($value)
+{
+    return 24 === strspn((string) $value, '0123456789ABCDEFabcdef');
 }

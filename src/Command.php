@@ -25,7 +25,7 @@ class Command implements CommandInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getOptions(Server $server)
     {

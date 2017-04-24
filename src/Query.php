@@ -41,7 +41,7 @@ class Query implements QueryInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getOptions(Server $server)
     {

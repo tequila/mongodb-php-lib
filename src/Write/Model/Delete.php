@@ -29,12 +29,10 @@ class Delete implements WriteModelInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function writeToBulk(BulkWrite $bulk)
     {
         $bulk->delete($this->filter, $this->options);
     }
-
-
 }

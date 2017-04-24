@@ -16,7 +16,7 @@ use Tequila\MongoDB\OptionsResolver\OptionsResolver;
 class AggregateResolver extends OptionsResolver
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function resolve(array $options = [])
     {
@@ -65,7 +65,7 @@ class AggregateResolver extends OptionsResolver
                 unset($options['batchSize']);
             }
 
-            $options['cursor'] = (object)$options['cursor'];
+            $options['cursor'] = (object) $options['cursor'];
         } else {
             if (isset($options['batchSize'])) {
                 throw new InvalidArgumentException(
@@ -116,7 +116,7 @@ class AggregateResolver extends OptionsResolver
             return false;
         }
 
-        $pipeline = (array)$options['pipeline'];
+        $pipeline = (array) $options['pipeline'];
         $lastStage = end($pipeline);
 
         return '$out' === key($lastStage);

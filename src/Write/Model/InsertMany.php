@@ -6,7 +6,6 @@ use Tequila\MongoDB\BulkWrite;
 use Tequila\MongoDB\Exception\InvalidArgumentException;
 use Tequila\MongoDB\WriteModelInterface;
 use function Tequila\MongoDB\ensureValidDocument;
-use function Tequila\MongoDB\getType;
 
 class InsertMany implements WriteModelInterface
 {
@@ -25,7 +24,7 @@ class InsertMany implements WriteModelInterface
                 throw new InvalidArgumentException(
                     sprintf(
                         'Each document must be an array or an object, %s given in $documents[%s].',
-                        getType($document),
+                        \Tequila\MongoDB\getType($document),
                         $position
                     )
                 );
@@ -33,7 +32,7 @@ class InsertMany implements WriteModelInterface
 
             try {
                 ensureValidDocument($document);
-            } catch(InvalidArgumentException $e) {
+            } catch (InvalidArgumentException $e) {
                 throw new InvalidArgumentException(
                     sprintf(
                         'Invalid document at $documents[%s]: %s',
@@ -48,7 +47,7 @@ class InsertMany implements WriteModelInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function writeToBulk(BulkWrite $bulk)
     {

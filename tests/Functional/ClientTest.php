@@ -12,7 +12,7 @@ class ClientTest extends TestCase
     use ListDatabaseNamesTrait;
 
     /**
-     * @covers Client::dropDatabase()
+     * @covers \Tequila\MongoDB\Client::dropDatabase()
      */
     public function testDropDatabase()
     {
@@ -25,7 +25,7 @@ class ClientTest extends TestCase
     }
 
     /**
-     * @covers Client::listDatabases()
+     * @covers \Tequila\MongoDB\Client::listDatabases()
      */
     public function testListDatabases()
     {
@@ -41,7 +41,7 @@ class ClientTest extends TestCase
     }
 
     /**
-     * @covers Client::selectCollection()
+     * @covers \Tequila\MongoDB\Client::selectCollection()
      */
     public function testSelectCollection()
     {
@@ -53,7 +53,7 @@ class ClientTest extends TestCase
     }
 
     /**
-     * @covers Client::selectDatabase()
+     * @covers \Tequila\MongoDB\Client::selectDatabase()
      */
     public function testSelectDatabase()
     {

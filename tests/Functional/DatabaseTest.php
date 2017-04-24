@@ -14,7 +14,7 @@ class DatabaseTest extends TestCase
     use ListDatabaseNamesTrait;
 
     /**
-     * @covers Database::createCollection()
+     * @covers \Tequila\MongoDB\Database::createCollection()
      */
     public function testCreateCollection()
     {
@@ -26,7 +26,7 @@ class DatabaseTest extends TestCase
     }
 
     /**
-     * @covers Database::drop()
+     * @covers \Tequila\MongoDB\Database::drop()
      */
     public function testDrop()
     {
@@ -38,7 +38,7 @@ class DatabaseTest extends TestCase
     }
 
     /**
-     * @covers Database::dropCollection()
+     * @covers \Tequila\MongoDB\Database::dropCollection()
      */
     public function testDropCollection()
     {
@@ -50,7 +50,7 @@ class DatabaseTest extends TestCase
     }
 
     /**
-     * @covers Database::listCollections()
+     * @covers \Tequila\MongoDB\Database::listCollections()
      */
     public function testListCollections()
     {
@@ -65,7 +65,7 @@ class DatabaseTest extends TestCase
     }
 
     /**
-     * @covers Client::selectCollection()
+     * @covers \Tequila\MongoDB\Client::selectCollection()
      */
     public function testSelectCollection()
     {
