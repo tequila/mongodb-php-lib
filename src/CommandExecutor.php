@@ -66,7 +66,7 @@ class CommandExecutor
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function executeCommand(Manager $manager, $databaseName, array $command, array $options)
     {

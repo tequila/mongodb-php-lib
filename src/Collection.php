@@ -121,7 +121,7 @@ class Collection
                     sprintf(
                         'Option "writeConcern" is expected to be "%s", "%s" given.',
                         WriteConcern::class,
-                        getType($options['writeConcern'])
+                        \Tequila\MongoDB\getType($options['writeConcern'])
                     )
                 );
             }
@@ -145,7 +145,7 @@ class Collection
     public function count(array $filter = [], array $options = [])
     {
         $cursor = $this->executeCommand(
-            ['count' => $this->collectionName, 'query' => (object)$filter],
+            ['count' => $this->collectionName, 'query' => (object) $filter],
             $options
         );
 
@@ -154,7 +154,7 @@ class Collection
             throw new UnexpectedResultException('Command "count" did not return expected "n" field.');
         }
 
-        return (int)$result['n'];
+        return (int) $result['n'];
     }
 
     /**
@@ -194,7 +194,7 @@ class Collection
             $options
         );
 
-        return array_map(function(Index $index) {
+        return array_map(function (Index $index) {
             return $index->getName();
         }, $indexes);
     }
@@ -245,7 +245,7 @@ class Collection
 
         $command = ['distinct' => $this->collectionName, 'key' => $fieldName];
         if ($filter) {
-            $command['query'] = (object)$filter;
+            $command['query'] = (object) $filter;
         }
         $options['typeMap'] = [];
 
@@ -269,8 +269,8 @@ class Collection
     {
         try {
             $cursor = $this->executeCommand(['drop' => $this->collectionName], $options);
-        } catch(MongoDBRuntimeException $e) {
-            if('ns not found' === $e->getMessage()) {
+        } catch (MongoDBRuntimeException $e) {
+            if ('ns not found' === $e->getMessage()) {
                 return ['ok' => 0, 'errmsg' => $e->getMessage()];
             }
 
@@ -387,20 +387,20 @@ class Collection
             throw new InvalidArgumentException(
                 sprintf(
                     '$replacement must be an array or an object, "%s" given.',
-                    getType($replacement)
+                    \Tequila\MongoDB\getType($replacement)
                 )
             );
         }
 
         try {
             ensureValidDocument($replacement);
-        } catch(InvalidArgumentException $e) {
+        } catch (InvalidArgumentException $e) {
             throw new InvalidArgumentException(
                 sprintf('Invalid $replacement document: %s', $e->getMessage())
             );
         }
 
-        $options = ['update' => (object)$replacement] + FindOneAndUpdateResolver::resolveStatic($options);
+        $options = ['update' => (object) $replacement] + FindOneAndUpdateResolver::resolveStatic($options);
 
         return $this->findAndModify($filter, $options);
     }
@@ -415,7 +415,7 @@ class Collection
     {
         UpdateDocumentResolver::resolveStatic($update);
 
-        $options = ['update' => (object)$update] + FindOneAndUpdateResolver::resolveStatic($options);
+        $options = ['update' => (object) $update] + FindOneAndUpdateResolver::resolveStatic($options);
 
         return $this->findAndModify($filter, $options);
     }
@@ -556,7 +556,7 @@ class Collection
     {
         $command = [
             'findAndModify' => $this->collectionName,
-            'query' => (object)$filter,
+            'query' => (object) $filter,
         ];
 
         $options += ['typeMap' => $this->typeMap];
@@ -577,6 +577,9 @@ class Collection
         return \Tequila\MongoDB\applyTypeMap($result, $typeMap);
     }
 
+    /**
+     * @param array $options
+     */
     private function resolveOptions(array $options)
     {
         $options += [

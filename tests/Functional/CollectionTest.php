@@ -32,7 +32,7 @@ class CollectionTest extends TestCase
     }
 
     /**
-     * @covers Collection::aggregate()
+     * @covers \Tequila\MongoDB\Collection::aggregate()
      */
     public function testAggregate()
     {
@@ -61,7 +61,7 @@ class CollectionTest extends TestCase
     }
 
     /**
-     * @covers Collection::bulkWrite()
+     * @covers \Tequila\MongoDB\Collection::bulkWrite()
      */
     public function testBulkWrite()
     {
@@ -116,7 +116,7 @@ class CollectionTest extends TestCase
     }
 
     /**
-     * @covers Collection::count()
+     * @covers \Tequila\MongoDB\Collection::count()
      */
     public function testCount()
     {
@@ -137,7 +137,7 @@ class CollectionTest extends TestCase
     }
 
     /**
-     * @covers Collection::createIndex()
+     * @covers \Tequila\MongoDB\Collection::createIndex()
      */
     public function testCreateIndex()
     {
@@ -163,7 +163,7 @@ class CollectionTest extends TestCase
     }
 
     /**
-     * @covers Collection::createIndexes()
+     * @covers \Tequila\MongoDB\Collection::createIndexes()
      */
     public function testCreateIndexes()
     {
@@ -208,7 +208,7 @@ class CollectionTest extends TestCase
     }
 
     /**
-     * @covers Collection::deleteMany()
+     * @covers \Tequila\MongoDB\Collection::deleteMany()
      */
     public function testDeleteMany()
     {
@@ -241,7 +241,7 @@ class CollectionTest extends TestCase
     }
 
     /**
-     * @covers Collection::deleteOne()
+     * @covers \Tequila\MongoDB\Collection::deleteOne()
      */
     public function testDeleteOne()
     {
@@ -265,7 +265,7 @@ class CollectionTest extends TestCase
     }
 
     /**
-     * @covers Collection::distinct()
+     * @covers \Tequila\MongoDB\Collection::distinct()
      */
     public function testDistinct()
     {
@@ -284,7 +284,7 @@ class CollectionTest extends TestCase
     }
 
     /**
-     * @covers Collection::drop()
+     * @covers \Tequila\MongoDB\Collection::drop()
      */
     public function testDrop()
     {
@@ -296,7 +296,7 @@ class CollectionTest extends TestCase
     }
 
     /**
-     * @covers Collection::dropIndexes()
+     * @covers \Tequila\MongoDB\Collection::dropIndexes()
      */
     public function testDropIndexes()
     {
@@ -310,7 +310,7 @@ class CollectionTest extends TestCase
     }
 
     /**
-     * @covers Collection::dropIndex()
+     * @covers \Tequila\MongoDB\Collection::dropIndex()
      */
     public function testDropIndex()
     {
@@ -325,7 +325,7 @@ class CollectionTest extends TestCase
     }
 
     /**
-     * @covers Collection::find()
+     * @covers \Tequila\MongoDB\Collection::find()
      */
     public function testFind()
     {
@@ -349,7 +349,7 @@ class CollectionTest extends TestCase
     }
 
     /**
-     * @covers Collection::findOne()
+     * @covers \Tequila\MongoDB\Collection::findOne()
      */
     public function testFindOne()
     {
@@ -365,7 +365,7 @@ class CollectionTest extends TestCase
     }
 
     /**
-     * @covers Collection::findOne()
+     * @covers \Tequila\MongoDB\Collection::findOne()
      */
     public function testFindOneReturnsNullWhenNoDocumentsMatch()
     {
@@ -381,7 +381,7 @@ class CollectionTest extends TestCase
     }
 
     /**
-     * @covers Collection::findOneAndDelete()
+     * @covers \Tequila\MongoDB\Collection::findOneAndDelete()
      */
     public function testFindOneAndDelete()
     {
@@ -395,7 +395,7 @@ class CollectionTest extends TestCase
     }
 
     /**
-     * @covers Collection::findOneAndReplace()
+     * @covers \Tequila\MongoDB\Collection::findOneAndReplace()
      */
     public function testFindOneAndReplace()
     {
@@ -417,7 +417,7 @@ class CollectionTest extends TestCase
     }
 
     /**
-     * @covers Collection::findOneAndReplace()
+     * @covers \Tequila\MongoDB\Collection::findOneAndReplace()
      */
     public function testFindOneAndReplaceReturnsOldDocumentWhenOptionReturnDocumentBefore()
     {
@@ -433,7 +433,7 @@ class CollectionTest extends TestCase
     }
 
     /**
-     * @covers Collection::findOneAndReplace()
+     * @covers \Tequila\MongoDB\Collection::findOneAndReplace()
      */
     public function testFindOneAndReplaceReturnsNewDocumentWhenOptionReturnDocumentAfter()
     {
@@ -449,7 +449,7 @@ class CollectionTest extends TestCase
     }
 
     /**
-     * @covers Collection::findOneAndUpdate()
+     * @covers \Tequila\MongoDB\Collection::findOneAndUpdate()
      */
     public function testFindOneAndUpdate()
     {
@@ -473,7 +473,7 @@ class CollectionTest extends TestCase
     }
 
     /**
-     * @covers Collection::findOneAndUpdate()
+     * @covers \Tequila\MongoDB\Collection::findOneAndUpdate()
      */
     public function testFindOneAndUpdateReturnsOldDocumentWhenOptionReturnDocumentBefore()
     {
@@ -490,7 +490,7 @@ class CollectionTest extends TestCase
     }
 
     /**
-     * @covers Collection::findOneAndUpdate()
+     * @covers \Tequila\MongoDB\Collection::findOneAndUpdate()
      */
     public function testFindOneAndUpdateReturnsOldDocumentWhenOptionReturnDocumentAfter()
     {
@@ -508,7 +508,7 @@ class CollectionTest extends TestCase
     }
 
     /**
-     * @covers Collection::getCollectionName()
+     * @covers \Tequila\MongoDB\Collection::getCollectionName()
      */
     public function testGetCollectionName()
     {
@@ -516,7 +516,7 @@ class CollectionTest extends TestCase
     }
 
     /**
-     * @covers Collection::getDatabaseName()
+     * @covers \Tequila\MongoDB\Collection::getDatabaseName()
      */
     public function testGetDatabaseName()
     {
@@ -524,7 +524,7 @@ class CollectionTest extends TestCase
     }
 
     /**
-     * @covers Collection::getNamespace()
+     * @covers \Tequila\MongoDB\Collection::getNamespace()
      */
     public function testGetNamespace()
     {
@@ -532,7 +532,7 @@ class CollectionTest extends TestCase
     }
 
     /**
-     * @covers Collection::insertMany()
+     * @covers \Tequila\MongoDB\Collection::insertMany()
      */
     public function testInsertMany()
     {
@@ -556,7 +556,7 @@ class CollectionTest extends TestCase
     }
 
     /**
-     * @covers Collection::insertOne()
+     * @covers \Tequila\MongoDB\Collection::insertOne()
      */
     public function testInsertOne()
     {
@@ -574,7 +574,7 @@ class CollectionTest extends TestCase
     }
 
     /**
-     * @covers Collection::listIndexes()
+     * @covers \Tequila\MongoDB\Collection::listIndexes()
      */
     public function testListIndexes()
     {
@@ -588,7 +588,7 @@ class CollectionTest extends TestCase
     }
 
     /**
-     * @covers Collection::replaceOne()
+     * @covers \Tequila\MongoDB\Collection::replaceOne()
      */
     public function testReplaceOne()
     {
@@ -602,7 +602,7 @@ class CollectionTest extends TestCase
     }
 
     /**
-     * @covers Collection::updateMany()
+     * @covers \Tequila\MongoDB\Collection::updateMany()
      */
     public function testUpdateMany()
     {

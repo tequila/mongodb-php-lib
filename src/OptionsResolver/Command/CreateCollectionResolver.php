@@ -10,7 +10,7 @@ use Tequila\MongoDB\OptionsResolver\OptionsResolver;
 class CreateCollectionResolver extends OptionsResolver
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function resolve(array $options = [])
     {
@@ -37,7 +37,7 @@ class CreateCollectionResolver extends OptionsResolver
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function configureOptions()
     {

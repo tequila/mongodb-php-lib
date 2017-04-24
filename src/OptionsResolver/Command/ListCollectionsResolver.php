@@ -10,7 +10,7 @@ class ListCollectionsResolver extends OptionsResolver
     {
         $options = parent::resolve($options);
         if (isset($options['filter'])) {
-            $options['filter'] = (object)ListCollectionsFilterResolver::resolveStatic($options['filter']);
+            $options['filter'] = (object) ListCollectionsFilterResolver::resolveStatic($options['filter']);
         }
 
         return $options;

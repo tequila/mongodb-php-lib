@@ -70,7 +70,7 @@ class Database
                         'Option "%s" is expected to be an instance of %s, %s given.',
                         $optionName,
                         $validType,
-                        getType($options[$optionName])
+                        \Tequila\MongoDB\getType($options[$optionName])
                     )
                 );
             }
@@ -116,8 +116,8 @@ class Database
     {
         try {
             $cursor = $this->executeCommand(['drop' => $collectionName], $options);
-        } catch(MongoDBRuntimeException $e) {
-            if('ns not found' === $e->getMessage()) {
+        } catch (MongoDBRuntimeException $e) {
+            if ('ns not found' === $e->getMessage()) {
                 return ['ok' => 0, 'errmsg' => $e->getMessage()];
             }
 

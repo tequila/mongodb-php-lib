@@ -28,7 +28,7 @@ class CompatibilityResolver
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function resolveCompatibilities(Server $server, array $options)
     {

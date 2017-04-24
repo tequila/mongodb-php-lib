@@ -13,7 +13,7 @@ trait BulkUpdateTrait
     private $update;
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function writeToBulk(BulkWrite $bulk)
     {

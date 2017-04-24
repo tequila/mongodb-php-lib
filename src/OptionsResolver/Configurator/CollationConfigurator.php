@@ -11,8 +11,8 @@ class CollationConfigurator
         $resolver
             ->setDefined('collation')
             ->setAllowedTypes('collation', ['array', 'object'])
-            ->setNormalizer('collation', function($collation) {
-                return (object)$collation;
+            ->setNormalizer('collation', function ($collation) {
+                return (object) $collation;
             });
     }
 }

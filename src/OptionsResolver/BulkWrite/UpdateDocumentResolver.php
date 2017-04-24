@@ -11,7 +11,7 @@ class UpdateDocumentResolver extends OptionsResolver
     {
         try {
             return parent::resolve($options);
-        } catch(InvalidArgumentException $e) {
+        } catch (InvalidArgumentException $e) {
             throw new InvalidArgumentException(
                 sprintf(
                     'Invalid $update document: %s',

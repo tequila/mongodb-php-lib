@@ -30,7 +30,7 @@ class QueryOptionsResolver extends OptionsResolver
             unset($options['cursorType']);
         }
 
-        $options['modifiers'] = (array)$options['modifiers'];
+        $options['modifiers'] = (array) $options['modifiers'];
         if (empty($options['modifiers'])) {
             unset($options['modifiers']);
         }

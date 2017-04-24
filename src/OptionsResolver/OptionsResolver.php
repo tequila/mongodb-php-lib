@@ -44,7 +44,7 @@ abstract class OptionsResolver extends BaseResolver
             }
 
             /** @var OptionsResolver $resolver */
-            $resolver = new $resolverClass;
+            $resolver = new $resolverClass();
             if (!$resolver instanceof self) {
                 throw new InvalidArgumentException(
                     sprintf(
