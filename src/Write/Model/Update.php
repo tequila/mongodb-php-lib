@@ -24,9 +24,9 @@ class Update implements WriteModelInterface
     private $options;
 
     /**
-     * @param array $filter
+     * @param array        $filter
      * @param array|object $update
-     * @param array $options
+     * @param array        $options
      */
     public function __construct(array $filter, $update, array $options = [])
     {

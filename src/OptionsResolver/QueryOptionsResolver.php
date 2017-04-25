@@ -11,7 +11,7 @@ use Tequila\MongoDB\QueryInterface;
 
 class QueryOptionsResolver extends OptionsResolver
 {
-    public function resolve(array $options = array())
+    public function resolve(array $options = [])
     {
         $options = parent::resolve($options);
 

@@ -27,9 +27,6 @@ class CompatibilityResolver
         $this->optionsResolver = $optionsResolver;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function resolveCompatibilities(Server $server, array $options)
     {
         // if "readConcern" option is inherited from Collection, Database or Client

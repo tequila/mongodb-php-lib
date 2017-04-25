@@ -7,7 +7,7 @@ use Tequila\MongoDB\OptionsResolver\OptionsResolver;
 
 class UpdateDocumentResolver extends OptionsResolver
 {
-    public function resolve(array $options = array())
+    public function resolve(array $options = [])
     {
         try {
             return parent::resolve($options);

@@ -107,6 +107,7 @@ class AggregateResolver extends OptionsResolver
 
     /**
      * @param array $options
+     *
      * @return bool
      */
     private function hasOutStage(array $options)
