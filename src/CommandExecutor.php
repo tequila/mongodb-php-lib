@@ -54,9 +54,9 @@ class CommandExecutor
     private $writeConcern;
 
     /**
-     * @param ReadConcern $readConcern
+     * @param ReadConcern    $readConcern
      * @param ReadPreference $readPreference
-     * @param WriteConcern $writeConcern
+     * @param WriteConcern   $writeConcern
      */
     public function __construct(ReadConcern $readConcern, ReadPreference $readPreference, WriteConcern $writeConcern)
     {
@@ -65,9 +65,6 @@ class CommandExecutor
         $this->writeConcern = $writeConcern;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function executeCommand(Manager $manager, $databaseName, array $command, array $options)
     {
         if (empty($command)) {
@@ -124,6 +121,7 @@ class CommandExecutor
 
     /**
      * @param array $command
+     *
      * @return OptionsResolver
      */
     private function getResolver(array $command)

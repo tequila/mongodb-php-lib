@@ -79,6 +79,7 @@ class Index
 
     /**
      * @param array $key
+     *
      * @return string
      */
     public static function generateIndexName(array $key)

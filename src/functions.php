@@ -8,6 +8,7 @@ use Tequila\MongoDB\Exception\InvalidArgumentException;
 /**
  * @param $document
  * @param array $typeMap
+ *
  * @return object
  */
 function applyTypeMap($document, array $typeMap)
@@ -44,6 +45,7 @@ function getType($value)
 
 /**
  * @param string $value - a value to check
+ *
  * @return bool
  */
 function isValidObjectId($value)

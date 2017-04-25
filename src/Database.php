@@ -42,8 +42,8 @@ class Database
 
     /**
      * @param Manager $manager
-     * @param string $databaseName
-     * @param array $options
+     * @param string  $databaseName
+     * @param array   $options
      */
     public function __construct(Manager $manager, $databaseName, array $options = [])
     {
@@ -86,7 +86,8 @@ class Database
 
     /**
      * @param string $collectionName
-     * @param array $options
+     * @param array  $options
+     *
      * @return array
      */
     public function createCollection($collectionName, array $options = [])
@@ -98,6 +99,7 @@ class Database
 
     /**
      * @param array $options
+     *
      * @return array
      */
     public function drop(array $options = [])
@@ -109,7 +111,8 @@ class Database
 
     /**
      * @param string $collectionName
-     * @param array $options
+     * @param array  $options
+     *
      * @return array
      */
     public function dropCollection($collectionName, array $options = [])
@@ -137,6 +140,7 @@ class Database
 
     /**
      * @param array $options
+     *
      * @return Cursor
      */
     public function listCollections(array $options = [])
@@ -146,7 +150,8 @@ class Database
 
     /**
      * @param array|object $command
-     * @param array $options
+     * @param array        $options
+     *
      * @return CommandCursor
      */
     public function runCommand($command, array $options = [])
@@ -185,7 +190,8 @@ class Database
 
     /**
      * @param string $collectionName
-     * @param array $options
+     * @param array  $options
+     *
      * @return Collection
      */
     public function selectCollection($collectionName, array $options = [])

@@ -34,8 +34,8 @@ class Client
 
     /**
      * @param string $uri
-     * @param array $uriOptions
-     * @param array $driverOptions
+     * @param array  $uriOptions
+     * @param array  $driverOptions
      */
     public function __construct($uri = 'mongodb://127.0.0.1/', array $uriOptions = [], array $driverOptions = [])
     {
@@ -55,7 +55,8 @@ class Client
 
     /**
      * @param string $databaseName
-     * @param array $options
+     * @param array  $options
+     *
      * @return array
      */
     public function dropDatabase($databaseName, array $options = [])
@@ -105,7 +106,8 @@ class Client
     /**
      * @param string $databaseName
      * @param string $collectionName
-     * @param array $options
+     * @param array  $options
+     *
      * @return Collection
      */
     public function selectCollection($databaseName, $collectionName, array $options = [])
@@ -116,6 +118,7 @@ class Client
     /**
      * @param string $databaseName
      * @param $options
+     *
      * @return Database
      */
     public function selectDatabase($databaseName, array $options = [])

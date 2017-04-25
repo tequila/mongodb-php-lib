@@ -9,6 +9,7 @@ trait ExecuteCommandTrait
     /**
      * @param array $command
      * @param array $options
+     *
      * @return Cursor
      */
     private function executeCommand(array $command, array $options)

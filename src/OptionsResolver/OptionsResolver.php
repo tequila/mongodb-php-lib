@@ -28,6 +28,7 @@ abstract class OptionsResolver extends BaseResolver
 
     /**
      * @param string $resolverClass fully-qualified class name of resolver
+     *
      * @return OptionsResolver
      */
     public static function get($resolverClass)
@@ -65,6 +66,7 @@ abstract class OptionsResolver extends BaseResolver
 
     /**
      * @param array $options
+     *
      * @return array
      */
     public static function resolveStatic(array $options)

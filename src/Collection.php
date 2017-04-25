@@ -70,9 +70,9 @@ class Collection
 
     /**
      * @param Manager $manager
-     * @param string $databaseName
-     * @param string $collectionName
-     * @param array $options
+     * @param string  $databaseName
+     * @param string  $collectionName
+     * @param array   $options
      */
     public function __construct(Manager $manager, $databaseName, $collectionName, array $options = [])
     {
@@ -94,6 +94,7 @@ class Collection
     /**
      * @param array $pipeline
      * @param array $options
+     *
      * @return Cursor
      */
     public function aggregate(array $pipeline, array $options = [])
@@ -110,7 +111,8 @@ class Collection
 
     /**
      * @param WriteModelInterface[]|\Traversable $requests
-     * @param array $options
+     * @param array                              $options
+     *
      * @return WriteResult
      */
     public function bulkWrite($requests, array $options = [])
@@ -140,6 +142,7 @@ class Collection
     /**
      * @param array $filter
      * @param array $options
+     *
      * @return int
      */
     public function count(array $filter = [], array $options = [])
@@ -160,6 +163,7 @@ class Collection
     /**
      * @param array $key
      * @param array $options
+     *
      * @return string
      */
     public function createIndex(array $key, array $options = [])
@@ -176,7 +180,8 @@ class Collection
 
     /**
      * @param Index[] $indexes
-     * @param array $options
+     * @param array   $options
+     *
      * @return \string[]
      */
     public function createIndexes(array $indexes, array $options = [])
@@ -202,6 +207,7 @@ class Collection
     /**
      * @param array $filter
      * @param array $options
+     *
      * @return DeleteResult
      */
     public function deleteMany(array $filter, array $options = [])
@@ -216,6 +222,7 @@ class Collection
     /**
      * @param array $filter
      * @param array $options
+     *
      * @return DeleteResult
      */
     public function deleteOne(array $filter, array $options = [])
@@ -229,8 +236,9 @@ class Collection
 
     /**
      * @param string $fieldName
-     * @param array $filter
-     * @param array $options
+     * @param array  $filter
+     * @param array  $options
+     *
      * @return array
      */
     public function distinct($fieldName, array $filter = [], array $options = [])
@@ -263,6 +271,7 @@ class Collection
 
     /**
      * @param array $options
+     *
      * @return array
      */
     public function drop(array $options = [])
@@ -282,6 +291,7 @@ class Collection
 
     /**
      * @param array $options
+     *
      * @return array
      */
     public function dropIndexes(array $options = [])
@@ -297,7 +307,8 @@ class Collection
 
     /**
      * @param string $indexName
-     * @param array $options
+     * @param array  $options
+     *
      * @return array
      */
     public function dropIndex($indexName, array $options = [])
@@ -321,6 +332,7 @@ class Collection
     /**
      * @param array $filter
      * @param array $options
+     *
      * @return QueryCursor
      */
     public function find(array $filter = [], array $options = [])
@@ -354,6 +366,7 @@ class Collection
     /**
      * @param array $filter
      * @param array $options
+     *
      * @return array|Unserializable|null
      */
     public function findOne(array $filter = [], array $options = [])
@@ -366,6 +379,7 @@ class Collection
     /**
      * @param array $filter
      * @param array $options
+     *
      * @return array|Unserializable|null
      */
     public function findOneAndDelete(array $filter, array $options = [])
@@ -376,9 +390,10 @@ class Collection
     }
 
     /**
-     * @param array $filter
+     * @param array        $filter
      * @param array|object $replacement
-     * @param array $options
+     * @param array        $options
+     *
      * @return array|Unserializable|null
      */
     public function findOneAndReplace(array $filter, $replacement, array $options = [])
@@ -409,6 +424,7 @@ class Collection
      * @param array $filter
      * @param $update
      * @param array $options
+     *
      * @return array|Unserializable|null
      */
     public function findOneAndUpdate(array $filter, array $update, array $options = [])
@@ -441,12 +457,13 @@ class Collection
      */
     public function getNamespace()
     {
-        return $this->databaseName . '.' . $this->collectionName;
+        return $this->databaseName.'.'.$this->collectionName;
     }
 
     /**
      * @param array|\Traversable $documents
-     * @param array $options
+     * @param array              $options
+     *
      * @return InsertManyResult
      */
     public function insertMany($documents, array $options = [])
@@ -459,7 +476,8 @@ class Collection
 
     /**
      * @param array|object $document
-     * @param array $options
+     * @param array        $options
+     *
      * @return InsertOneResult
      */
     public function insertOne($document, array $options = [])
@@ -489,7 +507,8 @@ class Collection
     /**
      * @param array|object $filter
      * @param array|object $replacement
-     * @param array $options
+     * @param array        $options
+     *
      * @return UpdateResult
      */
     public function replaceOne(array $filter, $replacement, array $options = [])
@@ -503,9 +522,10 @@ class Collection
     }
 
     /**
-     * @param array $filter
+     * @param array        $filter
      * @param array|object $update
-     * @param array $options
+     * @param array        $options
+     *
      * @return UpdateResult
      */
     public function updateMany(array $filter, $update, array $options = [])
@@ -519,9 +539,10 @@ class Collection
     }
 
     /**
-     * @param array $filter
+     * @param array        $filter
      * @param array|object $update
-     * @param array $options
+     * @param array        $options
+     *
      * @return UpdateResult
      */
     public function updateOne(array $filter, $update, array $options = [])
@@ -536,6 +557,7 @@ class Collection
 
     /**
      * @param array $options
+     *
      * @return array
      */
     private static function extractBulkWriteOptions(array $options)
@@ -550,6 +572,7 @@ class Collection
     /**
      * @param array $filter
      * @param array $options
+     *
      * @return array|Unserializable|object|null
      */
     private function findAndModify(array $filter, array $options)
