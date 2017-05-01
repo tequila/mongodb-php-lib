@@ -5,14 +5,19 @@ namespace Tequila\MongoDB\OptionsResolver\BulkWrite;
 use Tequila\MongoDB\OptionsResolver\Configurator\CollationConfigurator;
 use Tequila\MongoDB\OptionsResolver\OptionsResolver;
 
-class DeleteResolver extends OptionsResolver
+class UpdateOptionsResolver extends OptionsResolver
 {
     protected function configureOptions()
     {
         CollationConfigurator::configure($this);
 
+        $this->setDefined([
+            'upsert',
+            'multi',
+        ]);
+
         $this
-            ->setDefined('limit')
-            ->setAllowedValues('limit', [0, 1]);
+            ->setAllowedTypes('upsert', 'bool')
+            ->setAllowedTypes('multi', 'bool');
     }
 }

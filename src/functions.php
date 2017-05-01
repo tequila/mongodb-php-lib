@@ -25,16 +25,28 @@ function ensureValidDocument($document)
     }
 
     $arrayDocument = (array) $document;
+    $firstFieldName = key($arrayDocument);
+    if (!preg_match('/^[^$][^\.]*$/', $firstFieldName)) {
+        throw new InvalidArgumentException(
+            sprintf(
+                'Invalid field name "%s": field names cannot start with a dollar sign ("$") and cannot contain dots.',
+                $firstFieldName
+            )
+        );
+    }
+}
 
-    foreach ($arrayDocument as $fieldName => $value) {
-        if (!preg_match('/^[^$][^\.]*$/', $fieldName)) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    'Invalid field name "%s": field names cannot start with a dollar sign ("$") and cannot contain dots.',
-                    $fieldName
-                )
-            );
-        }
+function ensureValidUpdate(array $update)
+{
+    $firstOperator = key($update);
+
+    if ('$' !== substr($firstOperator, 0, 1)) {
+        throw new InvalidArgumentException(
+            sprintf(
+                'Invalid $update document: first key "%s" is not an update operator.',
+                $firstOperator
+            )
+        );
     }
 }
 

@@ -3,7 +3,7 @@
 namespace Tequila\MongoDB\Write\Model;
 
 use Tequila\MongoDB\BulkWrite;
-use Tequila\MongoDB\OptionsResolver\BulkWrite\UpdateResolver;
+use Tequila\MongoDB\OptionsResolver\BulkWrite\UpdateOptionsResolver;
 use Tequila\MongoDB\WriteModelInterface;
 
 class Update implements WriteModelInterface
@@ -32,7 +32,7 @@ class Update implements WriteModelInterface
     {
         $this->filter = $filter;
         $this->update = $update;
-        $this->options = UpdateResolver::resolveStatic($options);
+        $this->options = UpdateOptionsResolver::resolveStatic($options);
     }
 
     /**

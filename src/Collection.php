@@ -7,7 +7,6 @@ use MongoDB\Driver\Exception\RuntimeException as MongoDBRuntimeException;
 use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
 use MongoDB\Driver\WriteConcern;
-use Tequila\MongoDB\OptionsResolver\BulkWrite\UpdateDocumentResolver;
 use Tequila\MongoDB\OptionsResolver\CollectionOptionsResolver;
 use Tequila\MongoDB\OptionsResolver\Command\FindOneAndDeleteResolver;
 use Tequila\MongoDB\OptionsResolver\Command\FindOneAndUpdateResolver;
@@ -429,7 +428,7 @@ class Collection
      */
     public function findOneAndUpdate(array $filter, array $update, array $options = [])
     {
-        UpdateDocumentResolver::resolveStatic($update);
+        \Tequila\MongoDB\ensureValidUpdate($update);
 
         $options = ['update' => (object) $update] + FindOneAndUpdateResolver::resolveStatic($options);
 

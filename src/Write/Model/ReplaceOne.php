@@ -3,14 +3,9 @@
 namespace Tequila\MongoDB\Write\Model;
 
 use Tequila\MongoDB\Exception\InvalidArgumentException;
-use Tequila\MongoDB\Write\Model\Traits\BulkUpdateTrait;
-use function Tequila\MongoDB\ensureValidDocument;
-use Tequila\MongoDB\WriteModelInterface;
 
-class ReplaceOne implements WriteModelInterface
+class ReplaceOne extends Update
 {
-    use BulkUpdateTrait;
-
     /**
      * @param $filter
      * @param array|object $replacement
@@ -28,7 +23,7 @@ class ReplaceOne implements WriteModelInterface
         }
 
         try {
-            ensureValidDocument($replacement);
+            \Tequila\MongoDB\ensureValidDocument($replacement);
         } catch (InvalidArgumentException $e) {
             throw new InvalidArgumentException(
                 sprintf('Invalid $replacement document: %s', $e->getMessage())
@@ -36,6 +31,7 @@ class ReplaceOne implements WriteModelInterface
         }
 
         $options = ['multi' => false] + $options;
-        $this->update = new Update($filter, $replacement, $options);
+
+        parent::__construct($filter, $replacement, $options);
     }
 }

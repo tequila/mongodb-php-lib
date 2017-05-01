@@ -3,7 +3,7 @@
 namespace Tequila\MongoDB\Write\Model;
 
 use Tequila\MongoDB\BulkWrite;
-use Tequila\MongoDB\OptionsResolver\BulkWrite\DeleteResolver;
+use Tequila\MongoDB\OptionsResolver\BulkWrite\DeleteOptionsResolver;
 use Tequila\MongoDB\WriteModelInterface;
 
 class Delete implements WriteModelInterface
@@ -25,7 +25,7 @@ class Delete implements WriteModelInterface
     public function __construct(array $filter, array $options = [])
     {
         $this->filter = $filter;
-        $this->options = DeleteResolver::resolveStatic($options);
+        $this->options = DeleteOptionsResolver::resolveStatic($options);
     }
 
     /**

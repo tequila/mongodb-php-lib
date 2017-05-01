@@ -2,13 +2,8 @@
 
 namespace Tequila\MongoDB\Write\Model;
 
-use Tequila\MongoDB\Write\Model\Traits\BulkDeleteTrait;
-use Tequila\MongoDB\WriteModelInterface;
-
-class DeleteOne implements WriteModelInterface
+class DeleteOne extends Delete
 {
-    use BulkDeleteTrait;
-
     /**
      * @param array $filter
      * @param array $options
@@ -16,6 +11,6 @@ class DeleteOne implements WriteModelInterface
     public function __construct(array $filter, array $options = [])
     {
         $options = ['limit' => 1] + $options;
-        $this->delete = new Delete($filter, $options);
+        parent::__construct($filter, $options);
     }
 }
